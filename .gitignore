@@ -1,0 +1,19 @@
+# DevFlow Plugin - Git Ignore
+
+# Release archives
+*.zip
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Logs
+*.log
+
+# Temp
+tmp/
+temp/
