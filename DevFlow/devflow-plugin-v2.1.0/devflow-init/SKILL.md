@@ -57,7 +57,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "devflowVersion": "2.1.0",
+  "devflowVersion": "2.3.0",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "",

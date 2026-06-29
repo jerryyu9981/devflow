@@ -1,6 +1,6 @@
 # DevFlow Plugin — 软件开发工程规范
 
-> 版本：v2.1.0 | 支持 TRAE / Claude Code / Cursor / Codex CLI
+> 版本：v2.3.0 | 支持 TRAE / Claude Code / Cursor / Codex CLI
 
 DevFlow 是一个可插拔的软件开发工程规范框架，提供从版本规划到部署运维的完整 6 阶段管控能力。
 
@@ -18,7 +18,7 @@ DevFlow 是一个可插拔的软件开发工程规范框架，提供从版本规
 git clone <your-repo-url> .devflow/
 
 # 方式二：直接下载 release
-curl -L <your-repo-url>/releases/download/v2.1.0/devflow-v2.1.0.zip -o devflow.zip
+curl -L <your-repo-url>/releases/download/v2.3.0/devflow-v2.3.0.zip -o devflow.zip
 unzip devflow.zip -d .devflow/
 ```
 
