@@ -79,47 +79,27 @@ if (-not $SkipConfig) {
         }
         backup = @{
             type = "git-mirror"
-            environments = @{
-                dev = @{ backup = "" }
-                test = @{ backup = "" }
-                pro = @{ backup = ""; disaster = "" }
-            }
             schedule = @{
-                type = "post-push"
-                weeklyArchive = "sunday-02:00"
-                retentionDays = 90
+                bundle = "weekly"
+                bundleRetention = 4
+                dbDump = "daily"
+                dbRetention = 90
             }
         }
     }
 
     # Interactive prompts
     Write-Host ""
-    Write-Host "NOTE: DevFlow recommends using SSH Key + Deploy Key for backup authentication." -ForegroundColor DarkCyan
-    Write-Host "      HTTP Basic Auth with credentials in URL is discouraged for security." -ForegroundColor DarkCyan
+    Write-Host "NOTE: If your remote repository requires authentication (e.g., GitLab with HTTP Basic Auth)," -ForegroundColor DarkCyan
+    Write-Host "      you can include credentials in the URL: http://username:password@host/path/repo.git" -ForegroundColor DarkCyan
+    Write-Host "      Or leave it empty and configure Git Credential Manager when you first push/pull." -ForegroundColor DarkCyan
     Write-Host ""
 
     $originUrl = Read-Host "Enter your Git origin remote URL (press Enter to skip)"
-    if ($originUrl) {
-        $config.remote.origin = $originUrl
+    if ($originUrl) { $config.remote.origin = $originUrl }
 
-        # Auto-infer backup URL based on origin
-        $backupUrlSuggestion = $originUrl -replace '\.git$', '-backup.git'
-        $useSuggestion = Read-Host "Suggested backup URL: $backupUrlSuggestion. Use it? (Y/n)"
-        if ($useSuggestion -ne 'n') {
-            $config.remote.backup = $backupUrlSuggestion
-            # Auto-generate environment-specific backup URLs
-            $config.backup.environments.dev.backup = $backupUrlSuggestion -replace '-backup\.git$', '-dev-backup.git'
-            $config.backup.environments.test.backup = $backupUrlSuggestion -replace '-backup\.git$', '-test-backup.git'
-            $config.backup.environments.pro.backup = $backupUrlSuggestion -replace '-backup\.git$', '-pro-backup.git'
-            $config.backup.environments.pro.disaster = $backupUrlSuggestion -replace '-backup\.git$', '-disaster-backup.git'
-        } else {
-            $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-            if ($backupUrl) { $config.remote.backup = $backupUrl }
-        }
-    } else {
-        $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-        if ($backupUrl) { $config.remote.backup = $backupUrl }
-    }
+    $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
+    if ($backupUrl) { $config.remote.backup = $backupUrl }
 
     $configPath = Join-Path $DevFlowDir "config.json"
     $config | ConvertTo-Json -Depth 4 | Set-Content $configPath -Encoding UTF8
@@ -209,47 +189,19 @@ if ($HostType -eq "TRAE") {
 # 7. Install Git Hook (optional)
 if ($InstallHook -and (Test-Path ".git")) {
     Write-Header "Installing Git Post-Push Hook"
-
-    # Create log directory
-    $logDir = ".devflow\logs"
-    if (-not (Test-Path $logDir)) {
-        New-Item -ItemType Directory -Force -Path $logDir | Out-Null
-    }
-
-    # Create backup history CSV header
-    $historyFile = Join-Path $logDir "backup-history.csv"
-    if (-not (Test-Path $historyFile)) {
-        "时间,备份类型,状态,Commit SHA" | Set-Content $historyFile -Encoding UTF8
-    }
-
     $hookDir = ".git\hooks"
     $hookPath = Join-Path $hookDir "post-push"
     $hookContent = @'
 #!/bin/bash
-# DevFlow 自动备份 Hook
-REMOTE_NAME="${1:-backup}"
-LOG_DIR=".devflow/logs"
-mkdir -p "$LOG_DIR"
-
-if git remote | grep -q "$REMOTE_NAME"; then
-    echo "[DevFlow Backup] $(date '+%Y-%m-%d %H:%M:%S') 开始备份到 $REMOTE_NAME ..."
-    git push --mirror "$REMOTE_NAME" 2>&1
-    git push --tags "$REMOTE_NAME" 2>&1
-
-    if [ $? -eq 0 ]; then
-        echo "[DevFlow Backup] 备份完成"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,成功,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-history.csv"
-    else
-        echo "[DevFlow Backup] 备份失败"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,失败,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-error.csv"
-    fi
-else
-    echo "[DevFlow Backup] 未找到远程仓库 '$REMOTE_NAME'，跳过备份"
+# DevFlow auto-backup hook
+if git remote | grep -q backup; then
+    echo "[DevFlow] Pushing mirror to backup remote..."
+    git push --mirror backup
+    git push --tags backup
 fi
 '@
     Set-Content $hookPath $hookContent -Encoding UTF8
     Write-Success "Installed: $hookPath"
-    Write-Success "Created: $logDir"
 }
 
 # 8. Summary

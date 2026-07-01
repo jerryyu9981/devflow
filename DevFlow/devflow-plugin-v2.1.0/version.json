@@ -1,7 +1,7 @@
 {
   "name": "DevFlow",
   "description": "DevFlow - Software Development Engineering Plugin. 6-phase control, 22 core skills, 19 document templates, full traceability.",
-  "version": "2.3.0",
+  "version": "2.3.1",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",

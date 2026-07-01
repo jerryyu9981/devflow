@@ -63,36 +63,13 @@ mkdir -p .devflow
 # 3. Generate config.json
 if [ "$SKIP_CONFIG" != "true" ]; then
     echo ""
-    echo "NOTE: DevFlow recommends using SSH Key + Deploy Key for backup authentication."
-    echo "      HTTP Basic Auth with credentials in URL is discouraged for security."
+    echo "NOTE: If your remote repository requires authentication (e.g., GitLab with HTTP Basic Auth),"
+    echo "      you can include credentials in the URL: http://username:password@host/path/repo.git"
+    echo "      Or leave it empty and configure Git Credential Manager when you first push/pull."
     echo ""
 
     read -p "Enter your Git origin remote URL (press Enter to skip): " ORIGIN_URL
-
-    BACKUP_URL=""
-    if [ -n "$ORIGIN_URL" ]; then
-        BACKUP_SUGGESTION=$(echo "$ORIGIN_URL" | sed 's/\.git$/-backup.git/')
-        read -p "Suggested backup URL: $BACKUP_SUGGESTION. Use it? (Y/n): " USE_SUGGESTION
-        if [ "$USE_SUGGESTION" != "n" ] && [ "$USE_SUGGESTION" != "N" ]; then
-            BACKUP_URL="$BACKUP_SUGGESTION"
-            DEV_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-dev-backup.git/')
-            TEST_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-test-backup.git/')
-            PRO_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-pro-backup.git/')
-            DISASTER_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-disaster-backup.git/')
-        else
-            read -p "Enter your Git backup remote URL (press Enter to skip): " BACKUP_URL
-            DEV_BACKUP=""
-            TEST_BACKUP=""
-            PRO_BACKUP=""
-            DISASTER_BACKUP=""
-        fi
-    else
-        read -p "Enter your Git backup remote URL (press Enter to skip): " BACKUP_URL
-        DEV_BACKUP=""
-        TEST_BACKUP=""
-        PRO_BACKUP=""
-        DISASTER_BACKUP=""
-    fi
+    read -p "Enter your Git backup remote URL (press Enter to skip): " BACKUP_URL
 
     cat > .devflow/config.json <<EOF
 {
@@ -105,15 +82,11 @@ if [ "$SKIP_CONFIG" != "true" ]; then
   },
   "backup": {
     "type": "git-mirror",
-    "environments": {
-      "dev": { "backup": "$DEV_BACKUP" },
-      "test": { "backup": "$TEST_BACKUP" },
-      "pro": { "backup": "$PRO_BACKUP", "disaster": "$DISASTER_BACKUP" }
-    },
     "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
+      "bundle": "weekly",
+      "bundleRetention": 4,
+      "dbDump": "daily",
+      "dbRetention": 90
     }
   }
 }
@@ -137,41 +110,15 @@ ok "Created: .devflow/state.json"
 # 5. Install Git Hook
 if [ "$INSTALL_HOOK" = "true" ] && [ -d ".git" ]; then
     header "Installing Git Post-Push Hook"
-
-    # Create log directory
-    mkdir -p .devflow/logs
-
-    # Create backup history CSV header
-    if [ ! -f ".devflow/logs/backup-history.csv" ]; then
-        echo "时间,备份类型,状态,Commit SHA" > .devflow/logs/backup-history.csv
-    fi
-
     cat > .git/hooks/post-push <<'HOOKEOF'
 #!/bin/bash
-# DevFlow 自动备份 Hook
-REMOTE_NAME="${1:-backup}"
-LOG_DIR=".devflow/logs"
-mkdir -p "$LOG_DIR"
-
-if git remote | grep -q "$REMOTE_NAME"; then
-    echo "[DevFlow Backup] $(date '+%Y-%m-%d %H:%M:%S') 开始备份到 $REMOTE_NAME ..."
-    git push --mirror "$REMOTE_NAME" 2>&1
-    git push --tags "$REMOTE_NAME" 2>&1
-
-    if [ $? -eq 0 ]; then
-        echo "[DevFlow Backup] 备份完成"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,成功,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-history.csv"
-    else
-        echo "[DevFlow Backup] 备份失败"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,失败,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-error.csv"
-    fi
-else
-    echo "[DevFlow Backup] 未找到远程仓库 '$REMOTE_NAME'，跳过备份"
+if git remote | grep -q backup; then
+    echo "[DevFlow] Pushing mirror to backup remote..."
+    git push --mirror backup
+    git push --tags backup
 fi
 HOOKEOF
-    chmod +x .git/hooks/post-push
     ok "Installed: .git/hooks/post-push"
-    ok "Created: .devflow/logs"
 fi
 
 # 6. Install skills to TRAE (if TRAE detected)

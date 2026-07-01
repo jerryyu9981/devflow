@@ -57,7 +57,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "devflowVersion": "2.3.1",
+  "devflowVersion": "2.3.0",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "",
@@ -65,15 +65,11 @@ else:
   },
   "backup": {
     "type": "git-mirror",
-    "environments": {
-      "dev": { "backup": "" },
-      "test": { "backup": "" },
-      "pro": { "backup": "", "disaster": "" }
-    },
     "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
+      "bundle": "weekly",
+      "bundleRetention": 4,
+      "dbDump": "daily",
+      "dbRetention": 90
     }
   }
 }
@@ -111,27 +107,9 @@ else:
 
 ```bash
 #!/bin/bash
-# DevFlow 自动备份 Hook
-# 安装方式：cp .devflow/hooks/post-push .git/hooks/post-push && chmod +x .git/hooks/post-push
-
-REMOTE_NAME="${1:-backup}"
-LOG_DIR=".devflow/logs"
-mkdir -p "$LOG_DIR"
-
-if git remote | grep -q "$REMOTE_NAME"; then
-    echo "[DevFlow Backup] $(date '+%Y-%m-%d %H:%M:%S') 开始备份到 $REMOTE_NAME ..."
-    git push --mirror "$REMOTE_NAME" 2>&1
-    git push --tags "$REMOTE_NAME" 2>&1
-
-    if [ $? -eq 0 ]; then
-        echo "[DevFlow Backup] 备份完成"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,成功,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-history.csv"
-    else
-        echo "[DevFlow Backup] 备份失败"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,失败,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-error.csv"
-    fi
-else
-    echo "[DevFlow Backup] 未找到远程仓库 '$REMOTE_NAME'，跳过备份"
+# DevFlow auto-backup hook
+if git remote | grep -q backup; then
+    git push --mirror backup 2>/dev/null
 fi
 ```
 

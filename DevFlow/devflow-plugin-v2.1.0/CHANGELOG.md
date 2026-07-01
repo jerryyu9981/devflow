@@ -1,5 +1,20 @@
 # DevFlow Changelog
 
+## v2.3.1
+
+### Added
+- 完整回滚设计体系：code-version-backup-management 第六章扩展为 10 小节（策略/触发/审批/路径/数据/验证/CI Job/审计/门禁/清单）
+- CI/CD 回滚自动化：cicd-pipeline-management 新增"回滚自动化"独立章节（触发条件/rollback.yml/金丝雀自动回滚/路径表）
+- 设计总览首页规范：prototype-coverage 新增 Step 1.5，design-stage-execution 矩阵和输出要求增强
+- 多环境备份配置：config.json 新增 `backup.environments`（dev/test/pro/disaster）
+- 自动推断备份 URL：setup.ps1/sh 安装时基于 origin URL 自动生成建议 backup URL
+- 增强 Hook 脚本：post-push 增加日志记录、错误处理、备份验证
+
+### Changed
+- operations-stage-execution 部署矩阵/强制规则/L3速查增强回滚相关内容
+- devflow-project-config/devflow-init config.json 模板同步增强
+- 版本号：v2.3.0 → v2.3.1（所有硬编码位置同步更新）
+
 ## v2.3.0
 
 ### Added

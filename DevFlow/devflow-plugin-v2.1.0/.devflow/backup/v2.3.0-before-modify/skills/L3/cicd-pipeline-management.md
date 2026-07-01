@@ -175,114 +175,6 @@ main（生产分支）
 3. 逐步扩大至 50% → 100%
 4. 若指标异常，自动回滚
 
-## 回滚自动化
-
-### 自动回滚触发条件
-
-当以下任一指标在生产环境发布后 15 分钟内触发，系统自动发起回滚：
-
-| 触发指标 | 阈值 | 检测窗口 | 自动动作 |
-|---------|------|---------|---------|
-| 健康检查失败 | `/health` 或 `/ready` 非 200 | 连续 3 次，间隔 10s | **自动回滚** |
-| 错误率飙升 | 5xx 错误率 > 1% | 5 分钟滑动窗口 | **自动回滚** |
-| P99 延迟超基线 | P99 > 基线 +50% | 5 分钟滑动窗口 | **告警 + 人工确认** |
-| 核心功能冒烟失败 | 关键 API / 主流程失败 | 发布后 10 分钟内 | **自动回滚** |
-
-> **约束**：自动回滚仅适用于蓝绿部署和金丝雀发布场景。
-
-### 手动回滚触发
-
-| 场景 | 触发方式 |
-|------|---------|
-| 发布后发现 P0 缺陷 | workflow_dispatch 触发 rollback job |
-| 业务数据异常 | 数据回滚流程 |
-| 安全漏洞紧急修复回退 | emergency-rollback |
-
-### GitHub Actions 回滚 Job
-
-```yaml
-# .github/workflows/rollback.yml
-name: Emergency Rollback
-on:
-  workflow_dispatch:
-    inputs:
-      target_version:
-        description: '回滚目标版本 (tag)'
-        required: true
-      reason:
-        description: '回滚原因'
-        required: true
-      environment:
-        description: '目标环境'
-        required: true
-        default: 'pro'
-        type: choice
-        options: [dev, test, pro]
-
-jobs:
-  rollback:
-    runs-on: ubuntu-latest
-    environment: ${{ github.event.inputs.environment }}
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.inputs.target_version }}
-          fetch-depth: 0
-
-      - name: Record rollback event
-        run: |
-          echo "ROLLBACK: $(date)" >> rollback-history.log
-          echo "From: $(git describe --tags --abbrev=0)" >> rollback-history.log
-          echo "To: ${{ github.event.inputs.target_version }}" >> rollback-history.log
-          echo "Reason: ${{ github.event.inputs.reason }}" >> rollback-history.log
-          echo "By: ${{ github.actor }}" >> rollback-history.log
-
-      - name: Deploy previous version (Blue-Green)
-        if: github.event.inputs.environment == 'pro'
-        run: ./scripts/switch-traffic.sh ${{ github.event.inputs.target_version }}
-
-      - name: Deploy previous version (Direct)
-        if: github.event.inputs.environment != 'pro'
-        run: ./scripts/deploy.sh ${{ github.event.inputs.target_version }} ${{ github.event.inputs.environment }}
-
-      - name: Health check
-        run: |
-          sleep 30
-          curl -sf ${{ env.HEALTH_URL }} || exit 1
-
-      - name: Smoke test
-        run: ./scripts/smoke-test.sh ${{ github.event.inputs.environment }}
-```
-
-### 金丝雀自动回滚 Job
-
-```yaml
-canary-rollback:
-  if: failure() && github.ref == 'refs/tags/v*'
-  needs: [deploy-canary, smoke-test, monitor-check]
-  runs-on: ubuntu-latest
-  steps:
-    - name: Auto rollback canary
-      run: |
-        echo "金丝雀验证失败，自动回滚..."
-        ./scripts/canary-rollback.sh
-    - name: Verify rollback
-      run: ./scripts/smoke-test.sh pro
-```
-
-### 回滚验证
-
-回滚后必须执行：健康检查、核心 API 冒烟测试、错误率监控、P99 延迟检查、数据库连接验证、关键业务流 E2E 测试。
-
-### 按部署策略的回滚路径
-
-| 部署策略 | 回滚方式 | 耗时 | 停机 |
-|---------|---------|------|------|
-| 直接部署 | 停止→checkout旧版本→重建→重启 | 5-10min | 有 |
-| 蓝绿部署 | 负载均衡器切换流量到 Blue | < 30s | 无 |
-| 金丝雀发布 | 停止金丝雀实例/逐步切回流量 | < 30s | 无 |
-| 滚动更新(K8s) | `kubectl rollout undo` | 2-5min | 无 |
-
 ## 常见平台流水线模板
 
 ### GitHub Actions
@@ -375,9 +267,6 @@ backup-mirror:
 | 门禁阻断 | 覆盖率不足、安全漏洞 | 查看质量报告 | 补充测试或修复漏洞 |
 | 验证失败 | 服务未就绪、依赖异常 | 查看健康检查日志 | 检查服务状态、重试部署 |
 | 超时 | 资源不足、构建文件过大 | 查看 Runner 日志 | 优化构建、增加 Runner 资源 |
-| 回滚失败 | 目标版本不存在/脚本错误/权限不足 | 检查 tag 存在性/脚本日志/权限 | 确认版本 tag / 修复脚本 / 授权 |
-| 自动回滚未触发 | 监控阈值配置错误/告警未接入 | 检查监控规则/告警通道 | 校准阈值/修复告警通道 |
-| 回滚后验证失败 | 数据不一致/依赖服务未恢复 | 检查数据状态/依赖服务健康 | 执行数据回滚/重启依赖服务 |
 
 ## 运维记录输出
 
