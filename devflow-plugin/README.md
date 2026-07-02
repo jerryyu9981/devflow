@@ -1,6 +1,6 @@
 # DevFlow Plugin — 软件开发工程规范
 
-> 版本：v2.1.0 | 支持 TRAE / Claude Code / Cursor / Codex CLI
+> 版本：v2.3.2 | 支持 TRAE / Claude Code / Cursor / Codex CLI
 
 DevFlow 是一个可插拔的软件开发工程规范框架，提供从版本规划到部署运维的完整 6 阶段管控能力。
 
@@ -13,8 +13,14 @@ DevFlow 是一个可插拔的软件开发工程规范框架，提供从版本规
 git clone <your-repo-url> .devflow/
 
 # 方式二：直接下载 release
-curl -L <your-repo-url>/releases/download/v2.1.0/devflow-v2.1.0.zip -o devflow.zip
+curl -L <your-repo-url>/releases/download/v2.3.2/devflow-v2.3.2.zip -o devflow.zip
 unzip devflow.zip -d .devflow/
+```
+
+```powershell
+# 方式三：使用安装向导（推荐，Windows）
+# 双击 install.bat 或在 PowerShell 中运行：
+.\install.ps1
 ```
 
 ### 初始化
@@ -56,9 +62,9 @@ DevFlow
 ├── skills/
 │   ├── L1/                ← 总控调度（3 技能）
 │   ├── L2/                ← 阶段执行（6 技能）
-│   └── L3/                ← 专项参考（6 技能）
+│   └── L3/                ← 专项参考（7 技能）
 │
-├── templates/             ← 18 个文档模板
+├── templates/             ← 19 个文档模板
 └── docs/                  ← 规范文档
 ```
 
@@ -82,7 +88,15 @@ Step 5 部署运维 ← Step 4 测试验证 ← Step 3 编码开发
 | **TDD 铁律** | feat/fix 提交必须包含测试，测试先于生产代码 |
 | **可配置分支策略** | Trunk-Based / GitHub Flow / Git Flow 三选一 |
 | **Git 原生备份** | `git push --mirror` 替代文件级拷贝 |
-| **18 个文档模板** | 覆盖所有阶段的输出文档结构 |
+| **19 个文档模板** | 覆盖所有阶段的输出文档结构 |
+
+## 版本号管理
+
+DevFlow 遵循"版本号单一来源"原则：
+- 唯一来源：插件根目录的 `version.json`
+- `setup.ps1` / `install.ps1` 从 `version.json` 读取版本号写入项目配置
+- 所有 SKILL.md 模板使用动态占位符，不硬编码具体版本号
+- 发布新版本时更新 `version.json` + `CHANGELOG.md`，并运行 grep 检查硬编码残留
 
 ## 更新
 

@@ -8,7 +8,10 @@
 
 | 版本 | 日期 | 修订人 | 修订内容 |
 |------|------|--------|---------|
-| v2.1 | 2026-06-26 | DevFlow 维护团队 | 统一命名 DevFlow；架构模板重构（单体/微服务/Agent/混合）；整合Superpowers+Gstack 5项能力（TDD铁律/完成前强制验证/文件范围保护/系统化调试/跨模型审查）；设计开发追溯矩阵归属修正；code-version-backup-management 重构（中文化/路径去硬编码/3种分支策略可配置/Git原生备份/TDD对齐/CI/CD集成）；cicd-pipeline-management 增加 backup-mirror job（GitHub Actions/GitLab CI）；Core Web Vitals FID→INP 更新；6 项 code-version-backup-management 内联修复（P0-P3）；L3 行数/字节数统计校准；5 个 L3 技能增加反向声明；version-planning-stage-execution 补充强制规则；6 个 L2 技能引用 project-role-management |
+| v2.3.2 | 2026-07-02 | DevFlow 维护团队 | 版本号单一来源规范；install.bat/install.ps1 安装向导；UTF-8编码修复；新增 code-version-backup-management 至 L3（6→7 技能）；setup.ps1 技能列表补齐 |
+| v2.3.1 | 2026-07-01 | DevFlow 维护团队 | **完整回滚设计体系**（code-version-backup-management 回滚流程从2节扩展为10节：回滚策略分类/触发条件/审批流程/多部署策略回滚路径/数据回滚/CI/CD自动回滚Job/审计记录/执行检查清单）；cicd-pipeline-management 新增回滚自动化章节（+111行）；operations-stage-execution 部署矩阵/强制规则/L3速查增强；design-stage-execution UI/UX矩阵和输出增强；devflow-project-config/devflow-init config.json 增加 backup.environments 多环境备份配置；setup.ps1/setup.sh 自动推断备份URL + 增强Hook；prototype-coverage 新增 Step 1.5 设计总览首页；创建 v2.3.0 修改前完整备份 |
+| v2.3.0 | 2026-06-29 | DevFlow 维护团队 | 新增 prototype-coverage（前端原型覆盖率7步流程）、backend-coverage（后端设计覆盖率5步流程）、api-contract-management（API契约对齐检查）3个技能（15→22）；更新 design/coding/testing stage 技能交叉引用；更新 setup/update 脚本支持22个技能；归档旧版前端后端工程规范 v1.3.0 |
+| v2.1.0 | 2026-06-26 | DevFlow 维护团队 | 插件化架构建立：orchestrator 层（devflow-init / devflow-phase-manager / devflow-project-config）；三层技能分层（L1总控调度/L2阶段执行/L3专项参考）共15个技能+3个编排器+18个文档模板；编译层模式：L2内联L3核心规则速查表，运行时深度控制在2层；setup.ps1/setup.sh 安装脚本（支持TRAE/Claude Code/Cursor/Codex CLI）；update.ps1/update.sh 更新脚本；Git post-push hook 自动备份；可配置分支策略（trunk-based/github-flow/git-flow）；统一命名 DevFlow；架构模板重构（单体/微服务/Agent/混合）；整合Superpowers+Gstack 5项能力（TDD铁律/完成前强制验证/文件范围保护/系统化调试/跨模型审查）；设计开发追溯矩阵归属修正；code-version-backup-management 初始版本（中文化/路径去硬编码/3种分支策略可配置/Git原生备份/TDD对齐/CI/CD集成）；cicd-pipeline-management 增加 backup-mirror job（GitHub Actions/GitLab CI）；Core Web Vitals FID→INP 更新 |
 | v2.0 | 2026-06-24 | DevFlow 维护团队 | 全面更新：文档精简108→49（-55.6%）、角色管理去冗余（-41%）、新增设计开发追溯矩阵/需求设计追溯矩阵模板、性能工程补全至★★★★☆、追溯链闭环修复、需求来源扩展为12种、编译层模式优化 |
 | v1.0 | 2026-06-22 | DevFlow 维护团队 | 初始版本：三层技能架构框架、15个核心技能定义、全流程覆盖16个工程领域 |
 
@@ -96,8 +99,8 @@ AI 辅助开发面临三个核心矛盾：
 |:--|:-----|:------:|:-----:|:-----:|:---------|
 | **Layer 1** | 总控调度 | 3 | 1,134 | 98,083B | **运行时预加载** |
 | **Layer 2** | 阶段执行 | 6 | 1,432 | 86,967B | **运行时预加载**（内联 L3 速查）|
-| **Layer 3** | 专项参考 | 6 | 2,232 | 109,870B | **按需加载** |
-| **合计** | — | **15** | **4,798** | **294,920B** | — |
+| **Layer 3** | 专项参考 | 7 | 2,462 | 114,870B | **按需加载** |
+| **合计** | — | **16** | **5,028** | **299,920B** | — |
 
 > 对比 v1.0（2026-06-22）：文档类型 108→49（-55.6%），角色管理 -41%。数据于 v2.1（2026-06-26）重新统计校准。
 
@@ -236,6 +239,7 @@ Layer 3 是软件开发工程化的"知识库"，提供完整的专项知识、�
 | `cicd-pipeline-management` | 275/6,018B | 五阶段流水线 + 8 个质量闸门 + **性能基线管理（v2.0）**+ 部署策略 | **不需要维护** |
 | `observability-standards` | 295/8,642B | 三大支柱 + RED+USE + 14 种关键指标 + 6 个 Dashboard | **不需要维护** |
 | `project-document-templates` | 585/8,677B | **18 个**文档模板（v2.0 新增：需求追溯矩阵/需求设计追溯矩阵/设计开发追溯矩阵）| **需要维护**（模板可扩展）|
+| `code-version-backup-management` | ~230/~5KB | Git 工作流/分支策略/提交约定/版本号管理/备份策略/回滚流程 | **不需要维护** |
 
 > 合计：**1,978 行 / 42,994B** = 按需加载时全部加载的额外上下文
 
