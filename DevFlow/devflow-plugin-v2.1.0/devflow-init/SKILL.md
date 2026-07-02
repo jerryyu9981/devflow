@@ -57,7 +57,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "devflowVersion": "{从 version.json 动态读取}",
+  "devflowVersion": "2.3.1",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "",
@@ -65,32 +65,19 @@ else:
   },
   "backup": {
     "type": "git-mirror",
+    "environments": {
+      "dev": { "backup": "" },
+      "test": { "backup": "" },
+      "pro": { "backup": "", "disaster": "" }
+    },
     "schedule": {
-      "bundle": "weekly",
-      "bundleRetention": 4,
-      "dbDump": "daily",
-      "dbRetention": 90
+      "type": "post-push",
+      "weeklyArchive": "sunday-02:00",
+      "retentionDays": 90
     }
   }
 }
 ```
-
-**版本号单一来源原则（Single Source of Truth）**：
-
-> **严禁**在任何技能文件（包括本文件）中硬编码 DevFlow 版本号。版本号的唯一权威来源是插件根目录下的 `version.json` 文件。
->
-> | 职责 | 行为 |
-> >------|------|
-> > `version.json` | **唯一**存放版本号的文件，格式为 `{"version": "x.y.z"}` |
-> > `setup.ps1` / `install.ps1` | 从 `version.json` 读取版本号后写入 `config.json` 的 `devflowVersion` 字段 |
-> > `devflow-init` 技能 | 从项目 `.devflow/config.json` 读取版本号用于显示，**不硬编码** |
-> > `update.ps1` | 从目标版本的 `version.json` 读取新版本号，更新 `config.json` |
-> > 所有 SKILL.md | 模板中使用 `{从 version.json 动态读取}` 占位，**不得出现具体版本号** |
->
-> **发布新版本时的检查清单**：
-> 1. 更新 `version.json` 中的版本号
-> 2. 更新 `CHANGELOG.md`
-> 3. 全局搜索所有 SKILL.md 确认无硬编码版本号残留：`grep -rn "2\.[0-9]\+\.[0-9]\+" skills/ devflow-init/ devflow-phase-manager/ devflow-project-config/`
 
 **项目名检测顺序**：
 1. 如果项目有 `package.json`，读取 `name` 字段
@@ -124,9 +111,27 @@ else:
 
 ```bash
 #!/bin/bash
-# DevFlow auto-backup hook
-if git remote | grep -q backup; then
-    git push --mirror backup 2>/dev/null
+# DevFlow 自动备份 Hook
+# 安装方式：cp .devflow/hooks/post-push .git/hooks/post-push && chmod +x .git/hooks/post-push
+
+REMOTE_NAME="${1:-backup}"
+LOG_DIR=".devflow/logs"
+mkdir -p "$LOG_DIR"
+
+if git remote | grep -q "$REMOTE_NAME"; then
+    echo "[DevFlow Backup] $(date '+%Y-%m-%d %H:%M:%S') 开始备份到 $REMOTE_NAME ..."
+    git push --mirror "$REMOTE_NAME" 2>&1
+    git push --tags "$REMOTE_NAME" 2>&1
+
+    if [ $? -eq 0 ]; then
+        echo "[DevFlow Backup] 备份完成"
+        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,成功,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-history.csv"
+    else
+        echo "[DevFlow Backup] 备份失败"
+        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,失败,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-error.csv"
+    fi
+else
+    echo "[DevFlow Backup] 未找到远程仓库 '$REMOTE_NAME'，跳过备份"
 fi
 ```
 

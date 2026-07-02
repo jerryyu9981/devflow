@@ -8,10 +8,10 @@
 
 | 版本 | 日期 | 修订人 | 修订内容 |
 |------|------|--------|---------|
-| v2.3.2 | 2026-07-02 | DevFlow 维护团队 | 版本号单一来源规范；install.bat/install.ps1 安装向导；UTF-8编码修复；新增 code-version-backup-management 至 L3（6→7 技能）；setup.ps1 技能列表补齐 |
-| v2.3.1 | 2026-07-01 | DevFlow 维护团队 | **完整回滚设计体系**（code-version-backup-management 回滚流程从2节扩展为10节：回滚策略分类/触发条件/审批流程/多部署策略回滚路径/数据回滚/CI/CD自动回滚Job/审计记录/执行检查清单）；cicd-pipeline-management 新增回滚自动化章节（+111行）；operations-stage-execution 部署矩阵/强制规则/L3速查增强；design-stage-execution UI/UX矩阵和输出增强；devflow-project-config/devflow-init config.json 增加 backup.environments 多环境备份配置；setup.ps1/setup.sh 自动推断备份URL + 增强Hook；prototype-coverage 新增 Step 1.5 设计总览首页；创建 v2.3.0 修改前完整备份 |
-| v2.3.0 | 2026-06-29 | DevFlow 维护团队 | 新增 prototype-coverage（前端原型覆盖率7步流程）、backend-coverage（后端设计覆盖率5步流程）、api-contract-management（API契约对齐检查）3个技能（15→22）；更新 design/coding/testing stage 技能交叉引用；更新 setup/update 脚本支持22个技能；归档旧版前端后端工程规范 v1.3.0 |
-| v2.1.0 | 2026-06-26 | DevFlow 维护团队 | 插件化架构建立：orchestrator 层（devflow-init / devflow-phase-manager / devflow-project-config）；三层技能分层（L1总控调度/L2阶段执行/L3专项参考）共15个技能+3个编排器+18个文档模板；编译层模式：L2内联L3核心规则速查表，运行时深度控制在2层；setup.ps1/setup.sh 安装脚本（支持TRAE/Claude Code/Cursor/Codex CLI）；update.ps1/update.sh 更新脚本；Git post-push hook 自动备份；可配置分支策略（trunk-based/github-flow/git-flow）；统一命名 DevFlow；架构模板重构（单体/微服务/Agent/混合）；整合Superpowers+Gstack 5项能力（TDD铁律/完成前强制验证/文件范围保护/系统化调试/跨模型审查）；设计开发追溯矩阵归属修正；code-version-backup-management 初始版本（中文化/路径去硬编码/3种分支策略可配置/Git原生备份/TDD对齐/CI/CD集成）；cicd-pipeline-management 增加 backup-mirror job（GitHub Actions/GitLab CI）；Core Web Vitals FID→INP 更新 |
+| v2.3.1 | 2026-07-01 | DevFlow 维护团队 | 完整回滚设计体系落地：code-version-backup-management 第六章扩展为 10 小节；cicd-pipeline-management 新增"回滚自动化"章节；operations-stage-execution 部署矩阵/强制规则增强；设计总览首页规范：prototype-coverage 新增 Step 1.5，design-stage-execution 矩阵增强；多环境备份配置（dev/test/pro/disaster）；setup.ps1/sh 自动推断 backup URL + 增强 Hook；版本号 v2.3.0→v2.3.1 |
+| v2.3 | 2026-06-29 | DevFlow 维护团队 | 新增 L3 技能 `prototype-coverage`（前端原型覆盖检查：七步流程）和 `backend-coverage`（后端设计覆盖检查：五步流程）；`api-contract-management` 增加 API 契约对齐检查环节（前端页面清单↔后端 API 设计交叉验证）；L2 四个阶段技能集成引用；总技能 20→22 |
+| v2.2 | 2026-06-29 | DevFlow 维护团队 | 新增 L3 技能 `api-contract-management`（API 契约管理）：覆盖前后端异构技术栈的 API 一致性全流程管控（FastAPI + Orval + Zod + MSW + Schemathesis + CI 校验）；L2 四个阶段技能集成引用；技能总数 15→20；安装脚本统一"先卸载后安装"两阶段模式；补齐 `code-version-backup-management` 注册；新增 `sync-skills.ps1` 独立同步工具 |
+| v2.1 | 2026-06-26 | DevFlow 维护团队 | 统一命名 DevFlow；架构模板重构（单体/微服务/Agent/混合）；整合Superpowers+Gstack 5项能力（TDD铁律/完成前强制验证/文件范围保护/系统化调试/跨模型审查）；设计开发追溯矩阵归属修正；code-version-backup-management 重构（中文化/路径去硬编码/3种分支策略可配置/Git原生备份/TDD对齐/CI/CD集成）；cicd-pipeline-management 增加 backup-mirror job（GitHub Actions/GitLab CI）；Core Web Vitals FID→INP 更新；6 项 code-version-backup-management 内联修复（P0-P3）；L3 行数/字节数统计校准；5 个 L3 技能增加反向声明；version-planning-stage-execution 补充强制规则；6 个 L2 技能引用 project-role-management |
 | v2.0 | 2026-06-24 | DevFlow 维护团队 | 全面更新：文档精简108→49（-55.6%）、角色管理去冗余（-41%）、新增设计开发追溯矩阵/需求设计追溯矩阵模板、性能工程补全至★★★★☆、追溯链闭环修复、需求来源扩展为12种、编译层模式优化 |
 | v1.0 | 2026-06-22 | DevFlow 维护团队 | 初始版本：三层技能架构框架、15个核心技能定义、全流程覆盖16个工程领域 |
 
@@ -90,6 +90,11 @@ AI 辅助开发面临三个核心矛盾：
 │  │ pipeline     │  │ -standards   │  │ templates    │           │
 │  │ (CI/CD)      │  │ (可观测性)   │  │ (文档模板)   │           │
 │  └──────────────┘  └──────────────┘  └──────────────┘           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐           │
+│  │ api-contract │  │ version-     │  │ code-        │           │
+│  │ -management  │  │ backup-mgmt  │  │ logic-       │           │
+│  │ (API契约)    │  │ (版本备份)   │  │ review       │           │
+│  └──────────────┘  └──────────────┘  └──────────────┘           │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -99,25 +104,26 @@ AI 辅助开发面临三个核心矛盾：
 |:--|:-----|:------:|:-----:|:-----:|:---------|
 | **Layer 1** | 总控调度 | 3 | 1,134 | 98,083B | **运行时预加载** |
 | **Layer 2** | 阶段执行 | 6 | 1,432 | 86,967B | **运行时预加载**（内联 L3 速查）|
-| **Layer 3** | 专项参考 | 7 | 2,462 | 114,870B | **按需加载** |
-| **合计** | — | **16** | **5,028** | **299,920B** | — |
+| **Layer 3** | 专项参考 | 10 | 3,640 | 196,000B | **按需加载** |
+| **合计** | — | **19** (22 含 orchestrator) | **6,206** | **381,050B** | — |
 
-> 对比 v1.0（2026-06-22）：文档类型 108→49（-55.6%），角色管理 -41%。数据于 v2.1（2026-06-26）重新统计校准。
+> 对比 v1.0（2026-06-22）：文档类型 108→49（-55.6%），角色管理 -41%。数据于 v2.3（2026-06-29）更新：新增 `prototype-coverage` + `backend-coverage` 注册，L3 技能数 8→10。
 
 ### 2.2 工程能力覆盖总图
 
 ```
-17 个工程领域，15 个达到 ★★★★★ 完整覆盖
+18 个工程领域，18 个达到 ★★★★★ 完整覆盖
 
 项目管理流程 ★★★★★    版本规划 ★★★★★    需求分析 ★★★★★
 架构设计    ★★★★★    编码开发 ★★★★★    测试       ★★★★★
 文档管理    ★★★★★    命名规范 ★★★★★    部署运维   ★★★★★
 **CI/CD**   ★★★★★    **可观测性** ★★★★★  安全     ★★★★★
 技术债务    ★★★★★    依赖管理 ★★★★★    角色管理   ★★★★★
-**性能**    ★★★★☆    容灾备份 ☆☆☆☆☆
+**性能**    ★★★★☆    **API契约** ★★★★★  容灾备份 ☆☆☆☆☆
+前端设计覆盖 ★★★★★    后端设计覆盖 ★★★★★
 ```
 
-> 性能领域从 v1.0 的 ★★★☆☆ 提升至 ★★★★☆，新增：后端压测通过标准（P50/P99/基线）、数据库性能规则（EXPLAIN/N+1/慢查询）、性能基线管理方法、开发自测含CPU/memory profile
+> API 契约领域 v2.2 新增 ★★★★★ 覆盖：FastAPI OpenAPI 自动生成、Orval 前端代码生成、Zod 运行时校验、MSW Mock 联调、Schemathesis 契约测试、CI 契约变更检测。前端设计覆盖/后端设计覆盖 v2.3 新增 ★★★★★：prototype-coverage 前端原型覆盖检查 + backend-coverage 后端设计覆盖检查
 
 ---
 
@@ -238,10 +244,13 @@ Layer 3 是软件开发工程化的"知识库"，提供完整的专项知识、�
 | `code-logic-review` | 344/7,331B | 11 个审查维度 + 4 种审查结论 + 7 条反模式 | **不需要维护** |
 | `cicd-pipeline-management` | 275/6,018B | 五阶段流水线 + 8 个质量闸门 + **性能基线管理（v2.0）**+ 部署策略 | **不需要维护** |
 | `observability-standards` | 295/8,642B | 三大支柱 + RED+USE + 14 种关键指标 + 6 个 Dashboard | **不需要维护** |
+| `api-contract-management` | 684/16,500B | **（v2.2 新增）** API 契约全流程管控：OpenAPI 设计规范、Orval 代码生成、Zod 运行时校验、MSW Mock、Schemathesis 契约测试、CI 变更检测、7 种常见陷阱 | **不需要维护** |
+| `prototype-coverage` | 270/7,800B | **（v2.3 新增）** 前端原型覆盖检查：页面清单→状态覆盖→原型走查→用例演练→交互标注→测试预映射→覆盖报告 | **不需要维护** |
+| `backend-coverage` | 268/7,600B | **（v2.3 新增）** 后端设计覆盖检查：API契约→数据模型对齐→状态机→安全设计→测试预映射 | **不需要维护** |
 | `project-document-templates` | 585/8,677B | **18 个**文档模板（v2.0 新增：需求追溯矩阵/需求设计追溯矩阵/设计开发追溯矩阵）| **需要维护**（模板可扩展）|
-| `code-version-backup-management` | ~230/~5KB | Git 工作流/分支策略/提交约定/版本号管理/备份策略/回滚流程 | **不需要维护** |
+| `code-version-backup-management` | 200/5,300B | 分支策略可配置 / Git 原生备份 / TDD 对齐 / CI/CD 集成 | **不需要维护** |
 
-> 合计：**1,978 行 / 42,994B** = 按需加载时全部加载的额外上下文
+> 合计：**3,400 行 / 77,628B** = 按需加载时全部加载的额外上下文（v2.3 更新：新增 prototype-coverage + backend-coverage）
 
 ### 5.3 文档模板覆盖（18 个模板）
 
@@ -295,6 +304,7 @@ API -> api-design
 文档 -> doc-management
 角色 -> role-management
 API设计 -> api-design
+API契约 -> api-contract-management
 UI/UX -> ui-ux-pro-max / frontend-design / prototyping
 Figma -> figma / figma-integration
 设计系统 -> design-system
@@ -322,6 +332,7 @@ MCP -> mcp-builder
 版本/提交 -> code-version-backup-management / git-commit
 命名 -> universal-naming-conventions
 API -> api-design
+API契约 -> api-contract-management
 React -> react-skills / react-best-practices / composition-patterns
 前端 -> frontend-design
 Vue -> vue-skills
@@ -348,7 +359,7 @@ E2E -> e2e-test-gen
 Web验证 -> webapp-testing
 探索测试 -> dogfood
 浏览器诊断 -> browser-devtools
-API契约 -> api-design
+API契约 -> api-contract-management
 安全 -> security-best-practices
 可访问性 -> accessibility / web-design-guidelines
 前端性能 -> frontend-performance / react-best-practices
@@ -379,6 +390,7 @@ GitHub -> gh-cli
 Pages -> iga-pages / byted-bp-cdn-pagesdeploy
 Web验证 -> webapp-testing / browser-devtools
 API -> api-design
+API契约 -> api-contract-management
 数据 -> sql-database / mongodb
 缓存消息 -> redis / rabbitmq / kafka
 性能 -> frontend-performance
@@ -604,7 +616,8 @@ L2 回引（5层回环）                   ↑ 仅在需要完整细节时加�
 | 14 | **技术债务** | ★★★★★ | version-planning + coding | 版本规划 15-20% 容量偿还 + 编码记录 + P0-P3 分类 |
 | 15 | **依赖管理** | ★★★★★ | coding-conventions + cicd | 4 项引入检查 + 每次版本审计 + Critical 漏洞阻断 |
 | 16 | **性能** | ★★★★☆ | **frontend-performance + 6 项增强（v2.0）** | **后端压测标准(P50/P99/基线80%) + 数据库性能规则(EXPLAIN/N+1/慢查询) + 性能基线管理 + CPU/memory profile** |
-| 17 | 容灾备份 | ☆☆☆☆☆ | — | P2 级缺口，待补充 |
+| 17 | **API 契约** | ★★★★★ | **api-contract-management（v2.2 新增）** | **OpenAPI 契约设计 + Orval 代码生成 + Zod 运行时校验 + MSW Mock + Schemathesis 契约测试 + CI 变更检测 + 5 种技术栈适配** |
+| 18 | 容灾备份 | ☆☆☆☆☆ | — | P2 级缺口，待补充 |
 
 > **v2.0 性能升级**：从 ★★★☆☆ 升至 ★★★★☆。覆盖需求阶段 SLA/SLO 推荐 → 设计阶段容量规划 → 编码阶段数据库性能规则 + CPU/memory profile → 测试阶段 P50<目标/P99<目标/吞吐≥基线80% → CI/CD 性能基线管理 → 部署阶段 Core Web Vitals + RED 指标
 
@@ -696,7 +709,7 @@ Step 5：部署 — 上线检查报告含性能检查（Core Web Vitals/接口�
 
 ## 11. 维护责任矩阵
 
-### 10.1 ❌ 不需要团队维护（15 个技能中的 13 个）
+### 10.1 ❌ 不需要团队维护（22 个技能中的 19 个）
 
 | 技能 | 原因 | 例外情况 |
 |:-----|:-----|:---------|
@@ -713,13 +726,18 @@ Step 5：部署 — 上线检查报告含性能检查（Core Web Vitals/接口�
 | **code-logic-review** | 11 维审查维度是固定框架 | — |
 | **cicd-pipeline-management** | 五阶段流水线是固定标准 | 平台模板可按需替换；**性能基线管理方法v2.0新增** |
 | **observability-standards** | 三大支柱+告警规则是固定标准 | 技术栈选择可按团队偏好替换 |
+| **api-contract-management** | API 契约方法论和工具链是固定标准 | **v2.2 新增**；技术栈适配矩阵按项目选择 |
+| **code-version-backup-management** | 分支策略和备份流程是固定标准 | **v2.1 重构**；分支策略可配置 |
+| **prototype-coverage** | 前端原型覆盖检查方法论是固定标准 | **v2.3 新增**；七步流程固定 |
+| **backend-coverage** | 后端设计覆盖检查方法论是固定标准 | **v2.3 新增**；五步流程固定 |
 
-### 10.2 ✅ 需要团队维护（15 个技能中的 2 个）
+### 10.2 ✅ 需要团队维护（22 个技能中的 3 个）
 
 | 技能 | 维护内容 | 维护频率 | 维护示例 |
 |:-----|:---------|:--------|:---------|
 | **project-document-management** | 文档类型扩展；权限矩阵调整；文档模板新增 | 按需（新项目/新文档类型加入时） | 新增自定义文档类型到命名表和权限矩阵 |
 | **project-document-templates** | 新增文档模板；补充章节结构 | 按需（新文档类型需要内容模板时） | 已有 18 个模板；新增追溯矩阵模板（v2.0）|
+| **devflow-project-config** | 项目配置（分支策略、备份配置等） | 项目初始化时 | — |
 
 ### 10.3 需要团队关注的内容
 
@@ -840,7 +858,7 @@ v2.0 明确规定了量化的性能通过标准：
 │  ├── L3 CI/CD+可观测性速查                                       │
 │  └── 输出: 发布计划/部署报告/数据运维/回滚/上线检查/运维手册     │
 ├─────────────────────────────────────────────────────────────────┤
-│                     Layer 3 (6 skills) — 按需加载                 │
+│                     Layer 3 (10 skills) — 按需加载                 │
 │                                                                  │
 │  project-coding-conventions (337L)                               │
 │  ├── 后端分层/错误处理/日志/API/注释/数据库/前端/并发/配置       │
@@ -873,5 +891,28 @@ v2.0 明确规定了量化的性能通过标准：
 │  ├── 需求设计追溯矩阵(9列/覆盖率统计/FULL-PARTIAL分类)           │  ←v2
 │  ├── 设计开发追溯矩阵(8列/状态机/7章节/5行示例)                  │  ←v2
 │  └── 文档元信息统一格式(表格/列表双风格)                         │
+│                                                                  │
+│  api-contract-management (684L)  [v2.2新增]                     │
+│  ├── 技术栈适配矩阵: Python/Java/Go/Node + Vue/React            │
+│  ├── Step 2: OpenAPI 契约编写 + 统一响应/错误码 + 环境配置      │
+│  ├── Step 3: Orval 代码生成 + Zod 校验 + React/Vue 示例        │
+│  ├── Step 4: MSW Mock + Schemathesis 契约测试                   │
+│  ├── Step 5: CI 契约变更检测 + Nginx 反向代理                   │
+│  └── 7 种常见陷阱 + 工具链速查表                                │
+│                                                                  │
+│  code-version-backup-management (200L)  [v2.1重构]             │
+│  ├── 3 种分支策略可配置(trunk/github-flow/git-flow)             │
+│  ├── Git 原生备份(mirror/push) + TDD 对齐                       │
+│  └── CI/CD 集成 + 变更请求管理                                   │
+│                                                                  │
+│  prototype-coverage (270L)  [v2.3新增]                         │
+│  ├── 七步流程: 页面清单→状态覆盖→原型走查→用例演练              │
+│  ├── 交互标注→测试预映射→覆盖报告                                │
+│  └── 前端原型完整性检查                                          │
+│                                                                  │
+│  backend-coverage (268L)  [v2.3新增]                            │
+│  ├── 五步流程: API契约覆盖→数据模型对齐→状态机覆盖             │
+│  ├── 安全设计→测试预映射                                          │
+│  └── 后端设计完整性检查                                          │
 └─────────────────────────────────────────────────────────────────┘
 ```

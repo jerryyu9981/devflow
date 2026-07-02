@@ -1,0 +1,196 @@
+---
+name: "operations-stage-execution"
+description: "Guides Step 5 deployment and operations after testing approval. Invoke for release planning, deployment, verification, monitoring, rollback, handoff, and operations audit."
+---
+
+# Operations Stage Execution（Step 5 部署与运维阶段执行规范）
+
+## 定位
+
+本技能用于软件开发流程中的 Step 5：部署与运维阶段。它发生在 Step 4 测试阶段和测试回溯审计通过之后，负责把已验证版本安全、可回滚、可监控、可审计地发布到目标环境，并完成运维移交和闭环审计。
+
+它是 Step 5 的主控技能。它不替代需求、设计、开发或测试；它负责组织发布准备、环境核验、构建制品确认、部署执行、上线验证、监控日志告警、回滚预案、运维移交、发布复盘和运维审计移交。
+
+## 触发条件
+
+当用户提出以下需求时，调用本技能：
+
+- 测试通过后准备部署或上线
+- 制定发布计划、部署文档、回滚预案或运维手册
+- 执行 Dev/Test/Pro 环境部署、容器部署、静态站点发布或平台发布
+- 上线后执行健康检查、冒烟验证、监控、日志、告警、性能、安全检查
+- 处理发布失败、生产故障、回滚、发布复盘或运维移交
+- 判断 Step 5 是否完整、是否完成全流程闭环
+
+## 阶段位置
+
+```text
+Step 0 版本规划
+→ Step 1 需求分析
+→ Step 2 架构与设计
+→ Step 3 开发 / 编码
+→ Step 4 测试
+→ Step 5 部署与运维
+```
+
+本技能负责：
+
+```text
+Step 5 部署与运维
+├── 发布入场检查
+├── 发布计划
+├── 版本与制品确认
+├── 环境与配置核验
+├── 数据库迁移和数据校验
+├── 缓存与消息运维
+├── 部署执行
+├── 上线验证
+├── 监控 / 日志 / 告警检查
+├── 性能和安全上线检查
+├── 回滚预案
+├── 回滚演练
+├── 运维移交
+├── 发布复盘
+└── 运维审计移交
+```
+
+## 入场门禁
+
+进入 Step 5 前必须满足：
+
+1. Step 4 测试矩阵已完成。
+2. 测试报告、覆盖率报告、UAT 报告和测试回溯审计已通过。
+3. 未解决 P0/P1 缺陷为 0。
+4. 待发布版本、分支、commit、tag、构建命令、部署目标环境已明确。
+5. 部署架构草案、环境配置、安全设计和可观测性设计已具备可执行输入。
+6. 回滚策略、数据备份或迁移风险已明确。
+
+如不满足，应回退 Step 4、Step 3 或相关前置阶段，不得直接部署上线。
+
+## 部署运维矩阵
+
+正式部署运维阶段必须按以下矩阵执行。若某项不适用，必须在发布计划或运维审计材料中说明原因。
+
+| 运维类别 | 必须执行内容 | 通过标准 | 强制产出 / 证据 |
+|---|---|---|---|
+| 发布入场检查 | 确认测试报告、覆盖率、UAT、测试回溯审计和未关闭缺陷 | Step 4 已通过，无未闭环 P0/P1 | 发布入场检查记录 |
+| 发布计划 | 发布窗口、负责人、影响范围、发布方式、通知对象、冻结窗口 | 责任和窗口明确，影响可控 | 发布计划 |
+| 版本与分支 | commit、tag、release branch、制品版本、变更摘要 | 发布版本可追溯 | 发布版本记录 |
+| 环境配置 | Dev/Test/Pro 差异、环境变量、密钥、端口、域名、证书 | 配置完整，无密钥泄露 | 环境配置说明 |
+| 构建与制品 | 构建命令、构建产物、镜像、依赖锁定、校验摘要 | 构建可复现，制品可追溯 | 构建与制品记录 |
+| 数据库迁移 | migration、备份、兼容性、回滚脚本、数据校验 | 迁移可执行，可回滚或有补救方案 | 数据库迁移计划 |
+| 缓存与消息 | 缓存清理、队列暂停/恢复、幂等、积压处理 | 缓存和消息链路风险可控 | 缓存与消息运维说明 |
+| 部署执行 | 容器部署、静态站点部署、平台部署、灰度发布 | 部署命令有记录，结果可验证 | 部署执行记录 |
+| CI/CD | Actions、PR、Release、Artifacts、环境保护规则 | 流水线状态清晰，无阻塞失败 | CI/CD 记录 |
+| 上线验证 | 健康检查、核心 API、关键页面、登录、权限、主流程冒烟 | 主流程和关键接口通过 | 上线验证报告 |
+| 监控日志 | 日志、指标、Tracing、错误率、延迟、资源、业务事件 | 关键路径可观测 | 监控与日志检查记录 |
+| 告警检查 | 告警规则、通知通道、阈值、负责人、演练 | 告警可触达、责任明确 | 告警配置记录 |
+| 性能检查 | Core Web Vitals、接口延迟、资源加载、瓶颈路径 | 无阻塞性能退化 | 上线性能检查报告 |
+| 安全检查 | 密钥泄露、CORS、权限、依赖风险、敏感日志、TLS | 无阻塞安全问题 | 上线安全检查记录 |
+| 回滚预案 | 回滚触发条件、回滚步骤、数据回滚、验证方式 | 回滚路径明确、可执行 | 回滚预案 |
+| 回滚演练 | 验证关键路径是否可回滚 | 演练成功或风险有批准 | 回滚演练记录 |
+| 运维移交 | 运维手册、联系人、常见故障、排障命令、SLA/SLO | 运维方可接手 | 运维移交清单 |
+| 发布复盘 | 发布结果、问题、影响、改进项、遗留风险 | 问题和改进项闭环 | 发布复盘报告 |
+| 运维审计 | 发布过程、记录、验证、回滚、安全和监控合规 | 审计材料完整 | 运维审计报告 |
+
+## 强制规则
+
+1. **不得跳过发布入场检查**：Step 4 未通过或 P0/P1 未关闭不得部署。
+2. **不得无回滚上线**：无回滚预案、回滚验证或风险批准，不得生产发布。
+3. **不得无监控上线**：生产服务必须具备日志、监控或告警检查记录。
+4. **不得用部署成功替代上线验证**：部署命令成功不等于业务可用。
+5. **不得泄露密钥**：环境变量、日志、命令和文档不得暴露真实密钥。
+6. **必须记录实际命令和证据**：部署、验证、回滚、监控和问题处理必须可追溯。
+7. **发现 P0/P1 上线问题必须停止发布或回滚**。
+8. **Step 5 未完成运维审计不得关闭全流程**。
+
+## 部署运维技能速查
+
+流程/门禁→workflow | 文档→doc-management | 角色→role-management | 测试入场→testing-stage-execution | 设计输入→design-stage-execution | 开发输入→coding-stage-execution | 版本/回滚→code-version-backup-management/git-commit | GitHub→gh-cli | 容器→docker | Pages→iga-pages/byted-bp-cdn-pagesdeploy | Web验证→webapp-testing/browser-devtools | API→api-design | 数据→sql-database/mongodb | 缓存消息→redis/rabbitmq/kafka | 性能→frontend-performance | 安全→security-best-practices | 命名→universal-naming-conventions
+| 角色协调和发布负责人 | `project-role-management` |
+| Step 4 入场材料和测试结论 | `testing-stage-execution` |
+| 部署架构、安全、可观测性输入 | `design-stage-execution` |
+| DevLogReport、构建和配置输入 | `coding-stage-execution` |
+| 发布版本、分支、tag、回滚 | `code-version-backup-management`、`git-commit` |
+| GitHub PR、Actions、Release、Artifacts | `gh-cli` |
+| 容器、镜像、Compose、服务部署 | `docker` |
+| 静态站点和 Pages 部署 | `iga-pages`、`byted-bp-cdn-pagesdeploy` |
+| 上线 Web 验证和浏览器诊断 | `webapp-testing`、`browser-devtools` |
+| 上线 API 验证 | `api-design` |
+| 数据迁移和校验 | `sql-database`、`mongodb` |
+| 缓存、队列、事件流运维 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
+| 上线性能检查 | `frontend-performance` |
+| 上线安全检查 | `security-best-practices` |
+| 命名和发布文档一致性 | `universal-naming-conventions` |
+
+## 输出要求
+
+部署运维阶段完成后，至少应具备：
+
+- {项目名}-发布计划-v{版本号}.md（含：入场检查/发布版本记录）
+- {项目名}-部署执行报告-v{版本号}.md（含：部署文档/环境配置/部署记录/构建制品/CICD记录）
+- {项目名}-数据运维说明-v{版本号}.md（含：数据库迁移计划/缓存与消息运维；涉及数据变更时）
+- {项目名}-回滚方案-v{版本号}.md（含：回滚预案/回滚演练记录）
+- {项目名}-上线检查报告-v{版本号}.md（含：上线验证/监控日志/告警配置/安全检查/性能检查）
+- {项目名}-运维手册-v{版本号}.md（含：运维移交清单）
+- {项目名}-发布复盘报告-v{版本号}.md
+- {项目名}-运维审计报告-v{版本号}.md（固定存放于 doc\audit\comprehensive）
+- {项目名}-全流程闭环审计报告-v{版本号}.md（固定存放于 doc\audit\comprehensive）
+- {项目名}-问题跟踪记录-v{版本号}.md（含：变更请求；跨阶段跟踪）
+
+文档命名、路径和版本规则遵循 `project-document-management`。
+
+## 专项技能反向声明规则
+
+所有被部署运维矩阵调用的专项技能，都必须承认 `operations-stage-execution` 是 Step 5 的部署运维阶段主控技能。
+
+专项技能在部署运维阶段被调用时必须遵守：
+
+- 只负责自身专项领域，不直接宣布整个 Step 5 完成。
+- 命令、环境、发布版本、验证证据、风险、回滚步骤和后续动作必须写入相关运维文档。
+- 专项部署成功或专项检查通过不能替代 Step 5 上线验证或运维审计。
+- 发现 P0/P1 部署或生产问题时，必须停止发布或触发回滚，更新发布记录并重新验证。
+
+## 完成标准
+
+
+Step 5 可完成的最低条件：
+
+1. 发布入场检查通过。
+2. 发布计划、部署文档、环境配置、部署执行记录、CICD记录、构建制品、发布版本记录齐备。
+3. 上线验证通过。
+4. 监控、日志、告警、安全和必要性能检查已完成。
+5. 回滚预案明确，并完成必要演练或风险批准。
+6. 运维手册和运维移交清单齐备。
+7. 发布问题和遗留风险已记录。
+8. 运维审计材料已准备好并通过。
+9. 已明确允许关闭全流程。
+
+## L3 部署运维速查
+
+以下规则内联自 cicd-pipeline-management 技能：
+- 流水线阶段(5)：检出→构建→质量门禁→部署→验证
+- 质量门禁：单元测试覆盖(DEV≥60%/TEST≥70%/PRO≥80%) 安全 Critical阻断 性能P99超基线30%阻断
+- 部署策略：Dev直接部署/Test直接部署/Pro蓝绿或金丝雀
+- 依赖扫描：每次提交+每日定时 Critical阻断
+
+以下规则内联自 observability-standards 技能：
+- 日志格式：结构化JSON(timestamp/level/traceId/service/module/message/env)
+- 指标追踪RED方法：Rate(请求速率) Errors(错误率) Duration(响应时间)
+- 告警级别：P0(15分钟电话) P1(1小时IM) P2(24小时IM) P3(下个工作日邮件)
+
+以下规则内联自 code-version-backup-management 技能：
+- 回滚命令：git revert {hash}（推荐保留历史）/ git checkout v1.0.0 -- {file}（恢复文件）/ git reset --hard {hash}（仅本地）
+- 回滚门禁：任何回滚必须在问题跟踪记录中记录原因和影响；生产回滚必须在发布复盘中记录 RCA
+- 权限：只有审查者/PM/管理员可合入 develop/release/main；只有管理员可创建 tag
+- 备份触发：tag 创建时自动 git push --mirror 到备份远程仓库
+
+## CI/CD Pipeline Integration
+
+Step 5 部署运维阶段必须参考 `cicd-pipeline-management` 技能定义的标准流水线、质量闸门和部署策略执行 CI/CD 流程。`project-development-workflow` 总流程主控中引用的自动化标准以本技能为入口。
+
+> **API 契约 CI 校验**：如果项目使用 OpenAPI 契约管理（参考 `api-contract-management` 技能），应在 CI/CD 流水线中加入 API 契约变更检测环节——每次提交自动导出最新 OpenAPI、重新生成前端客户端代码、检查是否有未提交的变更（意味着契约被破坏）。`api-contract-management` 的 Step 5 部署指南提供了 GitHub Actions 配置示例和 Nginx 反向代理配置。
+
+## Observability Integration
+
+Step 5 监控日志告警检查环节必须参考 `observability-standards` 技能定义的可观测性标准：日志格式验证、指标采集完整性检查、告警规则配置验证、Dashboard 就绪检查。在生产环境发布前必须确认可观测性基础设施已按标准配置到位。

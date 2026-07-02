@@ -23,7 +23,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ```json
 {
   "project": "项目名称",
-  "devflowVersion": "{从 version.json 动态读取}",
+  "devflowVersion": "2.3.0",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "git@github.com:org/project.git",
@@ -46,7 +46,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `devflowVersion` | string | 从 `version.json` 读取 | 当前使用的 DevFlow 版本，**严禁硬编码，唯一来源为插件根目录 `version.json`** |
+| `devflowVersion` | string | "2.3.0" | 当前使用的 DevFlow 版本 |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |
@@ -88,4 +88,3 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 - 本技能**不创建或修改 Git 仓库本身**
 - 本技能**只管理 .devflow/config.json 文件**
 - 配置验证失败时，保留原配置并提示错误
-- **版本号单一来源**：`devflowVersion` 字段的唯一权威来源是插件根目录的 `version.json`，任何技能文件、脚本中均不得硬编码具体版本号。`setup.ps1` / `install.ps1` 负责在安装时从 `version.json` 读取并注入 `config.json`

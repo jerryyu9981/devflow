@@ -78,10 +78,14 @@ Step 2 架构与设计
 | 系统架构设计 | 系统边界、模块、服务、上下游、技术选型、部署形态 | 架构能覆盖核心需求和非功能约束 | 系统架构设计文档 |
 | Agent 架构设计 | Agent 角色、工具、工作流、上下文、记忆、失败处理、多智能体关系 | Agent 流程可执行、可观测、可降级 | Agent 架构设计文档 |
 | 前端架构设计 | 页面结构、路由、状态管理、组件层级、数据获取、构建策略 | 前端结构支持需求和后续开发 | 前端架构设计文档 |
-| UI/UX 与原型 | 用户路径、线框图、交互状态、表单、错误态、空态、加载态 | 关键用户路径和状态完整 | UI 设计文档、原型 |
+| UI/UX 与原型 | 用户路径、线框图、交互状态、表单、错误态、空态、加载态；**生成设计总览首页（`prototype/index.html`）供审核人一键预览全部页面** | 关键用户路径和状态完整；**设计总览首页可从浏览器直接打开且所有页面链接有效** | UI 设计文档、原型、**设计总览首页** |
 | Figma 交付 | 设计稿、组件、变量、切图、标注、设计上下文 | 可被前端实现和审计引用 | Figma 设计交付说明 |
 | 设计系统 | 颜色、排版、组件规范、交互模式、状态规范 | UI 规范可复用、一致 | 设计系统说明 |
 | API 接口设计 | 路径、方法、参数、响应、错误码、鉴权、分页、排序、版本 | API 契约清晰且可测试 | API 接口设计文档 |
+
+> **API 契约管理**：对于前后端异构技术栈（如 Python + TypeScript）项目，API 接口设计应参考 `api-contract-management` 技能，该技能提供了从 OpenAPI 契约编写、统一响应格式、错误码体系、环境配置规范到代码生成工具链选型的完整方法论，确保 API 契约成为前后端开发的唯一事实源。
+
+> **前端/后端设计覆盖检查**：设计评审前，应分别调用 `prototype-coverage`（前端原型覆盖检查：页面清单 → 状态覆盖 → 原型走查 → 用例演练 → 交互标注 → 测试预映射 → 报告）和 `backend-coverage`（后端设计覆盖检查：API 契约 → 数据模型对齐 → 状态机 → 安全设计 → 测试预映射 → 报告）执行系统化覆盖检查。两个技能的检查通过是设计评审的准入条件。覆盖检查完成后，应调用 `api-contract-management` 执行 API 契约对齐检查（前端页面清单 ↔ 后端 API 交叉验证）。
 | 数据模型设计 | ER、表、字段、索引、约束、迁移、数据字典 | 数据模型支持业务流程和一致性要求 | 数据库设计文档、数据字典 |
 | 缓存与消息设计 | Redis 键、缓存策略、失效策略、队列、事件、幂等、重试 | 异步和缓存链路边界清晰 | 缓存与消息设计说明 |
 | 安全设计 | 鉴权、授权、敏感数据、输入校验、审计日志、威胁建模 | 无阻塞安全设计缺口 | 安全设计说明 |
@@ -129,6 +133,7 @@ Step 2 架构与设计
 - {项目名}-Agent架构设计文档-v{版本号}.md（涉及Agent/LLM时）
 - {项目名}-前端架构设计文档-v{版本号}.md（涉及前端时）
 - {项目名}-UI设计文档-v{版本号}.md（含：原型设计说明/设计系统说明）
+- `prototype/index.html`（设计总览首页，含页面导航、覆盖率一览、用户路径走查入口；审核人可直接从浏览器打开预览全部页面）
 - {项目名}-Figma设计交付说明-v{版本号}.md（使用Figma时）
 - {项目名}-API接口设计文档-v{版本号}.md（涉及接口时）
 - {项目名}-数据库设计文档-v{版本号}.md（含：数据字典；涉及持久化数据时）
@@ -182,41 +187,7 @@ When this skill is used during the formal deployment and operations stage, coord
 - Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
 - Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
 - Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-## L3 前端原型覆盖检查速查
-
-以下规则内联自 prototype-coverage 技能：
-- **Step 1 页面清单**：从需求文档提取所有涉及界面的需求项，为每个页面/弹窗/抽屉分配唯一ID（PG-/MD-/DW-编号），建立入口-出口关系图；强制产出：`{项目名}-前端页面清单-v{版本号}.md`
-- **Step 1.5 设计总览首页**：生成 `prototype/index.html`，包含项目元信息、按优先级排序的页面导航列表、状态覆盖进度、核心用户路径走查入口、覆盖率汇总统计；纯静态 HTML + CSS，无外部网络依赖
-- **Step 2 交互状态覆盖检查**：P0 页面必须覆盖空态、加载态、错误态、成功态四种状态；P1 页面至少覆盖空态、错误态；涉及权限的页面必须覆盖权限态；强制产出：`{项目名}-前端原型覆盖检查表-v{版本号}.md`
-- **Step 3 原型走查**：按用户角色分组，每角色选 3-5 条核心用户路径模拟操作，记录每步的"当前页面→操作→预期结果→原型表现→结论"，标注断点严重度；P0 路径无严重断点方可通过
-- **Step 4 用例场景演练**：P0 用例基本流程 100% 通过、异常分支覆盖率 >= 80%；P1 用例基本流程 100% 通过、异常分支覆盖率 >= 50%
-- **Step 5 元素级交互标注**（P0 页面强制）：主操作按钮必须有完整交互标注（触发事件/前置条件/条件判断/成功路径/错误处理/边界限制）
-- **Step 6 设计-测试预映射**：所有 P0 需求项均有至少一个测试关注点，测试代表签字确认
-- **Step 7 覆盖检查报告**：汇总全部检查结果，包含检查概览、问题清单、修复计划、风险评估、是否允许进入设计评审的结论
-- **设计评审准入**：P0 页面映射率 100%、P0 原型覆盖率 100%、P0 四种交互状态全部覆盖、P0 路径走查通过、P0 用例基本流程 100% 通过、设计-测试预映射表已签字
-
-## L3 后端设计覆盖检查速查
-
-以下规则内联自 backend-coverage 技能：
-- **Step 1 API 契约覆盖检查**：P0 API 须覆盖路径与方法、请求参数、响应结构、异常响应、边界条件、版本兼容、降级策略、鉴权方式共 8 个维度；P1 API 至少覆盖请求参数、响应结构、异常响应、鉴权；强制产出：`{项目名}-API契约覆盖检查表-v{版本号}.md`
-- **Step 2 数据模型对齐检查**：建立数据库↔API响应↔前端展示三方映射表，检查字段名/类型/枚举值/必填规则/数据格式一致性；P0 数据流三者映射 100% 一致，枚举值不一致必须在设计阶段统一
-- **Step 3 业务状态机覆盖检查**：为 P0/P1 核心业务实体定义完整状态列表，覆盖正常转换、异常转换、超时处理、并发冲突；P0 实体正常转换 100% 覆盖、异常分支 >= 80%
-- **Step 4 安全与权限设计检查**：检查鉴权方式、权限粒度(RBAC/ABAC)、数据权限、敏感字段、输入校验(SQL注入/XSS/CSRF)、审计日志、加密策略共 7 个维度；安全检查不通过不得进入编码阶段
-- **Step 5 后端设计-测试预映射+覆盖报告**：从 API/数据模型/状态机/安全检查中提取测试关注点，按功能/性能/安全/异常/并发分类；汇总覆盖报告包含检查概览、问题清单、修复计划、风险评估、设计评审准入结论
-- **设计评审准入**：P0 API 所有检查项 100% 覆盖、P0 数据流三者映射 100% 一致、P0 状态机正常转换 100% 覆盖且异常分支 >= 80%、安全强制检查项 100% 通过、后端设计-测试预映射表已签字
-
-## L3 API 契约管理速查
-
-以下规则内联自 api-contract-management 技能：
-- **定位**：解决前后端技术栈异构时接口契约在开发过程中漂移和不一致的问题，贯穿 Step 2 到 Step 5
-- **Step 2 设计阶段**：API 契约文件（openapi.json/yaml）作为前后端唯一事实源；统一响应格式 `{code, data, message, timestamp}`；统一错误格式 `{code, message, details}`；统一错误码体系（PARAM_ERROR/AUTH_EXPIRED/FORBIDDEN/NOT_FOUND/RATE_LIMIT/SERVER_ERROR）；命名约定 kebab-case URL + camelCase 查询参数；API 路径包含版本号 `/api/v1/`；分页标准 `{items, total, page, pageSize}`
-- **Step 2 契约对齐检查**：在 prototype-coverage 和 backend-coverage 各自通过后执行交叉对齐（前端页面清单↔后端API设计、前端数据需求↔API响应字段、API响应字段↔前端实际使用、枚举/状态映射一致性）；P0 页面所需 API 100% 对齐
-- **Step 3 编码阶段**：FastAPI 后端使用 `response_model` 让 OpenAPI 自动记录响应格式；Orval 从 OpenAPI 自动生成前端类型化客户端 + Zod Schema + MSW Mock；前端 API 调用使用生成的客户端函数，禁止手写 fetch/axios
-- **Step 4 测试阶段**：MSW Mock 联调使前端可脱离后端独立开发；schemathesis 后端契约测试验证 API 响应符合 OpenAPI 规范；前后端字段一致性校验纳入 code-static-quality-check
-- **Step 5 部署阶段**：CI 流水线包含 API 契约变更检测（`git diff --exit-code src/api/generated/`）；各环境 `.env` 配置分离无硬编码；Nginx/网关反向代理配置就绪
-- **主方案技术栈**：Python (FastAPI) + TypeScript (Vue/React)，通过 FastAPI Pydantic -> OpenAPI -> Orval -> TS Client + Zod + MSW 链路实现端到端类型安全
-
-## L3 可观测性设计速查
+`r`n## L3 可观测性设计速查
 
 以下规则内联自 observability-standards 技能：
 - 日志结构：每个服务须输出结构化JSON日志(traceId/spanId/service/module/message)

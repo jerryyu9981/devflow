@@ -132,23 +132,6 @@ MAJOR.MINOR.PATCH
 | v{...}-beta | v1.0.0-beta | Beta 版 |
 | v{...}-alpha | v1.0.0-alpha | Alpha 版 |
 
-### 4.3 DevFlow 插件自身版本管理（Single Source of Truth）
-
-DevFlow 插件的版本号**严禁在 SKILL.md 或脚本中硬编码**。所有版本号必须遵循"单一来源"原则：
-
-| 规则 | 说明 |
-|------|------|
-| 唯一来源 | 插件根目录下的 `version.json`，格式为 `{"version": "x.y.z"}` |
-| 注入时机 | `setup.ps1` / `install.ps1` 从 `version.json` 读取后写入项目 `.devflow/config.json` 的 `devflowVersion` 字段 |
-| 技能模板 | SKILL.md 中的 config.json 模板使用 `{从 version.json 动态读取}` 占位符，**不得出现具体版本号** |
-| 更新流程 | `update.ps1` 从目标版本的 `version.json` 读取新版本号，自动更新 `config.json` |
-
-**发布新版本时的强制检查**：
-1. 更新 `version.json`
-2. 更新 `CHANGELOG.md`
-3. 全局搜索确认无硬编码残留：`grep -rn "\d\+\.\d\+\.\d\+" skills/ devflow-init/ devflow-phase-manager/ devflow-project-config/ --include="*.md"`
-4. 运行 `setup.ps1` 验证生成的 `config.json` 版本号正确
-
 ---
 
 ## 五、备份策略
