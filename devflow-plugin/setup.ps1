@@ -15,7 +15,8 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = $PSScriptRoot
 $VersionJsonPath = Join-Path $ScriptDir "version.json"
 if (Test-Path $VersionJsonPath) {
-    $versionInfo = Get-Content $VersionJsonPath | ConvertFrom-Json
+    $raw = [System.IO.File]::ReadAllText($VersionJsonPath, [System.Text.Encoding]::UTF8)
+    $versionInfo = $raw | ConvertFrom-Json
     $DevFlowVersion = $versionInfo.version
 } else {
     $DevFlowVersion = "unknown"
@@ -124,7 +125,8 @@ if ($HostType -eq "TRAE") {
         "version-planning-stage-execution", "requirements-stage-execution", "design-stage-execution",
         "coding-stage-execution", "testing-stage-execution", "operations-stage-execution",
         "project-coding-conventions", "code-static-quality-check", "code-logic-review",
-        "cicd-pipeline-management", "observability-standards", "project-document-templates"
+        "cicd-pipeline-management", "observability-standards", "project-document-templates",
+        "code-version-backup-management"
     )
 
     foreach ($skill in $skills) {

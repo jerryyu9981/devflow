@@ -54,7 +54,8 @@ if (-not $LatestVersion) {
     $ScriptDir = $PSScriptRoot
     $LocalVersionJson = Join-Path $ScriptDir "version.json"
     if (Test-Path $LocalVersionJson) {
-        $localVer = Get-Content $LocalVersionJson | ConvertFrom-Json
+        $raw = [System.IO.File]::ReadAllText($LocalVersionJson, [System.Text.Encoding]::UTF8)
+        $localVer = $raw | ConvertFrom-Json
         $LatestVersion = $localVer.version
     }
     # If repo URL is configured, also try remote check
