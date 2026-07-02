@@ -8,13 +8,15 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Repository URL — replace with your actual repo after publishing
+# Repository URL - reads from env var first, then config.json
+# Supports authenticated URLs: http://user:pass@host/path/repo.git
+# Git Credential Manager is recommended over embedding credentials in URLs
 $RepoUrl = $env:DEVFLOW_REPO_URL
 if (-not $RepoUrl) {
     # Read from .devflow/config.json if available
     $ConfigPath = ".devflow\config.json"
     if (Test-Path $ConfigPath) {
-        $config = Get-Content $ConfigPath | ConvertFrom-Json
+        $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
         if ($config.remote.origin) {
             $RepoUrl = $config.remote.origin
         }
@@ -42,7 +44,7 @@ function Write-Warn($text) {
 $ConfigPath = ".devflow\config.json"
 $CurrentVersion = "unknown"
 if (Test-Path $ConfigPath) {
-    $config = Get-Content $ConfigPath | ConvertFrom-Json
+    $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
     $CurrentVersion = $config.devflowVersion
 }
 Write-Host "Current DevFlow version: $CurrentVersion"
@@ -54,7 +56,7 @@ if (-not $LatestVersion) {
     $ScriptDir = $PSScriptRoot
     $LocalVersionJson = Join-Path $ScriptDir "version.json"
     if (Test-Path $LocalVersionJson) {
-        $localVer = Get-Content $LocalVersionJson | ConvertFrom-Json
+        $localVer = Get-Content $LocalVersionJson -Encoding UTF8 | ConvertFrom-Json
         $LatestVersion = $localVer.version
     }
     # If repo URL is configured, also try remote check
@@ -91,11 +93,7 @@ Write-Header "Updating DevFlow to v$LatestVersion"
 $TraeSkillsDir = "$env:USERPROFILE\.trae-cn\skills"
 $ScriptDir = $PSScriptRoot
 
-# Skill name → source path mapping (relative to plugin root)
-# Orchestrator skills: plugin-root/orchestrator/{name}/SKILL.md
-# L1 skills: plugin-root/skills/L1/{name}.md
-# L2 skills: plugin-root/skills/L2/{name}.md
-# L3 skills: plugin-root/skills/L3/{name}.md
+# Skill name -> source path mapping (relative to plugin root)
 $skillMap = @{
     "devflow-init"                = "devflow-init\SKILL.md"
     "devflow-phase-manager"       = "devflow-phase-manager\SKILL.md"
@@ -185,7 +183,7 @@ Write-Host "Update summary: $updateCount updated, $failCount failed" -Foreground
 
 # 4. Update config version
 if (Test-Path $ConfigPath) {
-    $config = Get-Content $ConfigPath | ConvertFrom-Json
+    $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
     $config.devflowVersion = $LatestVersion
     $config | ConvertTo-Json -Depth 4 | Set-Content $ConfigPath -Encoding UTF8
     Write-Success "Updated config.devflowVersion to v$LatestVersion"

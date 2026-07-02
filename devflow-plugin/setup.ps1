@@ -1,4 +1,4 @@
-# DevFlow Setup Script (PowerShell)
+﻿# DevFlow Setup Script (PowerShell)
 # Usage: .\setup.ps1 [-ProjectName <name>] [-BranchStrategy <strategy>]
 
 param(
@@ -15,7 +15,7 @@ $ErrorActionPreference = "Stop"
 $ScriptDir = $PSScriptRoot
 $VersionJsonPath = Join-Path $ScriptDir "version.json"
 if (Test-Path $VersionJsonPath) {
-    $versionInfo = Get-Content $VersionJsonPath | ConvertFrom-Json
+    $versionInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
     $DevFlowVersion = $versionInfo.version
 } else {
     $DevFlowVersion = "unknown"
@@ -48,7 +48,7 @@ Write-Success "Host detected: $HostType"
 Write-Header "Detecting Project Name"
 if (-not $ProjectName) {
     if (Test-Path "package.json") {
-        $pkg = Get-Content "package.json" | ConvertFrom-Json
+        $pkg = Get-Content "package.json" -Encoding UTF8 | ConvertFrom-Json
         $ProjectName = $pkg.name
     } elseif (Test-Path ".git") {
         $remote = git remote get-url origin 2>$null
@@ -89,6 +89,12 @@ if (-not $SkipConfig) {
     }
 
     # Interactive prompts
+    Write-Host ""
+    Write-Host "NOTE: If your remote repository requires authentication (e.g., GitLab with HTTP Basic Auth)," -ForegroundColor DarkCyan
+    Write-Host "      you can include credentials in the URL: http://username:password@host/path/repo.git" -ForegroundColor DarkCyan
+    Write-Host "      Or leave it empty and configure Git Credential Manager when you first push/pull." -ForegroundColor DarkCyan
+    Write-Host ""
+
     $originUrl = Read-Host "Enter your Git origin remote URL (press Enter to skip)"
     if ($originUrl) { $config.remote.origin = $originUrl }
 
