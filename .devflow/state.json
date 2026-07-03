@@ -1,42 +1,27 @@
 {
   "project": "DevFlow",
-  "version": "2.4.0",
-  "currentPhase": "step_3_coding",
-  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding"],
+  "version": "2.4.1",
+  "currentPhase": "step_4_testing",
+  "completedPhases": [
+    "step_0_planning",
+    "step_1_requirements",
+    "step_2_design",
+    "step_3_coding",
+    "step_4_testing"
+  ],
+  "previousVersion": "2.4.0",
   "currentDocuments": {
-    "systemArchitecture": "doc/design/DevFlow-v2.4.0-系统架构设计文档.md",
-    "uiDesign": "doc/design/DevFlow-v2.4.0-UI设计文档.md",
-    "nonFunctionalDesign": "doc/design/DevFlow-v2.4.0-非功能设计说明.md",
-    "deploymentArchitecture": "doc/design/DevFlow-v2.4.0-部署架构草案.md",
-    "designReview": "doc/design/DevFlow-v2.4.0-设计评审记录.md",
-    "requirementSource": "doc/requirements/DevFlow-v2.4.0-需求来源与干系人.md",
-    "userRequirement": "doc/requirements/DevFlow-v2.4.0-用户需求说明书.md",
-    "devRequirement": "doc/requirements/DevFlow-v2.4.0-开发需求文档.md",
-    "uiuxRequirement": "doc/requirements/DevFlow-v2.4.0-UIUX需求说明.md",
-    "traceMatrix": "doc/requirements/DevFlow-v2.4.0-需求追溯矩阵.md",
-    "requirementReview": "doc/requirements/DevFlow-v2.4.0-需求评审记录.md",
-    "baselineHandoff": "doc/requirements/DevFlow-v2.4.0-需求基线及设计移交说明.md",
-    "assessment": "doc/audit/assessment/DevFlow-v2.4.0-需求评估报告.md",
-    "versionPlan": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-单版本规划文档.md",
-    "backlog": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-本版本Backlog.md",
-    "phasePlan": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-Phase迭代计划.md",
-    "dependencies": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-版本依赖清单.md",
-    "risks": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-版本风险清单.md",
-    "successMetrics": "doc/version/releases/v2.4.0/DevFlow-v2.4.0-版本成功指标说明.md",
-    "s3DevLogReport": "DevFlow-v2.4.0-S3-最终DevLogReport.md",
-    "devAuditHandoff": "DevFlow-v2.4.0-开发审计移交说明.md",
-    "phase4CodeReview": "doc/development/DevFlow-v2.4.0-Phase4-代码逻辑审查记录.md",
-    "claudeCodeChecklist": "doc/development/DevFlow-v2.4.0-ClaudeCode兼容性验证清单.md",
-    "cursorChecklist": "doc/development/DevFlow-v2.4.0-Cursor兼容性验证清单.md",
-    "codexCliChecklist": "doc/development/DevFlow-v2.4.0-CodexCLI兼容性验证清单.md",
-    "quickstartHtml": "quickstart.html"
+    "step_0": "doc/version/releases/v2.4.1/ (4 docs)",
+    "step_1": "doc/requirements/ (6 docs) + doc/audit/assessment/ (1 doc)",
+    "step_2": "doc/design/ (2 docs)",
+    "step_3": "devflow-plugin-v2.4.0/doc/development/ (1 doc)",
+    "step_4": "devflow-plugin-v2.4.0/doc/test/ (2 docs) + devflow-plugin-v2.4.0/doc/audit/verification/ (1 doc)"
   },
   "auditResults": {
-    "step1Review": "通过",
-    "step1Assessment": "通过",
-    "step2Review": "通过",
-    "step3DevLog": "完成（4个Phase，15个需求）",
-    "step3CodeReview": "有条件通过（无未解决P0/P1）",
-    "step3AuditReady": "是"
+    "step_0": "passed",
+    "step_1": "passed",
+    "step_2": "passed",
+    "step_3": "passed",
+    "step_4": "passed"
   }
 }

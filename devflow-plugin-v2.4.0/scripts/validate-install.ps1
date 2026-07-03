@@ -130,7 +130,9 @@ else {
 Write-Header "2/5 技能间引用关系"
 
 # 简化版引用检查：从 version.json 中收集技能名，在技能文件中扫描反引号引用
-if (Test-Path $versionJson -and $allSkills.Count -gt 0) {
+# BUG-001 修复：拆分 Test-Path 与 -and 条件，确保 PS5.1 兼容性
+$versionJsonExists = Test-Path $versionJson
+if ($versionJsonExists -and $allSkills.Count -gt 0) {
     # 预定义正则表达式
     $BT = [char]0x60
     $RE_BACKTICK_REF = "$BT([a-z][\w-]+)$BT"

@@ -1,10 +1,11 @@
-﻿# DevFlow SKILL.md Format Checker v1.0
+﻿# DevFlow SKILL.md Format Checker v1.1
 # 用途：批量检查 DevFlow 技能文件是否符合 SKILL.md 编写规范
-# 用法：.\check-skill-format.ps1 [-SkillDir <路径>] [-Fix] [-Verbose]
+# 用法：.\check-skill-format.ps1 [-SkillDir <路径>] [-Fix] [-AutoFill] [-Verbose]
 
 param(
     [string]$SkillDir = "",
     [switch]$Fix,
+    [switch]$AutoFill,
     [switch]$Verbose
 )
 
@@ -250,6 +251,82 @@ foreach ($file in $SkillFiles) {
         $contentBytes = [System.Text.UTF8Encoding]::new($false).GetBytes($Content)
         [System.IO.File]::WriteAllBytes($file.FullName, $contentBytes)
         Write-Host "  [FIX] 已自动移除 UTF-8 BOM" -ForegroundColor Magenta
+    }
+
+    # 如果启用了 -AutoFill，自动填充缺失的标准章节（VR-2.4.1-006）
+    if ($AutoFill) {
+        $afContent = Get-Content -Path $file.FullName -Raw -Encoding UTF8
+        $afLines = $afContent -split "`n"
+        $afChanged = $false
+
+        # 提取技能名称用于模板
+        $skillName = ""
+        if ($afContent -match '(?s)^---\r?\n\s*name:\s*["'']?([^"''`\r\n]+)') {
+            $skillName = $Matches[1]
+        } elseif ($afContent -match '(?m)^#\s+(\S+)') {
+            $skillName = $Matches[1]
+        }
+
+        # AutoFill: 缺少 ## 定位 章节时，在一级标题后插入
+        if ($result.Issues -match "缺少 ## 定位") {
+            $h1Idx = -1
+            for ($i = 0; $i -lt $afLines.Count; $i++) {
+                if ($afLines[$i].TrimStart() -match '^#\s+.+') {
+                    $h1Idx = $i
+                    break
+                }
+            }
+            if ($h1Idx -ge 0) {
+                $insertText = "`n## 定位`n`n> TODO: 请补充本技能的定位说明。`n"
+                $afLines[$h1Idx] = $afLines[$h1Idx] + $insertText
+                $afChanged = $true
+                Write-Host "  [AUTOFILL] 已自动插入 ## 定位 章节模板" -ForegroundColor Magenta
+            }
+        }
+
+        # AutoFill: 缺少 ## 触发条件 章节时，在 ## 定位 后插入
+        if ($result.Issues -match "缺少 ## 触发条件") {
+            $posIdx = -1
+            for ($i = 0; $i -lt $afLines.Count; $i++) {
+                if ($afLines[$i] -match '^\s*##\s+定位') {
+                    $posIdx = $i
+                    break
+                }
+            }
+            if ($posIdx -ge 0) {
+                # 找到定位章节结束位置（下一个 ## 或文件末尾）
+                $insertIdx = $posIdx + 1
+                for ($i = $posIdx + 1; $i -lt $afLines.Count; $i++) {
+                    if ($afLines[$i] -match '^\s*##\s+') {
+                        $insertIdx = $i
+                        break
+                    }
+                    if ($i -eq $afLines.Count - 1) {
+                        $insertIdx = $afLines.Count
+                    }
+                }
+                $insertText = "## 触发条件`n`n- TODO: 请补充本技能的触发条件列表。`n"
+                $afLines = $afLines[0..($insertIdx-1)] + @($insertText) + $afLines[$insertIdx..($afLines.Count-1)]
+                $afChanged = $true
+                Write-Host "  [AUTOFILL] 已自动插入 ## 触发条件 章节模板" -ForegroundColor Magenta
+            }
+        }
+
+        # AutoFill: 缺少 ## 变更记录 章节时，在文件末尾追加
+        if ($result.Issues -match "缺少 ## 变更记录") {
+            $insertText = "`n## 变更记录`n`n| 日期 | 变更内容 | 变更人 |`n|---|---|---|`n"
+            $afContent = $afLines -join "`n"
+            $afContent = $afContent.TrimEnd() + $insertText
+            $afLines = $afContent -split "`n"
+            $afChanged = $true
+            Write-Host "  [AUTOFILL] 已自动插入 ## 变更记录 章节模板" -ForegroundColor Magenta
+        }
+
+        # 写入修改后的内容
+        if ($afChanged) {
+            $afFinalContent = $afLines -join "`n"
+            [System.IO.File]::WriteAllText($file.FullName, $afFinalContent, [System.Text.UTF8Encoding]::new($false))
+        }
     }
 
     Write-Host ""

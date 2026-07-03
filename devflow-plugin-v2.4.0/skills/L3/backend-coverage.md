@@ -5,7 +5,7 @@ description: "Checks backend design coverage including API contracts, data model
 
 # backend-coverage（后端设计覆盖率检查）
 
-## When To Use
+## 定位
 
 本技能用于在 Step 2（架构与设计阶段）对**后端设计**进行系统化覆盖检查，防止以下问题流入开发阶段：
 
@@ -15,7 +15,8 @@ description: "Checks backend design coverage including API contracts, data model
 - 鉴权、权限、敏感字段等安全设计未系统化梳理
 - 设计阶段未预埋后端测试关注点
 
-**触发场景**：
+## 触发条件
+
 - 用户要求"检查后端设计是否完整"
 - 需要"API 契约覆盖检查"或"接口完整性验证"
 - 需要"数据模型对齐检查"
