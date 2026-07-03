@@ -45,7 +45,7 @@ description: 可观测性标准规范。定义日志格式、指标命名、链�
   "durationMs": 45,
   "requestId": "req_abc123",
   "env": "production",
-  "version": "v2.3.0"
+  "version": "v2.4.1"
 }
 ```
 

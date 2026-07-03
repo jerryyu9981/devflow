@@ -9,6 +9,8 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 本技能是 DevFlow 框架的入口 orchestrator。它不执行具体编码、设计或测试工作，而是：
 
+> **版本来源规则**：本技能生成的 `config.json` 模板中的 `devflowVersion` 必须与插件根目录 `version.json` 中的 `version` 字段保持完全一致。`version.json` 是 DevFlow 的唯一权威版本来源（Single Source of Truth）。
+
 1. **检测项目状态**：通过检查项目目录中的已有文档，推断项目当前处于 DevFlow 哪个阶段
 2. **生成初始配置**：创建 `.devflow/config.json` 和 `.devflow/state.json`
 3. **引导进入正确阶段**：告诉用户当前应该执行 Step 0-5 中的哪一个
@@ -57,7 +59,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "devflowVersion": "2.3.1",
+  "devflowVersion": "2.4.1",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "",

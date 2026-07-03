@@ -119,7 +119,7 @@ v{MAJOR}.{MINOR}.{PATCH}
 ```json
 {
   "project": "{项目名}",
-  "devflowVersion": "2.3.1",
+  "devflowVersion": "2.4.1",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "{协议}://{托管平台}/{组织}/{项目名}.git",

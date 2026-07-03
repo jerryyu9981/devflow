@@ -8,6 +8,7 @@
 
 | 版本 | 日期 | 修订人 | 修订内容 |
 |------|------|--------|---------|
+| v2.4.1 | 2026-07-03 | DevFlow 维护团队 | 统一版本号至 v2.4.1；建立单一版本来源机制：`version.json` 为唯一权威版本源，所有技能和配置模板通过引用保持一致，杜绝硬编码版本号分散 |
 | v2.3.1 | 2026-07-01 | DevFlow 维护团队 | 完整回滚设计体系落地：code-version-backup-management 第六章扩展为 10 小节；cicd-pipeline-management 新增"回滚自动化"章节；operations-stage-execution 部署矩阵/强制规则增强；设计总览首页规范：prototype-coverage 新增 Step 1.5，design-stage-execution 矩阵增强；多环境备份配置（dev/test/pro/disaster）；setup.ps1/sh 自动推断 backup URL + 增强 Hook；版本号 v2.3.0→v2.3.1 |
 | v2.3 | 2026-06-29 | DevFlow 维护团队 | 新增 L3 技能 `prototype-coverage`（前端原型覆盖检查：七步流程）和 `backend-coverage`（后端设计覆盖检查：五步流程）；`api-contract-management` 增加 API 契约对齐检查环节（前端页面清单↔后端 API 设计交叉验证）；L2 四个阶段技能集成引用；总技能 20→22 |
 | v2.2 | 2026-06-29 | DevFlow 维护团队 | 新增 L3 技能 `api-contract-management`（API 契约管理）：覆盖前后端异构技术栈的 API 一致性全流程管控（FastAPI + Orval + Zod + MSW + Schemathesis + CI 校验）；L2 四个阶段技能集成引用；技能总数 15→20；安装脚本统一"先卸载后安装"两阶段模式；补齐 `code-version-backup-management` 注册；新增 `sync-skills.ps1` 独立同步工具 |
