@@ -1,21 +1,27 @@
 {
   "project": "DevFlow",
-  "version": "2.4.1",
+  "version": "2.5.0",
   "currentPhase": "step_4_testing",
   "completedPhases": [
     "step_0_planning",
     "step_1_requirements",
     "step_2_design",
-    "step_3_coding",
-    "step_4_testing"
+    "step_3_coding"
   ],
-  "previousVersion": "2.4.0",
+  "previousVersion": "2.4.1",
+  "releaseInfo": {
+    "commit": "",
+    "tag": "",
+    "branch": "master",
+    "remote": "http://192.168.0.14/jerry.yu/devflow.git",
+    "releasedAt": ""
+  },
   "currentDocuments": {
-    "step_0": "doc/version/releases/v2.4.1/ (4 docs)",
+    "step_0": "doc/version/releases/v2.5.0/ (4 docs)",
     "step_1": "doc/requirements/ (6 docs) + doc/audit/assessment/ (1 doc)",
     "step_2": "doc/design/ (2 docs)",
     "step_3": "devflow-plugin-v2.4.0/doc/development/ (1 doc)",
-    "step_4": "devflow-plugin-v2.4.0/doc/test/ (2 docs) + devflow-plugin-v2.4.0/doc/audit/verification/ (1 doc)"
+    "step_4": "devflow-plugin-v2.4.0/doc/test/ (2 docs) + doc/audit/verification/ (1 doc)"
   },
   "auditResults": {
     "step_0": "passed",

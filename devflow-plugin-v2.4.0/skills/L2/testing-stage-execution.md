@@ -136,6 +136,7 @@ Step 4 测试阶段
 | API 契约和接口行为测试基准 | `api-design` |
 | 安全专项测试 | `security-best-practices` |
 | 可访问性专项测试 | `accessibility`、`web-design-guidelines` |
+| 性能工程（基准/压测/瓶颈/容量） | `performance-engineering` |
 | 前端性能专项测试 | `frontend-performance`、`react-best-practices` |
 | React 组件架构和渲染风险 | `react-skills`、`react-best-practices`、`composition-patterns` |
 | 后端测试和服务诊断 | `nodejs-backend`、`python-backend` |

@@ -52,6 +52,49 @@ else:
     currentPhase = "step_0_planning"  → 提示从版本规划开始
 ```
 
+### 2.5 远程仓库配置引导（交互式）
+
+在创建配置文件之前，引导用户输入远程仓库地址。
+
+**重要区分说明**：
+
+> ⚠️ **此处输入的是您当前项目的 Git 远程仓库地址，非 DevFlow 下载地址。**
+>
+> 两种地址的区别：
+> | 地址类型 | 说明 | 示例 |
+> |---------|------|------|
+> | **DevFlow 下载地址** | DevFlow 工具链自身的 Git 仓库，用于安装或更新 DevFlow | `http://192.168.0.14/jerry.yu/devflow.git` |
+> | **项目远程仓库地址** | 您当前要管理的业务项目的 Git 仓库，用于代码推送和备份 | `http://192.168.0.14/jerry.yu/myproject.git` |
+
+**交互流程**：
+
+**Step A — 输入 origin 远程仓库地址**
+
+提示用户：
+```
+请输入您当前项目的 Git 远程仓库地址（origin）。
+格式：https://host/org/repo.git 或 git@host:org/repo.git 或 ssh://host/org/repo.git
+（可留空，后续通过 git remote add 手动配置）
+```
+
+校验规则：
+- 允许空值（用户跳过）
+- 非空值须为合法 Git URL 格式（http/https/ssh/git 协议）
+- 不合法时提示格式错误并给出正确示例
+
+**Step B — 输入 backup 远程仓库地址（可选）**
+
+提示用户：
+```
+请输入备份仓库地址（backup，可选）。
+格式同上，用于自动镜像备份。
+（可留空）
+```
+
+校验规则：同 Step A，但始终可选。
+
+**输出**：将用户输入的 origin 和 backup 地址写入 `.devflow/config.json` 的 `remote.origin` 和 `remote.backup` 字段。用户跳过时保持空字符串 `""`。
+
 ### 3. 创建 .devflow/config.json
 
 ```json
@@ -74,6 +117,10 @@ else:
   }
 }
 ```
+
+**远程仓库地址来源**：`remote.origin` 和 `remote.backup` 由步骤 2.5 的交互式引导填充。用户跳过时保持空字符串。
+
+**已有项目的远程仓库地址**：如果用户已有 Git 仓库且已配置 remote，可读取 `git remote get-url origin` 作为默认值展示在交互引导中，用户确认或修改。
 
 **版本号单一来源原则（Single Source of Truth）**：
 
@@ -149,3 +196,4 @@ fi
 | 日期 | 变更内容 | 变更人 |
 |---|---|---|
 | 2026-07-02 | 添加变更记录章节 | jerry.yu |
+| 2026-07-04 | VR-019/DT-001: 新增远程仓库交互式配置引导步骤（§2.5），明确区分 DevFlow 下载地址与项目远程仓库地址 | jerry.yu |
