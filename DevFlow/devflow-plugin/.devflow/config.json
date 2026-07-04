@@ -1,0 +1,29 @@
+{
+    "project": "DevFlow",
+    "devflowVersion": "2.5.0",
+    "branchStrategy": "git-flow",
+    "remote": {
+        "origin": "",
+        "backup": ""
+    },
+    "backup": {
+        "type": "git-mirror",
+        "environments": {
+            "dev": {
+                "backup": ""
+            },
+            "test": {
+                "backup": ""
+            },
+            "pro": {
+                "backup": "",
+                "disaster": ""
+            }
+        },
+        "schedule": {
+            "type": "post-push",
+            "weeklyArchive": "sunday-02:00",
+            "retentionDays": 90
+        }
+    }
+}

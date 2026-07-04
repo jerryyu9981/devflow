@@ -9,8 +9,6 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
 
-> **版本来源规则**：`devflowVersion` 的值必须与插件根目录 `version.json` 中的 `version` 字段保持完全一致。`version.json` 是 DevFlow 的唯一权威版本来源（Single Source of Truth）。更新版本时，先修改 `version.json`，再同步至本技能及所有引用位置。
-
 ## 触发条件
 
 - 项目首次初始化（由 devflow-init 调用）
@@ -25,7 +23,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ```json
 {
   "project": "项目名称",
-  "devflowVersion": "2.5.0",
+  "devflowVersion": "2.3.0",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "git@github.com:org/project.git",
@@ -33,22 +31,11 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
   },
   "backup": {
     "type": "git-mirror",
-    "environments": {
-      "dev": {
-        "backup": "git@backup-server:org/project-dev-backup.git"
-      },
-      "test": {
-        "backup": "git@backup-server:org/project-test-backup.git"
-      },
-      "pro": {
-        "backup": "git@backup-server:org/project-pro-backup.git",
-        "disaster": "git@backup-server:org/project-disaster-backup.git"
-      }
-    },
     "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
+      "bundle": "weekly",
+      "bundleRetention": 4,
+      "dbDump": "daily",
+      "dbRetention": 90
     }
   }
 }
@@ -59,18 +46,15 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `devflowVersion` | string | "2.5.0" | 当前使用的 DevFlow 版本 |
+| `devflowVersion` | string | "2.3.0" | 当前使用的 DevFlow 版本 |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |
 | `backup.type` | enum | "git-mirror" | 备份方式：`git-mirror` / `git-bundle` |
-| `backup.environments.dev.backup` | string | "" | 开发环境备份仓库地址 |
-| `backup.environments.test.backup` | string | "" | 测试环境备份仓库地址 |
-| `backup.environments.pro.backup` | string | "" | 生产环境备份仓库地址 |
-| `backup.environments.pro.disaster` | string | "" | 容灾备份仓库地址（异地） |
-| `backup.schedule.type` | enum | "post-push" | 备份触发方式：`post-push` / `cron` |
-| `backup.schedule.weeklyArchive` | string | "sunday-02:00" | 每周归档时间 |
-| `backup.schedule.retentionDays` | int | 90 | 备份保留天数 |
+| `backup.schedule.bundle` | enum | "weekly" | bundle 快照频率：`daily` / `weekly` / `monthly` |
+| `backup.schedule.bundleRetention` | int | 4 | bundle 保留数量（周） |
+| `backup.schedule.dbDump` | enum | "daily" | 数据库备份频率 |
+| `backup.schedule.dbRetention` | int | 90 | 数据库备份保留天数 |
 
 ### 分支策略选择向导
 

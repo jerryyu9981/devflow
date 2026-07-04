@@ -25,7 +25,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ```json
 {
   "project": "项目名称",
-  "devflowVersion": "2.5.0",
+  "devflowVersion": "2.4.1",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "git@github.com:org/project.git",
@@ -59,7 +59,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `devflowVersion` | string | "2.5.0" | 当前使用的 DevFlow 版本 |
+| `devflowVersion` | string | "2.4.1" | 当前使用的 DevFlow 版本 |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |

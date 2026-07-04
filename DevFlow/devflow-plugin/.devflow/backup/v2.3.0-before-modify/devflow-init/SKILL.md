@@ -9,8 +9,6 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 本技能是 DevFlow 框架的入口 orchestrator。它不执行具体编码、设计或测试工作，而是：
 
-> **版本来源规则**：本技能生成的 `config.json` 模板中的 `devflowVersion` 必须与插件根目录 `version.json` 中的 `version` 字段保持完全一致。`version.json` 是 DevFlow 的唯一权威版本来源（Single Source of Truth）。
-
 1. **检测项目状态**：通过检查项目目录中的已有文档，推断项目当前处于 DevFlow 哪个阶段
 2. **生成初始配置**：创建 `.devflow/config.json` 和 `.devflow/state.json`
 3. **引导进入正确阶段**：告诉用户当前应该执行 Step 0-5 中的哪一个
@@ -59,7 +57,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "devflowVersion": "2.5.0",
+  "devflowVersion": "2.3.0",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "",
@@ -67,15 +65,11 @@ else:
   },
   "backup": {
     "type": "git-mirror",
-    "environments": {
-      "dev": { "backup": "" },
-      "test": { "backup": "" },
-      "pro": { "backup": "", "disaster": "" }
-    },
     "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
+      "bundle": "weekly",
+      "bundleRetention": 4,
+      "dbDump": "daily",
+      "dbRetention": 90
     }
   }
 }
@@ -113,27 +107,9 @@ else:
 
 ```bash
 #!/bin/bash
-# DevFlow 自动备份 Hook
-# 安装方式：cp .devflow/hooks/post-push .git/hooks/post-push && chmod +x .git/hooks/post-push
-
-REMOTE_NAME="${1:-backup}"
-LOG_DIR=".devflow/logs"
-mkdir -p "$LOG_DIR"
-
-if git remote | grep -q "$REMOTE_NAME"; then
-    echo "[DevFlow Backup] $(date '+%Y-%m-%d %H:%M:%S') 开始备份到 $REMOTE_NAME ..."
-    git push --mirror "$REMOTE_NAME" 2>&1
-    git push --tags "$REMOTE_NAME" 2>&1
-
-    if [ $? -eq 0 ]; then
-        echo "[DevFlow Backup] 备份完成"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,成功,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-history.csv"
-    else
-        echo "[DevFlow Backup] 备份失败"
-        echo "$(date '+%Y-%m-%d %H:%M:%S'),git-mirror,失败,$(git rev-parse HEAD)" >> "$LOG_DIR/backup-error.csv"
-    fi
-else
-    echo "[DevFlow Backup] 未找到远程仓库 '$REMOTE_NAME'，跳过备份"
+# DevFlow auto-backup hook
+if git remote | grep -q backup; then
+    git push --mirror backup 2>/dev/null
 fi
 ```
 

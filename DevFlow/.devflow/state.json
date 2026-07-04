@@ -1,0 +1,10 @@
+{
+    "project": "DevFlow",
+    "version": "2.6.0",
+    "currentPhase": "step_1_requirements",
+    "completedPhases": ["step_0_planning"],
+    "currentDocuments": {
+        "version_plan": "doc/version/releases/v2.6.0/DevFlow-v2.6.0-版本规划.md"
+    },
+    "auditResults": {}
+}
