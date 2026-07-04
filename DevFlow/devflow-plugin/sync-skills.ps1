@@ -73,6 +73,14 @@ $DevFlowSkills = @(
     @{ Name = "backend-coverage";              SourceDir = "skills\L3\backend-coverage.md" }
     @{ Name = "project-document-templates";     SourceDir = "skills\L3\project-document-templates.md" }
     @{ Name = "code-version-backup-management"; SourceDir = "skills\L3\code-version-backup-management.md" }
+
+    # L3 - v2.5.0 newly added skills
+    @{ Name = "skill-md-writing-standards";    SourceDir = "skills\L3\skill-md-writing-standards.md" }
+    @{ Name = "security-design-review";        SourceDir = "skills\L3\security-design-review.md" }
+    @{ Name = "secure-coding-practices";       SourceDir = "skills\L3\secure-coding-practices.md" }
+    @{ Name = "container-deployment";          SourceDir = "skills\L3\container-deployment.md" }
+    @{ Name = "performance-engineering";       SourceDir = "skills\L3\performance-engineering.md" }
+    @{ Name = "database-migration";            SourceDir = "skills\L3\database-migration.md" }
 )
 
 $SkillNames = $DevFlowSkills | ForEach-Object { $_.Name }
