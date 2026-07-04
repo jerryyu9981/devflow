@@ -352,6 +352,7 @@ Step 3 开发阶段
 | RabbitMQ / Kafka | `rabbitmq`、`kafka` |
 | 安全编码或安全审查 | `security-best-practices` |
 | UI/UX 或可访问性审查 | `web-design-guidelines`、`accessibility` |
+| 性能工程（基准/瓶颈/优化/容量） | `performance-engineering` |
 | 前端性能 | `frontend-performance`、`browser-devtools` |
 | Web 应用本地验证 | `webapp-testing`、`browser-devtools` |
 | Docker 开发环境和依赖服务 | `docker` |
