@@ -1,7 +1,7 @@
 {
   "name": "DevFlow",
-  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、26个核心技能、24个文档模板和完整的追溯链。",
-  "version": "2.4.0",
+  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、28个核心技能、24个文档模板和完整的追溯链。",
+  "version": "2.5.0",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",
@@ -37,7 +37,9 @@
       "api-contract-management",
       "security-design-review",
       "secure-coding-practices",
-      "container-deployment"
+      "container-deployment",
+      "performance-engineering",
+      "database-migration"
     ],
     "orchestrator": [
       "devflow-init",
