@@ -166,6 +166,34 @@ Step 5 的不可变门禁如下：
 
 部署运维类别、通过标准和强制产出以 `operations-stage-execution` 与 `project-document-management` 为准。
 
+## 阶段间交接箱
+
+每个阶段完成后向下一阶段传递的标准化交接包。
+
+### 交接包定义
+
+| 交接方向 | 交接内容 | 接收方门禁检查 |
+|---------|---------|---------------|
+| Step 0 → Step 1 | 单版本规划 + 本版本 Backlog + Phase 计划 + 评审结论 + 候选需求池 | 1.0 入场检查确认 Step 0 输入齐备 |
+| Step 1 → Step 2 | 需求基线 + 需求追溯矩阵(RT-ID) + 验收标准清单 + 需求评估报告 + 风险清单 | 2.0 入场检查确认追溯矩阵齐全 |
+| Step 2 → Step 3 | 全量设计文档 + 需求设计追溯矩阵(DT-ID) + 设计评审记录 + 审计报告 + 移交说明 | 3.0 入场确认 TD-ID 需创建 |
+| Step 3 → Step 4 | DevLogReport + 静态质量记录 + code-logic-review + 修复复审 + 开发审计报告 + 移交说明 | 4.0 入场检查确认 code-logic-review 通过 |
+| Step 4 → Step 5 | 测试报告 + 覆盖率报告 + UAT + 测试回溯审计报告 + 缺陷闭环记录 | 5.0 入场检查确认 P0/P1 关闭 |
+
+### 追溯链贯通说明
+```text
+全流程追溯链（从 Step 0 到 Step 5）：
+Step 0 Backlog ─→ Step 1 RT-ID ─→ Step 2 DT-ID ─→ Step 3 TD-ID ─→ Step 4 TT-ID ─→ Step 5 部署验证项
+
+编号规则：
+  RT-ID: RT-{版本号}-{序号}    (Step 1 产生)
+  DT-ID: DT-{版本号}-{序号}    (Step 2 产生，关联 RT-ID)
+  TD-ID: TD-{版本号}-{序号}    (Step 3 产生，关联 DT-ID)
+  TT-ID: TT-{版本号}-{序号}    (Step 4 产生，关联 RT-ID + TD-ID)
+
+独立模式时使用 EXT 代替版本号：RT-EXT-001, DT-EXT-001, TD-EXT-001, TT-EXT-001
+```
+
 ## Audit Framework (审计框架)
 
 每个阶段均包含审计子步骤，由审计师（Auditor Agent）负责执行。审计未通过时，流程回退至对应阶段修改。
@@ -175,7 +203,7 @@ Step 5 的不可变门禁如下：
 | Step 0 | 版本规划评审 | 进入需求分析前 | 版本规划总纲 + 版本迭代路线图 + 单版本规划文档 + 本版本Backlog + Phase迭代计划 | 版本目标、范围、优先级、风险、资源和高层验收目标已确认 | 退回版本规划修改 |
 | Step 1 | 需求评估 | 阶段1批准前 | 需求文档 + 需求追溯矩阵 + 验收标准清单 + 需求基线说明 | P0/P1 需求来源、场景、业务规则、验收标准完整，范围合规 | 退回 Step 0 修改范围或退回 Step 1 修改需求 |
 | Step 2 | 需求架构对比 | 阶段2批准前 | 需求文档（已批准）+ 需求设计追溯矩阵 + 完整设计文档矩阵 | 覆盖率≥95%，无重大偏差，P0/P1 设计缺口已闭环 | 退回阶段1修改需求或退回 Step 2 修改设计 |
-| Step 3 | 开发设计对比 | 阶段3完成后 | 架构设计文档 + DevLogReport + 静态质量检查记录 + 代码逻辑审查记录 | 覆盖率≥90%，静态质量和代码逻辑 P0/P1 已闭环，偏差有记录 | 退回 Step 2 修改设计或退回 Step 3 修复 |
+| Step 3 | 开发设计对比 | 阶段3完成后 | 架构设计文档 + DevLogReport + 静态质量检查记录 + 代码逻辑审查记录 | 覆盖率≥95%，静态质量和代码逻辑 P0/P1 已闭环，偏差有记录 | 退回 Step 2 修改设计或退回 Step 3 修复 |
 | Step 4 | 测试回溯对比 | 阶段4完成后 | 需求文档 + 测试报告 + 覆盖率报告 + 全部测试子报告 | 全量回归通过率≥95%，修改文件覆盖率≥80%，所有P0/P1问题有闭环 | 退回阶段3修复并重新执行完整Step 4 |
 | Step 5 | 全流程闭环 / 运维审计 | 阶段5部署后 | 全部文档 + 发布入场检查 + 部署执行记录 + 上线验证报告 + 监控日志检查 + 回滚证据 + 运维移交材料 | 所有审计问题已关闭，发布可验证、可回滚、可监控、可运维 | 按影响范围回退至 Step 0-5 对应阶段 |
 
@@ -239,44 +267,23 @@ When the user asks to:
 Invoke this skill to provide standardized project management guidance.
 ## Coding Stage Integration
 
-When this skill is used during the formal coding stage, coordinate with `coding-stage-execution`.
-
-- Treat `coding-stage-execution` as the Step 3 coding-stage controller.
-- Require `code-static-quality-check` before `code-logic-review` whenever syntax, lint, type, build, symbol, parameter, return, import/export, env, or API consistency is relevant.
-- Require `code-logic-review` before development audit and Step 4 testing handoff.
-- Do not let development self-tests, specialty checks, or partial smoke tests replace the Step 3 development gate.
-- If a P0/P1 static quality or code logic issue is found, fix it within Step 3, rerun the relevant checks, update `DevLogReport`, then repeat the review gate before handoff.
+When called within Step 3: treat `coding-stage-execution` as controller, use only for static quality or logic review specialty, record decisions in DevLogReport, do not replace Step 3 development gate or audit. P0/P1 gap → fix within Step 3, update DevLogReport and rerun relevant review before handoff.
 
 ## Version Planning Stage Integration
 
-When this skill is used during Step 0 version planning, coordinate with `version-planning-stage-execution`.
-
-- Treat `version-planning-stage-execution` as the Step 0 controller for roadmap, release scope, backlog prioritization, phase planning, risks, and review evidence.
-- Keep global version documents separate from single-version documents according to `project-document-management`.
-- Do not let detailed requirements, design, development, or testing work start until Step 0 approval confirms version goals, scope, priorities, risks, and handoff inputs.
-- Record decisions, assumptions, scope changes, and review conclusions in the relevant version planning documents.
+When called within Step 0: treat `version-planning-stage-execution` as controller, use only for specialty area, record decisions in version planning documents, do not replace Step 0 review. P0/P1 gap → fix within Step 0, update version planning documents, rerun review before handoff.
 
 ## Design Stage Integration
 
-When this skill is used during the formal design stage, coordinate with design-stage-execution.
-
-- Treat design-stage-execution as the Step 2 design-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole design stage complete.
-- Record design decisions, assumptions, alternatives, risks, open questions, and downstream impacts in the relevant design document.
-- Do not let a successful specialty design review replace the Step 2 design review or requirements-architecture audit.
-- If a P0/P1 design gap is found, fix it within Step 2, update the relevant design document and traceability matrix, then rerun the relevant design review before development handoff.
+When called within Step 2: treat `design-stage-execution` as controller, use only for specialty area, record decisions in design documents, do not replace Step 2 design review or requirements-architecture audit. P0/P1 gap → fix within Step 2, update design document and traceability matrix, rerun design review before handoff.
 
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with requirements-stage-execution.
-
-- Treat requirements-stage-execution as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions in requirements documents, do not replace Step 1 requirements review or audit. P0/P1 gap → fix within Step 1, update requirements baseline and traceability matrix, rerun requirements review before handoff.
 
 ## Operations Stage Integration
+
+When called within Step 5: treat `operations-stage-execution` as controller, use only for specialty area, record commands, environment, release version, verification evidence, and risks in operations documents, do not replace Step 5 release verification or operations audit. P0/P1 gap → stop rollout or trigger rollback, update release records, rerun required verification before handoff.
 
 ## Coding Conventions Integration
 
@@ -286,12 +293,6 @@ Step 3 编码实现阶段必须遵循 `project-coding-conventions` 技能中定�
 
 各阶段文档产出时参考 `project-document-templates` 技能中的对应模板，确保文档内容完整性。
 
-When this skill is used during the formal deployment and operations stage, coordinate with operations-stage-execution.
+## CI/CD Pipeline Integration
 
-- Treat operations-stage-execution as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-`r`n## CI/CD Pipeline Integration
-`r`nStep 5 部署运维阶段自动化的 CI/CD 流水线标准由 `cicd-pipeline-management` 技能定义。项目初始化、流水线配置、质量闸门设置和部署策略选择时调用该技能。
-- If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
+Step 5 部署运维阶段自动化的 CI/CD 流水线标准由 `cicd-pipeline-management` 技能定义。项目初始化、流水线配置、质量闸门设置和部署策略选择时调用该技能。

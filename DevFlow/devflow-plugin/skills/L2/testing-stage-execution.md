@@ -214,6 +214,87 @@ Step 4 可通过的最低条件：
 6. 测试报告、覆盖率报告、UAT 报告和测试回溯审计材料齐备。
 7. 测试回溯审计允许进入 Step 5。
 
+## 测试追溯 ID 规范
+
+### TT-ID 格式
+
+TT-ID 使用统一格式：`TT-{版本号}-{序号}`
+
+| 模式 | 格式示例 | 说明 |
+|------|---------|------|
+| 全流程模式 | TT-v2.6.0-001 | 继承 Step 3 的版本号 |
+| 独立模式 | TT-EXT-001 | EXT 表示外部来源 |
+
+### TD-ID→TT-ID 映射
+
+测试用例必须同时关联 RT-ID（需求）和 TD-ID（代码）：
+
+```text
+测试用例 ID: TT-v2.6.0-001
+关联需求: RT-v2.6.0-003
+关联代码: TD-v2.6.0-005, TD-v2.6.0-012
+测试类型: API 测试
+前置条件: ...
+测试步骤: ...
+预期结果: ...
+```
+
+**强制规则**：所有 P0/P1 需求的测试用例必须至少关联一个 TD-ID。
+
+## 内部工作流
+
+Step 4 测试验证采用四轨并行模型。
+
+### 步骤序列
+
+```text
+整体: 4.0入场 → 4.1计划 → 4.2环境
+后端: 4.3a API测试 → 4.4a 集成测试
+前端: 4.3b 组件测试 → 4.4b 前端集成测试    [按需]
+第三方: 4.3c 集成测试（Mock/Stub/升级回归） [按需]
+汇合: 4.5 E2E测试 → 4.6 回归+覆盖率 → 4.7 专项测试
+→ 4.8 UAT → 4.9 缺陷闭环 → 4.10 报告 → 4.11 审计移交
+```
+
+### 4.0 入场检查
+| 独立模式 | 全流程模式 |
+|---------|-----------|
+| 可执行代码已存在 | Step 3 移交齐备 + code-logic-review 通过 + 开发审计通过 |
+
+### 4.1~4.2 计划与准备
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 4.1 测试计划 + 测试用例 | 分出后端子计划/前端子计划/第三方测试计划，每用例关联 RT-ID+TD-ID | 测试计划 + 测试用例 |
+| 4.2 环境验证 | 确认测试环境就绪 | 环境验证记录 |
+
+### 4.3~4.4 并行测试执行
+| 步骤 | 轨道 | 活动 |
+|------|------|------|
+| 4.3a 后端 API 测试 | ⚙️ | 接口功能/错误码/边界验证 |
+| 4.4a 后端集成测试 | ⚙️ | 服务间调用/数据流转验证 |
+| 4.3b 前端组件测试 | 🎨 [按需] | 组件渲染/交互/状态验证 |
+| 4.4b 前端集成测试 | 🎨 [按需] | 页面流程/路由/状态联调验证 |
+| 4.3c 第三方集成测试 | 🔗 [按需] | 第三方接口功能验证 + Mock/Stub 测试 + 版本升级兼容性回归 |
+
+### 4.5 E2E 测试（四轨贯通 — 关键衔接点）
+| 条件 | 通过标准 |
+|------|---------|
+| 始终执行（至少后端+整体） | 全量 E2E 通过率 ≥ 95%；覆盖全部 P0/P1 核心流程 |
+
+### 4.6~4.7 回归与专项
+| 步骤 | 活动 |
+|------|------|
+| 4.6 回归测试 + 覆盖率检查 | 分端统计覆盖率，整体汇总 |
+| 4.7 专项测试 | 合规/安全/性能/可访问性（整体） |
+
+### 4.8~4.11 闭环与移交
+| 步骤 | 活动 |
+|------|------|
+| 4.8 UAT 验收 | 用户验收确认 |
+| 4.9 缺陷闭环 + 修复回归 | 缺陷按端记录（后端/前端/第三方）。P0/P1→回退 Step 3 对应端→修复→重新测试 |
+| 4.10 测试报告汇总 | 整体报告 + 各激活轨道分报告 |
+| 4.11 测试回溯审计移交 | 审计检查：RT-ID→TT-ID 覆盖 + TD-ID→TT-ID 覆盖 |
+
 ## 反模式
 
 测试阶段应避免：
@@ -230,29 +311,12 @@ Step 4 可通过的最低条件：
 
 ## Design Stage Integration
 
-When this skill is used during the formal design stage, coordinate with design-stage-execution.
+When called within Step 2: treat `design-stage-execution` as controller, use only for specialty area, record decisions in design doc, do not replace Step 2 review/audit. P0/P1 gap → fix within Step 2, update traceability, rerun review before handoff.
 
-- Treat design-stage-execution as the Step 2 design-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole design stage complete.
-- Record design decisions, assumptions, alternatives, risks, open questions, and downstream impacts in the relevant design document.
-- Do not let a successful specialty design review replace the Step 2 design review or requirements-architecture audit.
-- If a P0/P1 design gap is found, fix it within Step 2, update the relevant design document and traceability matrix, then rerun the relevant design review before development handoff.
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with `requirements-stage-execution`.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions & acceptance criteria in requirements doc, do not replace Step 1 review/audit. P0/P1 gap → fix within Step 1, update traceability matrix, rerun review before design handoff.
 
-- Treat `requirements-stage-execution` as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
 ## Operations Stage Integration
 
-
-When this skill is used during the formal deployment and operations stage, coordinate with operations-stage-execution.
-
-- Treat operations-stage-execution as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-- If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
+When called within Step 5: treat `operations-stage-execution` as controller, record deployment/verification evidence in ops doc, do not replace Step 5 release verification or ops audit. P0/P1 issue → stop or rollback, update records, rerun verification.
