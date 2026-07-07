@@ -18,6 +18,16 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 - 用户需要配置备份远程仓库
 - 用户需要更新 DevFlow 版本
 
+### 初始化仓库地址设置
+
+初始化交互流程中必须包含以下步骤：
+
+1. 展示仓库地址输入界面
+2. 提示用户输入 Git 远程仓库地址（origin 和 backup）
+3. 输入可留空，但必须显示强警告："未设置仓库地址将无法自动备份，建议在首次 commit 前设置"
+4. 用户必须主动确认留空或填写后方可进入下一步
+5. 确认后写入 config.json 的 remote.origin / remote.backup 字段
+
 ## 配置项说明
 
 ### config.json 完整结构
