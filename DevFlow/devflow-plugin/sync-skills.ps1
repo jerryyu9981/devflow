@@ -49,6 +49,9 @@ $DevFlowSkills = @(
     @{ Name = "devflow-phase-manager";          SourceDir = "devflow-phase-manager" }
     @{ Name = "devflow-project-config";         SourceDir = "devflow-project-config" }
 
+    # Plugin configuration (version.json for runtime version detection)
+    @{ Name = "devflow-plugin-config";          SourceDir = "version.json" }
+
     # L1 - Master control skills (single .md files)
     @{ Name = "project-development-workflow";   SourceDir = "skills\L1\project-development-workflow.md" }
     @{ Name = "project-document-management";    SourceDir = "skills\L1\project-document-management.md" }
