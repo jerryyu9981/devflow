@@ -123,12 +123,19 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
         return
     }
 
-    # If source is a single .md file (L1/L2/L3 skills), wrap it into SKILL.md
+    # If source is a single file:
+    # - .md files (L1/L2/L3 skills) → wrap into SKILL.md
+    # - Other files (e.g. version.json) → keep original filename
     $isSingleFile = $false
     $singleFileSrc = ""
+    $preserveFileName = $false
     if (Test-Path $srcFullPath -PathType Leaf) {
         $isSingleFile = $true
         $singleFileSrc = $srcFullPath
+        $ext = [System.IO.Path]::GetExtension($srcFullPath)
+        if ($ext -ne '.md') {
+            $preserveFileName = $true
+        }
     }
 
     # Remove existing destination (full directory replace)
@@ -149,7 +156,8 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
     # Create destination and copy
     if ($DryRun) {
         if ($isSingleFile) {
-            Write-Dry "$skillName : would create $dstSkillDir\SKILL.md from $singleFileSrc"
+            $targetName = if ($preserveFileName) { [System.IO.Path]::GetFileName($singleFileSrc) } else { "SKILL.md" }
+            Write-Dry "$skillName : would create $dstSkillDir\$targetName from $singleFileSrc"
         } else {
             Write-Dry "$skillName : would copy directory $srcFullPath -> $dstSkillDir"
         }
@@ -157,7 +165,8 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
         New-Item -ItemType Directory -Path $dstSkillDir -Force | Out-Null
 
         if ($isSingleFile) {
-            Copy-Item -Path $singleFileSrc -Destination (Join-Path $dstSkillDir "SKILL.md") -Force
+            $targetName = if ($preserveFileName) { [System.IO.Path]::GetFileName($singleFileSrc) } else { "SKILL.md" }
+            Copy-Item -Path $singleFileSrc -Destination (Join-Path $dstSkillDir $targetName) -Force
         } else {
             Copy-Item -Path "$srcFullPath\*" -Destination $dstSkillDir -Recurse -Force
         }
