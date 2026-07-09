@@ -97,7 +97,7 @@ if [ "$SKIP_CONFIG" != "true" ]; then
     cat > .devflow/config.json <<EOF
 {
   "project": "$PROJECT_NAME",
-  "devflowVersion": "$DEVFLOW_VERSION",
+  "projectVersion": "$PROJECT_VERSION",
   "branchStrategy": "$BRANCH_STRATEGY",
   "remote": {
     "origin": "$ORIGIN_URL",

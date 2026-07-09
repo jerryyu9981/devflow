@@ -36,7 +36,7 @@ if [ -z "$REPO_URL" ]; then
 fi
 
 # 1. Check current version
-CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('.devflow/config.json'))['devflowVersion'])" 2>/dev/null || echo "unknown")
+CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('.devflow/config.json')).get('projectVersion', json.load(open('.devflow/config.json')).get('devflowVersion', 'unknown')))" 2>/dev/null || echo "unknown")
 echo "Current DevFlow version: $CURRENT_VERSION"
 
 # 2. Determine latest version
@@ -164,11 +164,11 @@ if [ -f ".devflow/config.json" ]; then
 import json
 with open('.devflow/config.json') as f:
     c = json.load(f)
-c['devflowVersion'] = '$VERSION'
+c['projectVersion'] = '$VERSION'
 with open('.devflow/config.json', 'w') as f:
     json.dump(c, f, indent=2)
 "
-    ok "Updated config.devflowVersion to v$VERSION"
+    ok "Updated config.projectVersion to v$VERSION"
 fi
 
 ok "DevFlow update to v$VERSION complete"

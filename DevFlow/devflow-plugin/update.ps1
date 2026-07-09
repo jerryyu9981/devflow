@@ -45,7 +45,7 @@ $ConfigPath = ".devflow\config.json"
 $CurrentVersion = "unknown"
 if (Test-Path $ConfigPath) {
     $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
-    $CurrentVersion = $config.devflowVersion
+    $CurrentVersion = $config.projectVersion
 }
 Write-Host "Current DevFlow version: $CurrentVersion"
 
@@ -193,9 +193,9 @@ Write-Host "Update summary: $updateCount updated, $failCount failed" -Foreground
 # 4. Update config version
 if (Test-Path $ConfigPath) {
     $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
-    $config.devflowVersion = $LatestVersion
+    $config.projectVersion = $LatestVersion
     $config | ConvertTo-Json -Depth 4 | Set-Content $ConfigPath -Encoding UTF8
-    Write-Success "Updated config.devflowVersion to v$LatestVersion"
+    Write-Success "Updated config.projectVersion to v$LatestVersion"
 }
 
 Write-Success "DevFlow update to v$LatestVersion complete"

@@ -71,7 +71,7 @@ New-Item -ItemType Directory -Path $DevFlowDir -Force | Out-Null
 if (-not $SkipConfig) {
     $config = @{
         project = $ProjectName
-        devflowVersion = $DevFlowVersion
+        projectVersion = $ProjectVersion
         branchStrategy = $BranchStrategy
         remote = @{
             origin = ""
