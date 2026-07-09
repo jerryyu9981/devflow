@@ -238,7 +238,7 @@ Step 3 开发编码采用四轨并行模型。整体轨道负责公共管理，�
 | MongoDB | `mongodb` |
 | Redis | `redis`、`redis-development` |
 | RabbitMQ / Kafka | `rabbitmq`、`kafka` |
-| 安全编码或安全审查 | `security-best-practices` |
+| 安全编码或安全审查 | `security-best-practices`、`secure-coding-practices` |
 | UI/UX 或可访问性审查 | `web-design-guidelines`、`accessibility` |
 | 前端性能 | `frontend-performance`、`browser-devtools` |
 | Web 应用本地验证 | `webapp-testing`、`browser-devtools` |
@@ -338,6 +338,8 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 - 剩余风险
 - 是否可以进入开发审计或测试阶段
 - 相关输出文件位置
+
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 ## Testing Stage Integration
 

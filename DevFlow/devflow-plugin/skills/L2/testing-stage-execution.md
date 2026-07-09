@@ -149,6 +149,7 @@ Step 4 测试阶段
 | Redis、缓存、会话、限流测试 | `redis`、`redis-development` |
 | RabbitMQ / Kafka 消息链路测试 | `rabbitmq`、`kafka` |
 | 容器、多服务和测试环境验证 | `docker` |
+| 性能工程和容量规划基准 | `performance-engineering` |
 | 版本、分支、测试基线和缺陷修复记录 | `code-version-backup-management`、`git-commit` |
 
 ## 输出要求
@@ -160,6 +161,7 @@ Step 4 测试阶段
 - {项目名}-测试回溯对比审计报告-v{版本号}.md（固定存放于 doc\audit\verification）
 
 文档命名、路径和版本规则遵循 `project-document-management`。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 ## 测试报告最小结构
 

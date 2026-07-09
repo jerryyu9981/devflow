@@ -119,7 +119,7 @@ Step 2 架构与设计
 | MCP 服务设计 | `mcp-builder` |
 | 数据模型和数据库设计 | `sql-database`、`mongodb` |
 | 缓存和消息设计 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
-| 安全设计 | `security-best-practices` |
+| 安全设计 | `security-best-practices`、`security-design-review` |
 | 性能设计 | `frontend-performance`、`sql-database`、`redis-development` |
 | 可访问性和 Web 界面规范 | `accessibility`、`web-design-guidelines` |
 | 部署和环境设计 | `docker` |
@@ -143,6 +143,7 @@ Step 2 架构与设计
 - {项目名}-设计评审记录-v{版本号}.md（主文件：含入场检查/需求设计追溯矩阵/审计移交/测试移交）
 
 文档命名、路径和版本规则遵循 project-document-management。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 > 设计阶段结束时，开发者将在 Step 3 开头根据设计文档创建 {项目名}-设计开发追溯矩阵-v{版本号}.md，作为编码实现的逐项指引。该矩阵不属于设计阶段产出，不在本阶段输出要求中列出。
 

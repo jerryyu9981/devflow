@@ -145,6 +145,7 @@ Step 1 需求分析
 - {项目名}-需求评估报告-v{版本号}.md（固定存放于 doc\audit\assessment）
 
 文档命名、路径和版本规则遵循 `project-document-management`。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 ## 专项技能反向声明规则
 

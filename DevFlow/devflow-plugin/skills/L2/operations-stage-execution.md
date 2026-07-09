@@ -115,11 +115,11 @@ Step 5 部署与运维
 | DevLogReport、构建和配置输入 | `coding-stage-execution` |
 | 发布版本、分支、tag、回滚 | `code-version-backup-management`、`git-commit` |
 | GitHub PR、Actions、Release、Artifacts | `gh-cli` |
-| 容器、镜像、Compose、服务部署 | `docker` |
+| 容器、镜像、Compose、服务部署 | `docker`、`container-deployment` |
 | 静态站点和 Pages 部署 | `iga-pages`、`byted-bp-cdn-pagesdeploy` |
 | 上线 Web 验证和浏览器诊断 | `webapp-testing`、`browser-devtools` |
 | 上线 API 验证 | `api-design` |
-| 数据迁移和校验 | `sql-database`、`mongodb` |
+| 数据迁移和校验 | `sql-database`、`mongodb`、`database-migration` |
 | 缓存、队列、事件流运维 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
 | 上线性能检查 | `frontend-performance` |
 | 上线安全检查 | `security-best-practices` |
@@ -141,6 +141,7 @@ Step 5 部署与运维
 - {项目名}-问题跟踪记录-v{版本号}.md（含：变更请求；跨阶段跟踪）
 
 文档命名、路径和版本规则遵循 `project-document-management`。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 ## 专项技能反向声明规则
 
