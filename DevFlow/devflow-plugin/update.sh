@@ -158,17 +158,4 @@ else
     ok "Update summary: $UPDATE_COUNT updated, $FAIL_COUNT failed"
 fi
 
-# 4. Update config version
-if [ -f ".devflow/config.json" ]; then
-    python3 -c "
-import json
-with open('.devflow/config.json') as f:
-    c = json.load(f)
-c['projectVersion'] = '$VERSION'
-with open('.devflow/config.json', 'w') as f:
-    json.dump(c, f, indent=2)
-"
-    ok "Updated config.projectVersion to v$VERSION"
-fi
-
 ok "DevFlow update to v$VERSION complete"

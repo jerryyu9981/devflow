@@ -64,19 +64,21 @@
 | V260-027 | 补齐 `performance-engineering` 在 L2 中的引用：在 `testing-stage-execution` 4.7b-1 后追加性能工程参考 | 🟡 P1 | L3 引用审计 | ✅ 可行（速查表追加） | ✅ 已纳入 | v2.7.1 |
 | V260-028 | 补齐 `project-document-templates` 在 L2 中的引用：在每个 L2 输出要求章节追加"参照模板"注释 | 🟢 P2 | L3 引用审计 | ✅ 可行（注释追加） | ✅ 已纳入 | v2.7.1 |
 
-### v2.7.2 候选（修订版本）
+### v2.7.2 已纳入（修订版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
 | V260-029 | `config.json` 字段重命名：`devflowVersion` → `projectVersion`。涉及 devflow-init/SKILL.md 模板、devflow-project-config/SKILL.md 说明和字段表、setup.ps1、update.ps1 共 4 处代码修改。向后兼容：读 `projectVersion`，不存在时回退读 `devflowVersion` | 🟡 P1 | 配置治理 | ✅ 可行（字段改名+兼容逻辑） | ✅ 已纳入 | v2.7.2 |
 
+### v2.7.3 候选（职责边界清理版本）
+
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-024 | 补齐 `security-design-review` 和 `secure-coding-practices` 在 L2 技能速查表中的技能名引用（内容已在 v2.7.0 新增，仅缺技能名标记） | 🟡 P1 | L3 引用审计 | ✅ 可行（速查表追加技能名） | 📋 候选 | v2.7.1 |
-| V260-025 | 补齐 `database-migration` 在 L2 中的引用：在 `operations-stage-execution` 5.2 步追加"数据库迁移检查"步骤及速查表引用 | 🟡 P1 | L3 引用审计 | ✅ 可行（步骤表追加） | 📋 候选 | v2.7.1 |
-| V260-026 | 补齐 `container-deployment` 在 L2 中的引用：在 `operations-stage-execution` 5.4 部署执行说明中追加容器部署参考 | 🟡 P1 | L3 引用审计 | ✅ 可行（说明文案追加） | 📋 候选 | v2.7.1 |
-| V260-027 | 补齐 `performance-engineering` 在 L2 中的引用：在 `testing-stage-execution` 4.7b-1 后追加性能工程参考 | 🟡 P1 | L3 引用审计 | ✅ 可行（速查表追加） | 📋 候选 | v2.7.1 |
-| V260-028 | 补齐 `project-document-templates` 在 L2 中的引用：在每个 L2 输出要求章节追加"参照模板"注释 | 🟢 P2 | L3 引用审计 | ✅ 可行（注释追加） | 📋 候选 | v2.7.1 |
+| V260-030 | **Install DevFlow 职责清理**——`setup.ps1/sh` 移除项目初始化逻辑（项目名检测、`.devflow/` 创建、config.json/state.json 生成），仅保留全局技能安装到 `~/.trae-cn/skills/` 和可选 Git hook 安装 | 🔴 P0 | 职责边界清理 | ✅ 可行（代码剥离） | 📋 候选 | v2.7.3 |
+| V260-031 | **Update DevFlow 修正**——`update.ps1/sh` 移除修改 `.devflow/config.json` 中 `projectVersion` 的逻辑，只做 TRAE 技能目录 `~/.trae-cn/skills/` 的增量同步（含 `devflow-plugin-config/version.json` 版本更新） | 🔴 P0 | 职责边界清理 | ✅ 可行（移除越界逻辑） | 📋 候选 | v2.7.3 |
+| V260-032 | **devflow-init 增强：DevFlow 版本号读取与写入**——新增从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取 DevFlow 版本号的能力；写入项目根目录 `version.json` 记录"本项目使用的 DevFlow 版本"；写入 `.devflow/state.json` 的 `version` 字段 | 🔴 P0 | 职责边界清理 | ✅ 可行（SKILL.md 规则实现） | 📋 候选 | v2.7.3 |
+| V260-033 | **devflow-init 增强：projectVersion 自动扫描+交互补充**——按照优先级链自动检测项目版本号：① 已有 `.devflow/config.json.projectVersion`（非空）→ 保留 ② 最新 Git tag ③ `package.json` version ④ `pyproject.toml` version ⑤ 其他项目配置文件；以上均无法获取时交互询问用户输入。写入 `.devflow/config.json` 的 `projectVersion` 字段 | 🔴 P0 | 职责边界清理 | ✅ 可行（自动检测链+交互补充） | 📋 候选 | v2.7.3 |
+| V260-034 | **devflow-init 增强：currentPhase 推断并写入 state.json**——完善文档扫描推断逻辑，实际将推断得出的 `currentPhase` 写入 `.devflow/state.json`，而非仅提示用户；确保 state.json 反映真实项目状态 | 🟡 P1 | 职责边界清理 | ✅ 可行（状态写入增强） | 📋 候选 | v2.7.3 |
 
 ---
 
@@ -96,3 +98,4 @@
 | v1.0 | 2026-07-07 | 初始创建，汇总 v2.6.0 全部 15 项需求（V260-006~020）及 v2.7.0 候选 5 项（V260-001~005） | DevFlow 维护团队 |
 | v1.1 | 2026-07-07 | 新增"技术可行性"列，15 项 v2.6.0 + 5 项 v2.7.0 逐一标注可行性结论 | DevFlow 维护团队 |
 | v1.2 | 2026-07-07 | 新增 V260-021~023（L2→L3 内联修复 + 架构修复需求），v2.7.0 候选需求增至 8 项 | DevFlow 维护团队 |
+| v1.3 | 2026-07-11 | 清理 v2.7.1 重复候选条目；标记 v2.7.2 为已纳入；新增 V260-030~034（Install/Update/Init 三组件职责边界清理需求），v2.7.3 候选 | DevFlow 维护团队 |

@@ -190,12 +190,4 @@ foreach ($skill in $skillMap.Keys | Sort-Object) {
 Write-Host ""
 Write-Host "Update summary: $updateCount updated, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
 
-# 4. Update config version
-if (Test-Path $ConfigPath) {
-    $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
-    $config.projectVersion = $LatestVersion
-    $config | ConvertTo-Json -Depth 4 | Set-Content $ConfigPath -Encoding UTF8
-    Write-Success "Updated config.projectVersion to v$LatestVersion"
-}
-
 Write-Success "DevFlow update to v$LatestVersion complete"

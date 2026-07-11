@@ -39,102 +39,7 @@ header() { echo -e "${CYAN}\n=== $1 ===${NC}"; }
 ok() { echo -e "${GREEN}[OK] $1${NC}"; }
 warn() { echo -e "${YELLOW}[WARN] $1${NC}"; }
 
-# 1. Detect project name
-header "Detecting Project Name"
-if [ -z "$PROJECT_NAME" ]; then
-    if [ -f "package.json" ]; then
-        PROJECT_NAME=$(python3 -c "import json; print(json.load(open('package.json'))['name'])" 2>/dev/null || echo "")
-    elif [ -d ".git" ]; then
-        REMOTE=$(git remote get-url origin 2>/dev/null || echo "")
-        if [ -n "$REMOTE" ]; then
-            PROJECT_NAME=$(basename "$REMOTE" .git)
-        fi
-    fi
-    if [ -z "$PROJECT_NAME" ]; then
-        PROJECT_NAME=$(basename "$PWD")
-    fi
-fi
-ok "Project name: $PROJECT_NAME"
-
-# 2. Create .devflow
-header "Creating .devflow Configuration"
-mkdir -p .devflow
-
-# 3. Generate config.json
-if [ "$SKIP_CONFIG" != "true" ]; then
-    echo ""
-    echo "NOTE: DevFlow recommends using SSH Key + Deploy Key for backup authentication."
-    echo "      HTTP Basic Auth with credentials in URL is discouraged for security."
-    echo ""
-
-    read -p "Enter your Git origin remote URL (press Enter to skip): " ORIGIN_URL
-
-    BACKUP_URL=""
-    if [ -n "$ORIGIN_URL" ]; then
-        BACKUP_SUGGESTION=$(echo "$ORIGIN_URL" | sed 's/\.git$/-backup.git/')
-        read -p "Suggested backup URL: $BACKUP_SUGGESTION. Use it? (Y/n): " USE_SUGGESTION
-        if [ "$USE_SUGGESTION" != "n" ] && [ "$USE_SUGGESTION" != "N" ]; then
-            BACKUP_URL="$BACKUP_SUGGESTION"
-            DEV_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-dev-backup.git/')
-            TEST_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-test-backup.git/')
-            PRO_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-pro-backup.git/')
-            DISASTER_BACKUP=$(echo "$BACKUP_SUGGESTION" | sed 's/-backup\.git$/-disaster-backup.git/')
-        else
-            read -p "Enter your Git backup remote URL (press Enter to skip): " BACKUP_URL
-            DEV_BACKUP=""
-            TEST_BACKUP=""
-            PRO_BACKUP=""
-            DISASTER_BACKUP=""
-        fi
-    else
-        read -p "Enter your Git backup remote URL (press Enter to skip): " BACKUP_URL
-        DEV_BACKUP=""
-        TEST_BACKUP=""
-        PRO_BACKUP=""
-        DISASTER_BACKUP=""
-    fi
-
-    cat > .devflow/config.json <<EOF
-{
-  "project": "$PROJECT_NAME",
-  "projectVersion": "$PROJECT_VERSION",
-  "branchStrategy": "$BRANCH_STRATEGY",
-  "remote": {
-    "origin": "$ORIGIN_URL",
-    "backup": "$BACKUP_URL"
-  },
-  "backup": {
-    "type": "git-mirror",
-    "environments": {
-      "dev": { "backup": "$DEV_BACKUP" },
-      "test": { "backup": "$TEST_BACKUP" },
-      "pro": { "backup": "$PRO_BACKUP", "disaster": "$DISASTER_BACKUP" }
-    },
-    "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
-    }
-  }
-}
-EOF
-    ok "Created: .devflow/config.json"
-fi
-
-# 4. Generate state.json
-cat > .devflow/state.json <<EOF
-{
-  "project": "$PROJECT_NAME",
-  "version": "",
-  "currentPhase": "step_0_planning",
-  "completedPhases": [],
-  "currentDocuments": {},
-  "auditResults": {}
-}
-EOF
-ok "Created: .devflow/state.json"
-
-# 5. Install Git Hook
+# 3. Install Git Hook (optional)
 if [ "$INSTALL_HOOK" = "true" ] && [ -d ".git" ]; then
     header "Installing Git Post-Push Hook"
 
@@ -174,7 +79,7 @@ HOOKEOF
     ok "Created: .devflow/logs"
 fi
 
-# 6. Install skills to TRAE (if TRAE detected)
+# 2. Install skills to TRAE (if TRAE detected)
 TRA_SKILLS_DIR="${HOME}/.trae-cn/skills"
 if [ -d "$HOME/.trae-cn" ]; then
     # Skill definitions: Name -> SourcePath (relative to plugin root)
@@ -233,15 +138,10 @@ if [ -d "$HOME/.trae-cn" ]; then
     echo "Skills install result: $inst_count installed, $fail_count failed"
 fi
 
-# 6. Summary
+# 4. Summary
 header "DevFlow Setup Complete"
-echo "Project:         $PROJECT_NAME"
-echo "Branch Strategy: $BRANCH_STRATEGY"
 echo "DevFlow Version: $DEVFLOW_VERSION"
-echo "Config:          .devflow/config.json"
-echo "State:           .devflow/state.json"
 echo ""
 echo "Next steps:"
-echo "  1. Run './update.sh' to update skills when new versions are available"
-echo "  2. Edit .devflow/config.json to set your backup remote URL"
-echo "  3. Start with: Invoke devflow-init skill to detect your current phase"
+echo "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
+echo "  2. Run './update.sh' to update skills when new versions are available"

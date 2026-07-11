@@ -44,102 +44,7 @@ if ($env:TRAE_IDE -or (Test-Path "$env:USERPROFILE\.trae-cn")) {
 }
 Write-Success "Host detected: $HostType"
 
-# 2. Detect Project Name
-Write-Header "Detecting Project Name"
-if (-not $ProjectName) {
-    if (Test-Path "package.json") {
-        $pkg = Get-Content "package.json" -Encoding UTF8 | ConvertFrom-Json
-        $ProjectName = $pkg.name
-    } elseif (Test-Path ".git") {
-        $remote = git remote get-url origin 2>$null
-        if ($remote) {
-            $ProjectName = ($remote -split '/')[-1] -replace '\.git$', ''
-        }
-    }
-    if (-not $ProjectName) {
-        $ProjectName = (Get-Item .).Name
-    }
-}
-Write-Success "Project name: $ProjectName"
-
-# 3. Create .devflow directory
-Write-Header "Creating .devflow Configuration"
-$DevFlowDir = ".devflow"
-New-Item -ItemType Directory -Path $DevFlowDir -Force | Out-Null
-
-# 4. Generate config.json
-if (-not $SkipConfig) {
-    $config = @{
-        project = $ProjectName
-        projectVersion = $ProjectVersion
-        branchStrategy = $BranchStrategy
-        remote = @{
-            origin = ""
-            backup = ""
-        }
-        backup = @{
-            type = "git-mirror"
-            environments = @{
-                dev = @{ backup = "" }
-                test = @{ backup = "" }
-                pro = @{ backup = ""; disaster = "" }
-            }
-            schedule = @{
-                type = "post-push"
-                weeklyArchive = "sunday-02:00"
-                retentionDays = 90
-            }
-        }
-    }
-
-    # Interactive prompts
-    Write-Host ""
-    Write-Host "NOTE: DevFlow recommends using SSH Key + Deploy Key for backup authentication." -ForegroundColor DarkCyan
-    Write-Host "      HTTP Basic Auth with credentials in URL is discouraged for security." -ForegroundColor DarkCyan
-    Write-Host ""
-
-    $originUrl = Read-Host "Enter your Git origin remote URL (press Enter to skip)"
-    if ($originUrl) {
-        $config.remote.origin = $originUrl
-
-        # Auto-infer backup URL based on origin
-        $backupUrlSuggestion = $originUrl -replace '\.git$', '-backup.git'
-        $useSuggestion = Read-Host "Suggested backup URL: $backupUrlSuggestion. Use it? (Y/n)"
-        if ($useSuggestion -ne 'n') {
-            $config.remote.backup = $backupUrlSuggestion
-            # Auto-generate environment-specific backup URLs
-            $config.backup.environments.dev.backup = $backupUrlSuggestion -replace '-backup\.git$', '-dev-backup.git'
-            $config.backup.environments.test.backup = $backupUrlSuggestion -replace '-backup\.git$', '-test-backup.git'
-            $config.backup.environments.pro.backup = $backupUrlSuggestion -replace '-backup\.git$', '-pro-backup.git'
-            $config.backup.environments.pro.disaster = $backupUrlSuggestion -replace '-backup\.git$', '-disaster-backup.git'
-        } else {
-            $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-            if ($backupUrl) { $config.remote.backup = $backupUrl }
-        }
-    } else {
-        $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-        if ($backupUrl) { $config.remote.backup = $backupUrl }
-    }
-
-    $configPath = Join-Path $DevFlowDir "config.json"
-    $config | ConvertTo-Json -Depth 4 | Set-Content $configPath -Encoding UTF8
-    Write-Success "Created: $configPath"
-}
-
-# 5. Generate state.json
-$state = @{
-    project = $ProjectName
-    version = ""
-    currentPhase = "step_0_planning"
-    completedPhases = @()
-    currentDocuments = @{}
-    auditResults = @{}
-}
-$statePath = Join-Path $DevFlowDir "state.json"
-$state | ConvertTo-Json -Depth 4 | Set-Content $statePath -Encoding UTF8
-Write-Success "Created: $statePath"
-
-# 6. Install skills to TRAE (if TRAE detected)
+# 2. Install skills to TRAE (if TRAE detected)
 if ($HostType -eq "TRAE") {
     $TraeSkillsDir = "$env:USERPROFILE\.trae-cn\skills"
 
@@ -206,7 +111,7 @@ if ($HostType -eq "TRAE") {
     Write-Host "Skills install result: $instCount installed, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
 }
 
-# 7. Install Git Hook (optional)
+# 3. Install Git Hook (optional)
 if ($InstallHook -and (Test-Path ".git")) {
     Write-Header "Installing Git Post-Push Hook"
 
@@ -252,15 +157,10 @@ fi
     Write-Success "Created: $logDir"
 }
 
-# 8. Summary
+# 4. Summary
 Write-Header "DevFlow Setup Complete"
-Write-Host "Project:        $ProjectName"
-Write-Host "Branch Strategy: $BranchStrategy"
 Write-Host "DevFlow Version: $DevFlowVersion"
-Write-Host "Config:         .devflow/config.json"
-Write-Host "State:          .devflow/state.json"
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Run '.\update.ps1' to update skills when new versions are available"
-Write-Host "  2. Edit .devflow/config.json to set your backup remote URL"
-Write-Host "  3. Start with: Invoke devflow-init skill to detect your current phase"
+Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
+Write-Host "  2. Run '.\update.ps1' to update skills when new versions are available"

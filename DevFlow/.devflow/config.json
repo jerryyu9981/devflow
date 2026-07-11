@@ -1,6 +1,6 @@
 {
     "project": "DevFlow",
-    "projectVersion": "",
+    "projectVersion": "2.7.3",
     "branchStrategy": "git-flow",
     "remote": {
         "origin": "http://192.168.0.14/jerry.yu/devflow.git",
