@@ -1,6 +1,6 @@
 ﻿#!/bin/bash
 # DevFlow Setup Script (Bash)
-# Usage: ./setup.sh [--project-name <name>] [--branch-strategy <strategy>]
+# Usage: ./setup.sh [--install-hook]
 
 set -e
 
@@ -13,18 +13,12 @@ else
     DEVFLOW_VERSION="unknown"
     echo "[WARN] version.json not found, version will be 'unknown'"
 fi
-PROJECT_NAME=""
-BRANCH_STRATEGY="git-flow"
 INSTALL_HOOK=false
-SKIP_CONFIG=false
 
 # Parse args
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --project-name) PROJECT_NAME="$2"; shift 2 ;;
-        --branch-strategy) BRANCH_STRATEGY="$2"; shift 2 ;;
         --install-hook) INSTALL_HOOK=true; shift ;;
-        --skip-config) SKIP_CONFIG=true; shift ;;
         *) echo "Unknown option: $1"; exit 1 ;;
     esac
 done

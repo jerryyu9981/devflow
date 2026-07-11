@@ -1,12 +1,8 @@
 ﻿# DevFlow Setup Script (PowerShell)
-# Usage: .\setup.ps1 [-ProjectName <name>] [-BranchStrategy <strategy>]
+# Usage: .\setup.ps1 [-InstallHook]
 
 param(
-    [string]$ProjectName = "",
-    [ValidateSet("trunk-based", "github-flow", "git-flow")]
-    [string]$BranchStrategy = "git-flow",
-    [switch]$InstallHook,
-    [switch]$SkipConfig
+    [switch]$InstallHook
 )
 
 $ErrorActionPreference = "Stop"
