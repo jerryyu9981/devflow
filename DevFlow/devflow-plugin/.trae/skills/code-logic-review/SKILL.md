@@ -7,7 +7,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 
 ## 定位
 
-> **编码阶段三技能关系**：本技能与 project-coding-conventions（编码约定）、code-static-quality-check（静态质量检查）共同组成 Step 3 编码阶段的质量保障体系。编码阶段串联执行路径：编码实现 → project-coding-conventions（编码标准）→ code-static-quality-check（静态质量检查）→ 开发自测 → 本技能（逻辑审查）→ 修复复审 → DevLogReport → 开发审计。
+> **编码阶段三技能关系**：本技能与 project-coding-conventions（编码约定）、code-static-quality-check（静态质量检查）共同组成 Step 3 编码阶段的质量保障体系。编码阶段串联执行路径：编码实现 → project-coding-conventions（编码标准）→ code-static-quality-check（静态质量检查）→ 开发自测 → **AI 初筛** → 本技能（逻辑审查）→ 修复复审 → DevLogReport → 开发审计。
 > - project-coding-conventions 定义编码执行时的项目级约定（分层/错误处理/日志/API等），编码实现时必须遵循
 > - code-static-quality-check 在前者通过后执行，检查语法/Lint/类型/构建等 12 类静态问题
 > - 本技能在前两者通过后执行，审查需求覆盖/设计一致性/业务逻辑/API契约/数据一致性/权限安全/异常处理/可测试性/静态质量证据/可维护性等 11 个维度
@@ -19,7 +19,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 推荐位置：
 
 ```text
-编码实现 → 代码静态质量检查 → 开发自测 → code-logic-review → 修复复审 → 更新 DevLogReport → 开发审计
+编码实现 → 代码静态质量检查 → 开发自测 → AI 初筛 → code-logic-review → 修复复审 → 更新 DevLogReport → 开发审计
 ```
 
 ## 触发条件
@@ -204,6 +204,17 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 - 是否混入无关重构
 - 是否留下调试代码、临时代码或 TODO
 
+### 12. AI Code Review 门禁
+
+检查：
+
+- 是否已完成 AI 初筛审查
+- AI 审查发现的 P0/P1 问题是否全部修复
+- AI 审查工具名称和输出摘要是否记录
+- AI 审查结论是否纳入最终审查结论
+
+AI 初筛在人工审查之前执行，作为降低人工审查负荷的前置步骤。AI 初筛发现的 P0/P1 问题必须先修复，然后才能进入人工审查环节。
+
 ## 问题严重级别
 
 | 级别 | 含义 | 处理规则 |
@@ -228,7 +239,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 |---|---|---|
 | 通过 | 无未解决 P0/P1，静态质量证据和开发自测证据足够，偏差已记录 | 可更新 `DevLogReport` 并进入开发审计 |
 | 有条件通过 | 仅存在 P2/P3 或已批准偏差 | 记录风险和后续计划后进入开发审计 |
-| 不通过 | 存在 P0/P1、设计重大偏差、静态质量证据不足、开发自测证据不足或安全阻塞 | 回到编码阶段修复并复审 |
+| 不通过 | 存在 P0/P1、设计重大偏差、静态质量证据不足、开发自测证据不足、安全阻塞或 AI Code Review 发现的 P0/P1 问题未全部修复 | 回到编码阶段修复并复审 |
 | 证据不足 | 缺少需求、设计、代码变更、静态质量检查或自测结果 | 补齐材料后重新审查 |
 
 ## 输出要求

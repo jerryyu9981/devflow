@@ -53,6 +53,26 @@
 | V260-003 | 追溯链可视化：实现从需求→设计→开发→测试→部署的全链路可视化追溯看板 | 🟢 P2 | 追溯链 | ⚠️ 需预研（需评估前端看板方案） | 📋 候选 | v2.8.0 |
 | V260-004 | 并行阶段执行支持：允许多个阶段（如设计+开发、开发+测试）在受控条件下并行推进 | 🟢 P2 | 流程优化 | ⚠️ 需预研（需定义并行阶段协调机制） | 📋 候选 | v2.8.0 |
 | V260-005 | 国际化文档模板：提供多语言项目文档模板支持（英文/繁体中文等） | 🟢 P2 | 国际化 | ✅ 可行（模板翻译+多语系方案） | 📋 候选 | v2.8.0 |
+| V260-036-01 | **新增 download-devflow.ps1 脚本**：实现从云端仓库下载最新 DevFlow 到本地副本的功能，支持 Clone（首次克隆）、Update（拉取更新）、SetRepo（设置仓库地址）三种模式；仓库地址从 version.json.repository 读取 | 🟡 P1 | 三阶段架构 | ✅ 可行（新增 PowerShell 脚本） | 📋 候选 | v2.8.0 |
+| V260-036-07 | **devflow-init 版本差异检测增强**：在步骤 1.5 之后插入版本差异检测步骤；读取 TRAE 系统目录版本 vs 项目记录版本；根据差异结果执行不同操作；将检测结果写入 state.json.versionCheck 字段 | 🔴 P0 | 三阶段架构 | ✅ 可行（SKILL.md 流程增强） | 📋 候选 | v2.8.0 |
+| V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段；用户在首次使用时通过 download-devflow.ps1 -Action SetRepo 设置 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
+| V260-037 | **修复 setup.ps1 复制逻辑：对非 .md 文件保留原文件名**——setup.ps1 第 98 行写死 `$dstFile = Join-Path $dstDir "SKILL.md"`，导致 `version.json` 和 `sync-skills.ps1` 被错误复制为 `SKILL.md`。增加文件扩展名判断逻辑：.md 文件→SKILL.md，非 .md 文件→保留原文件名，与 sync-skills.ps1 的 `$preserveFileName` 机制一致 | 🔴 P0 | 架构修复（v2.7.5 衍生） | ✅ 可行（复制逻辑增强） | 📋 候选 | v2.8.0 |
+
+### v2.8.1 候选（技术债务修复版本）
+
+| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
+|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
+| V260-038 | **修复 update.ps1 复制逻辑中 SKILL.md 硬编码**——update.ps1 第 153 行 `$dst = Join-Path $dstDir "SKILL.md"` 对所有技能使用固定文件名，导致 `version.json`、`sync-skills.ps1`、`download-devflow.ps1` 等非 .md 文件被错误命名为 `SKILL.md`。修复方式参照 setup.ps1 的 V260-037 方案，增加文件扩展名判断：.md 文件→SKILL.md，非 .md 文件→保留原文件名。影响范围：推荐更新路径 `update-devflow.bat`（调用 sync-skills.ps1）不受影响，仅直接影响用户直接运行 `update.ps1` 的场景 | 🟡 P1 | 技术债务 | ✅ 可行（参照 V260-037 方案，约 10 行代码修改） | 📋 候选 | v2.8.1 |
+
+### v2.9.0 候选（全自动循环架构版本）
+
+| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
+|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
+| V260-039 | **重试管理器（retry-manager）**——嵌入到 devflow-phase-manager 的阶段切换门禁中，为每个 Step 增加重试计数（retryCount）和上限（maxRetries=3）。单步超过上限后自动诊断：部分失败→通过项标记 passed，失败项移入 deferredItems；全部失败→本版本所有未完成项移入 deferredItems，强制进入下一步。用于防止"测试-修复循环""审计门禁循环""覆盖率循环"等死锁场景 | 🔴 P0 | 全自动循环 | ⚠️ 需预研（需定义各阶段的超限策略） | 📋 候选 | v2.9.0 |
+| V260-040 | **空池检测器（empty-pool-detector）**——在 Step 5 闭环后检测候选需求池状态。候选池为空→终止循环（completed）；仅剩 P2→暂停循环等待用户确认（paused）；有 P0/P1→执行滞留检测后启动下一版本。绑定额度检测：滞留 3 版的需求自动移入 blockedItems。用于防止"空版本循环"死锁 | 🔴 P0 | 全自动循环 | ✅ 可行（文件读取+JSON 解析逻辑） | 📋 候选 | v2.9.0 |
+| V260-041 | **自动降级机制（auto-degrade）**——嵌入到 testing-stage-execution 等 L2 技能中，为测试覆盖率略低（≥90% <95%）、非 P0 测试失败（P1/P2）、代码审查 warnings 等"灰色地带"提供自动通过逻辑。降级结果：pass_with_note（记录缺口项）、partial_pass（记录 knownIssues）、pass_with_warnings。P0 失败和覆盖率<90%永不自动降级，确保质量底线 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义降级判断矩阵） | 📋 候选 | v2.9.0 |
+| V260-042 | **致命错误处理器（fatal-error-handler）**——贯穿所有 Step，捕获不可恢复的错误（state.json 损坏、TRAE 目录不可写、磁盘空间不足、候选池文件损坏、版本号无意义）。检测到致命错误时：设置 cycleState.status=aborted，立即终止循环，输出错误报告。非致命错误（外部依赖超时、部署非核心技能失败）自动降级。连续 3 次 fatal 后永久 abort | 🟡 P1 | 全自动循环 | ✅ 可行（错误捕获+状态设置逻辑） | 📋 候选 | v2.9.0 |
+| V260-043 | **循环状态机（cycle-state-machine）**——新增 orchestrator 技能，位于 devflow-phase-manager 上层，管理"版本间循环"生命周期。状态：idle→planning→version_executing→cycle_checking→idle（循环）或 paused（等待）或 completed（终止）。在 Step 5 闭环后触发空池检测+滞留检测，决定是否启动下一版本。版本号自动递增策略：热修复→修订号，新功能→次版本号 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义状态机切换逻辑+版本号递增策略） | 📋 候选 | v2.9.0 |
 
 ### v2.7.1 已纳入（修订版本）
 
@@ -82,6 +102,31 @@
 
 ---
 
+### v2.7.4 候选（版本字段命名规范化版本）
+
+| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
+|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
+| V260-035 | **所有 version 字段统一命名规范化**——消除 `version` 字段歧义：`devflow-plugin/version.json` 的 `version` → `devflowVersion`、项目根 `version.json` 的 `version` → `devflowVersion`、`.devflow/state.json` 的 `version` → `devflowVersion`；同步更新所有技能模板中的字段引用（devflow-init、devflow-phase-manager、devflow-project-config）；删除 `.devflow/version.json` 旧版备份遗留文件；同步更新 setup.ps1/sh、sync-skills.ps1、update.ps1/sh 中的字段读取。**修复 update.ps1/sh 语义错误**：`$CurrentVersion` 来源从 `config.json.projectVersion`（项目版本）改为读取 `state.json.devflowVersion`（项目使用的 DevFlow 版本），与 `$LatestVersion`（来自 `devflow-plugin/version.json.devflowVersion`，插件源版本）形成正确的"已安装 vs 最新"比较。 | 🔴 P0 | 配置治理 | ✅ 可行（字段重命名+语义修正） | ✅ 已纳入 | v2.7.4 |
+
+---
+
+### v2.7.5 候选（三阶段版本管理架构修复）
+
+| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
+|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
+| V260-036 | **建立完整的三阶段版本管理流程**——修复 DevFlow 版本管理中"云端仓库→本地副本→TRAE 系统目录→项目目录"全链路的断裂问题，消除 6 个执行文件的职责边界模糊，实现项目初始化时的版本差异检测。包含 9 项子需求： | 🔴 P0 | 架构修复（v2.7.4 衍生） | ✅ 可行（已有完整设计文档） | ✅ 已纳入 | v2.7.5 |
+| V260-036-01 | **新增 download-devflow.ps1 脚本**：实现从云端仓库下载最新 DevFlow 到本地副本的功能，支持 Clone（首次克隆）、Update（拉取更新）、SetRepo（设置仓库地址）三种模式；仓库地址从 version.json.repository 读取 | 🟡 P1 | 三阶段架构 | ✅ 可行（新增 PowerShell 脚本） | 📋 候选 | v2.8.0 |
+| V260-036-02 | **修复 install.ps1 组件边界违规**：将 \$verInfo.version 改为 \$verInfo.devflowVersion；移除复制整个 devflow-plugin/ 到项目 .devflow/ 的代码；移除提示用户从 .devflow/ 运行 update.ps1 的代码 | 🔴 P0 | 三阶段架构 | ✅ 可行（代码剥离+字段修正） | ✅ 已纳入 | v2.7.5 |
+| V260-036-03 | **修复 setup.ps1 skillMap 遗漏**：在 skillMap 中添加 devflow-plugin-config → version.json 和 devflow-plugin-sync → sync-skills.ps1 | 🔴 P0 | 三阶段架构 | ✅ 可行（skillMap 条目追加） | ✅ 已纳入 | v2.7.5 |
+| V260-036-04 | **修复 sync-skills.ps1 缺少自身引用**：在 \$DevFlowSkills 列表中添加 devflow-plugin-sync → sync-skills.ps1 | 🔴 P0 | 三阶段架构 | ✅ 可行（列表条目追加） | ✅ 已纳入 | v2.7.5 |
+| V260-036-05 | **修复 update.ps1 skillMap 遗漏**：在 skillMap 中添加 devflow-plugin-config → version.json 和 devflow-plugin-sync → sync-skills.ps1 | 🟡 P1 | 三阶段架构 | ✅ 可行（skillMap 条目追加） | ✅ 已纳入 | v2.7.5 |
+| V260-036-06 | **修复 update-devflow.bat 硬编码版本号**：标题从 v2.6.0 改为通用标题 DevFlow Updater | 🟢 P2 | 三阶段架构 | ✅ 可行（字面量文本修改） | ✅ 已纳入 | v2.7.5 |
+| V260-036-07 | **devflow-init 版本差异检测增强**：在步骤 1.5 之后插入版本差异检测步骤；读取 TRAE 系统目录版本 vs 项目记录版本；根据差异结果执行不同操作；将检测结果写入 state.json.versionCheck 字段 | 🔴 P0 | 三阶段架构 | ✅ 可行（SKILL.md 流程增强） | 📋 候选 | v2.8.0 |
+| V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段；用户在首次使用时通过 download-devflow.ps1 -Action SetRepo 设置 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
+| V260-036-09 | **同步修改 setup.sh / update.sh**：在 SKILL_MAP 中添加 devflow-plugin-config 和 devflow-plugin-sync 条目 | 🟡 P1 | 三阶段架构 | ✅ 可行（SKILL_MAP 条目追加） | ✅ 已纳入 | v2.7.5 |
+
+---
+
 ## 需求池流转规则
 
 1. **新增候选需求**：来源包括用户反馈、业务输入、线上问题、技术债、竞品信息和内部改进建议，需填写来源、价值、初步成本和目标版本。
@@ -99,3 +144,6 @@
 | v1.1 | 2026-07-07 | 新增"技术可行性"列，15 项 v2.6.0 + 5 项 v2.7.0 逐一标注可行性结论 | DevFlow 维护团队 |
 | v1.2 | 2026-07-07 | 新增 V260-021~023（L2→L3 内联修复 + 架构修复需求），v2.7.0 候选需求增至 8 项 | DevFlow 维护团队 |
 | v1.3 | 2026-07-11 | 清理 v2.7.1 重复候选条目；标记 v2.7.2 为已纳入；新增 V260-030~034（Install/Update/Init 三组件职责边界清理需求），v2.7.3 候选 | DevFlow 维护团队 |
+| v1.4 | 2026-07-12 | 新增 V260-035（version 字段统一命名规范化+update 语义修复），v2.7.4 候选；新增 V260-036（devflow-init 跨项目版本检测），v2.7.5 候选 | DevFlow 维护团队 |
+| v1.5 | 2026-07-12 | 新增 V260-038（update.ps1 SKILL.md 硬编码技术债务），v2.8.1 候选 | DevFlow 维护团队 |
+| v1.6 | 2026-07-12 | 新增 V260-039~043（全自动版本循环执行架构），v2.9.0 候选；新增设计文档 `DevFlow-全自动版本循环执行架构设计文档.md` | DevFlow 维护团队 |

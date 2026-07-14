@@ -1,19 +1,19 @@
 {
   "project": "DevFlow",
-  "version": "2.7.3",
+  "devflowVersion": "2.8.0",
   "currentPhase": "step_5_deployed",
-  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding", "step_4_testing"],
+  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding", "step_4_testing", "step_5_deployed"],
   "currentDocuments": {
-    "version_plan": "doc/version/releases/v2.7.0/DevFlow-单版本规划文档-v2.7.0.md",
-    "backlog": "doc/version/releases/v2.7.0/DevFlow-本版本Backlog-v2.7.0.md",
-    "phase_plan": "doc/version/releases/v2.7.0/DevFlow-Phase迭代计划-v2.7.0.md",
-    "requirements_doc": "doc/requirements/DevFlow-开发需求文档-v2.7.0.md",
-    "trace_matrix": "doc/requirements/DevFlow-需求追溯矩阵-v2.7.0.md",
-    "design_review": "doc/design/DevFlow-设计评审记录-v2.7.0.md",
-    "devlog_report": "doc/development/DevFlow-DevLogReport-v2.7.0.md",
-    "test_report": "doc/test/DevFlow-测试报告-v2.7.0.md",
-    "deployment_report": "doc/operation/DevFlow-部署执行报告-v2.6.0.md",
-    "postmortem": "doc/operation/DevFlow-发布复盘报告-v2.6.0.md"
+    "version_plan": "doc/version/releases/v2.8.0/DevFlow-单版本规划文档-v2.8.0.md",
+    "backlog": "doc/version/releases/v2.8.0/DevFlow-本版本Backlog-v2.8.0.md",
+    "phase_plan": "doc/version/releases/v2.8.0/DevFlow-Phase迭代计划-v2.8.0.md",
+    "requirements_doc": "doc/requirements/DevFlow-开发需求文档-v2.8.0.md",
+    "requirements_review": "doc/requirements/DevFlow-需求评审记录-v2.8.0.md",
+    "requirements_handoff": "doc/requirements/DevFlow-需求基线及设计移交说明-v2.8.0.md",
+    "design_doc": "doc/design/DevFlow-三步走流程设计文档-v2.8.0.md",
+    "design_review": "doc/design/DevFlow-设计评审记录-v2.8.0.md",
+    "devlog_report": "doc/development/DevFlow-DevLogReport-v2.8.0.md",
+    "test_report": "doc/test/DevFlow-测试报告-v2.8.0.md"
   },
   "auditResults": {
     "step_0_review": "passed",
@@ -21,7 +21,7 @@
     "step_2_review": "passed",
     "step_3_review": "passed",
     "step_4_review": "passed",
-    "step_5_ops_passed": true,
+    "step_5_deployed": "passed",
     "step_5_closed": true
   }
 }

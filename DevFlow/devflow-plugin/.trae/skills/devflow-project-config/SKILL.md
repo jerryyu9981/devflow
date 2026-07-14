@@ -9,7 +9,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
 
-> **版本来源规则**：`devflowVersion` 的值必须与插件根目录 `version.json` 中的 `version` 字段保持完全一致。`version.json` 是 DevFlow 的唯一权威版本来源（Single Source of Truth）。更新版本时，先修改 `version.json`，再同步至本技能及所有引用位置。
+> **版本说明**：本技能生成的 `config.json` 中的 `projectVersion` 是项目当前开发版本号，由初始化时自动读取。插件自身版本号见插件根目录 `version.json`。
 
 ## 触发条件
 
@@ -18,6 +18,16 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 - 用户需要配置备份远程仓库
 - 用户需要更新 DevFlow 版本
 
+### 初始化仓库地址设置
+
+初始化交互流程中必须包含以下步骤：
+
+1. 展示仓库地址输入界面
+2. 提示用户输入 Git 远程仓库地址（origin 和 backup）
+3. 输入可留空，但必须显示强警告："未设置仓库地址将无法自动备份，建议在首次 commit 前设置"
+4. 用户必须主动确认留空或填写后方可进入下一步
+5. 确认后写入 config.json 的 remote.origin / remote.backup 字段
+
 ## 配置项说明
 
 ### config.json 完整结构
@@ -25,7 +35,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ```json
 {
   "project": "项目名称",
-  "devflowVersion": "2.4.1",
+  "projectVersion": "",
   "branchStrategy": "git-flow",
   "remote": {
     "origin": "git@github.com:org/project.git",
@@ -59,7 +69,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
 | `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `devflowVersion` | string | "2.4.1" | 当前使用的 DevFlow 版本 |
+| `projectVersion` | string | "" | 项目当前开发版本号，初始化时自动读取（优先取项目 `version.json` 或 Git tag） |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |
