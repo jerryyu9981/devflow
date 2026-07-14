@@ -1,4 +1,4 @@
-# DevFlow Skills Sync Script (PowerShell)
+﻿# DevFlow Skills Sync Script (PowerShell)
 # Usage: .\sync-skills.ps1 [-Target <IDE|Work|All>] [-Action <Install|Uninstall|Sync>] [-DryRun]
 #
 # Description:
@@ -37,7 +37,7 @@ $Version = "unknown"
 $VersionJsonPath = Join-Path $PluginDir "version.json"
 if (Test-Path $VersionJsonPath) {
     $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.version
+    $Version = $verInfo.devflowVersion
 }
 
 # ─── DevFlow Skill Definitions ──────────────────────────────────
@@ -84,6 +84,12 @@ $DevFlowSkills = @(
     @{ Name = "container-deployment";          SourceDir = "skills\L3\container-deployment.md" }
     @{ Name = "performance-engineering";       SourceDir = "skills\L3\performance-engineering.md" }
     @{ Name = "database-migration";            SourceDir = "skills\L3\database-migration.md" }
+
+    # v2.7.5: Plugin sync tool (self-reference for self-update capability)
+    @{ Name = "devflow-plugin-sync";           SourceDir = "sync-skills.ps1" }
+
+    # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+    @{ Name = "devflow-plugin-download";       SourceDir = "download-devflow.ps1" }
 )
 
 $SkillNames = $DevFlowSkills | ForEach-Object { $_.Name }

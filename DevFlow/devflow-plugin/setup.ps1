@@ -12,7 +12,7 @@ $ScriptDir = $PSScriptRoot
 $VersionJsonPath = Join-Path $ScriptDir "version.json"
 if (Test-Path $VersionJsonPath) {
     $versionInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $DevFlowVersion = $versionInfo.version
+    $DevFlowVersion = $versionInfo.devflowVersion
 } else {
     $DevFlowVersion = "unknown"
     Write-Host "[WARN] version.json not found, version will be 'unknown'" -ForegroundColor Yellow
@@ -68,6 +68,13 @@ if ($HostType -eq "TRAE") {
         "backend-coverage"              = "skills\L3\backend-coverage.md"
         "project-document-templates"     = "skills\L3\project-document-templates.md"
         "code-version-backup-management" = "skills\L3\code-version-backup-management.md"
+
+        # v2.7.5: Plugin configuration (version.json) and sync tool
+        "devflow-plugin-config"         = "version.json"
+        "devflow-plugin-sync"           = "sync-skills.ps1"
+
+        # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+        "devflow-plugin-download"       = "download-devflow.ps1"
     }
 
     # Phase 1: Uninstall existing DevFlow skills (clean slate)
@@ -91,10 +98,16 @@ if ($HostType -eq "TRAE") {
     foreach ($skillName in $skillMap.Keys | Sort-Object) {
         $src = Join-Path $PSScriptRoot $skillMap[$skillName]
         $dstDir = Join-Path $TraeSkillsDir $skillName
-        $dstFile = Join-Path $dstDir "SKILL.md"
 
         if (Test-Path $src) {
             New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+            # v2.7.5 fix: preserve original filename for non-.md files (e.g. version.json, sync-skills.ps1)
+            $ext = [System.IO.Path]::GetExtension($src)
+            if ($ext -eq '.md') {
+                $dstFile = Join-Path $dstDir "SKILL.md"
+            } else {
+                $dstFile = Join-Path $dstDir $skillMap[$skillName]
+            }
             Copy-Item -Path $src -Destination $dstFile -Force
             Write-Success "Installed: $skillName"
             $instCount++

@@ -8,7 +8,7 @@ set -e
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 VERSION_JSON="${SCRIPT_DIR}/version.json"
 if [ -f "$VERSION_JSON" ]; then
-    DEVFLOW_VERSION=$(python3 -c "import json; print(json.load(open('$VERSION_JSON'))['version'])" 2>/dev/null || echo "unknown")
+    DEVFLOW_VERSION=$(python3 -c "import json; print(json.load(open('$VERSION_JSON'))['devflowVersion'])" 2>/dev/null || echo "unknown")
 else
     DEVFLOW_VERSION="unknown"
     echo "[WARN] version.json not found, version will be 'unknown'"
@@ -100,6 +100,10 @@ if [ -d "$HOME/.trae-cn" ]; then
     SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
     SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
     SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
+
+    # v2.7.5: Plugin configuration (version.json) and sync tool
+    SKILL_MAP["devflow-plugin-config"]="version.json"
+    SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
 
     # Phase 1: Uninstall existing DevFlow skills (clean slate)
     header "Uninstalling existing DevFlow Skills"

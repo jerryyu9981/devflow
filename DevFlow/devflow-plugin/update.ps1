@@ -1,4 +1,4 @@
-# DevFlow Update Script (PowerShell)
+﻿# DevFlow Update Script (PowerShell)
 # Usage: .\update.ps1 [-Version <version>] [-DryRun]
 
 param(
@@ -41,11 +41,11 @@ function Write-Warn($text) {
 }
 
 # 1. Check current version
-$ConfigPath = ".devflow\config.json"
+$StatePath = ".devflow\state.json"
 $CurrentVersion = "unknown"
-if (Test-Path $ConfigPath) {
-    $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
-    $CurrentVersion = $config.projectVersion
+if (Test-Path $StatePath) {
+    $state = Get-Content $StatePath -Encoding UTF8 | ConvertFrom-Json
+    $CurrentVersion = $state.devflowVersion
 }
 Write-Host "Current DevFlow version: $CurrentVersion"
 
@@ -57,14 +57,14 @@ if (-not $LatestVersion) {
     $LocalVersionJson = Join-Path $ScriptDir "version.json"
     if (Test-Path $LocalVersionJson) {
         $localVer = Get-Content $LocalVersionJson -Encoding UTF8 | ConvertFrom-Json
-        $LatestVersion = $localVer.version
+        $LatestVersion = $localVer.devflowVersion
     }
     # If repo URL is configured, also try remote check
     if ($RepoUrl -and (-not $LatestVersion)) {
         try {
             $response = Invoke-WebRequest -Uri "$RepoUrl/raw/main/version.json" -UseBasicParsing -TimeoutSec 10
             $latest = $response.Content | ConvertFrom-Json
-            $LatestVersion = $latest.version
+            $LatestVersion = $latest.devflowVersion
         } catch {
             Write-Warn "Could not fetch remote version.json: $_"
         }
@@ -117,6 +117,13 @@ $skillMap = @{
     "backend-coverage"            = "skills\L3\backend-coverage.md"
     "project-document-templates"  = "skills\L3\project-document-templates.md"
     "code-version-backup-management" = "skills\L3\code-version-backup-management.md"
+
+    # v2.7.5: Plugin configuration (version.json) and sync tool
+    "devflow-plugin-config"         = "version.json"
+    "devflow-plugin-sync"           = "sync-skills.ps1"
+
+    # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+    "devflow-plugin-download"       = "download-devflow.ps1"
 }
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)

@@ -1,4 +1,4 @@
----
+﻿---
 name: devflow-init
 description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断所处开发阶段，引导用户进入正确的 DevFlow 阶段。每个项目首次使用 DevFlow 时调用。"
 ---
@@ -39,24 +39,78 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 ### 1.5 获取 DevFlow 版本号
 
-从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取 `version` 字段作为 DevFlow 插件版本号。
+从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取 `devflowVersion` 字段作为 DevFlow 插件版本号。
 
 ```bash
 # 读取方式示例
 cat ~/.trae-cn/skills/devflow-plugin-config/version.json
-# → { "name": "DevFlow", "version": "2.7.3" }
+# → { "name": "DevFlow", "devflowVersion": "2.7.3" }
 ```
 
 **降级规则**：
 - 若 TRAE 技能目录 `version.json` 不存在（如未安装或同步），则读取项目根目录的 `version.json`（如有）
 - 若仍无法读取，标记为 `"unknown"`
 
+### 1.5.5 版本差异检测
+
+比较 TRAE 系统目录中已安装的 DevFlow 版本与项目 `.devflow/state.json` 中记录的版本，发现差异时提示用户。
+
+**读取来源**：
+
+| 版本 | 来源路径 | 字段 |
+|:----|:--------|:----|
+| `devflowVersionInTrae`（TRAE 已安装版本） | `~/.trae-cn/skills/devflow-plugin-config/version.json` | `devflowVersion` |
+| `devflowVersionInProject`（项目记录版本） | `.devflow/state.json` | `devflowVersion` |
+
+**比较逻辑**：
+
+```
+if devflowVersionInTrae == devflowVersionInProject:
+    → 版本一致，无需操作
+    → versionCheck.result = "consistent"
+    → versionCheck.action = "no_action"
+
+elif devflowVersionInTrae > devflowVersionInProject（语义版本比较）:
+    → TRAE 已安装版本更新
+    → 自动更新 .devflow/state.json.devflowVersion = devflowVersionInTrae
+    → 提示用户："TRAE 已安装 DevFlow {devflowVersionInTrae}，项目记录已自动更新"
+    → versionCheck.result = "installed_newer"
+    → versionCheck.action = "auto_updated"
+
+elif devflowVersionInTrae < devflowVersionInProject（语义版本比较）:
+    → 项目记录版本更高（异常情况）
+    → 提示用户，不自动修改
+    → versionCheck.result = "project_newer"
+    → versionCheck.action = "user_prompted"
+```
+
+**语义版本比较说明**：版本号格式为 `major.minor.patch`（如 `2.8.0`），逐段比较数字。例如 `2.8.0` > `2.7.5`，`2.7.10` > `2.7.9`。
+
+**降级处理**：
+- 若 `.devflow/state.json` 不存在（首次初始化），跳过版本检测，`versionCheck.result = "first_check"`
+- 若 TRAE 系统目录 `version.json` 不存在，跳过版本检测，`versionCheck.result = "error"`
+
+**写入 state.json**：
+
+```json
+{
+  "devflowVersion": "{比较后确定的版本号}",
+  "versionCheck": {
+    "lastCheck": "{当前时间}",
+    "installedDevflowVersion": "{devflowVersionInTrae}",
+    "recordedDevflowVersion": "{devflowVersionInProject}",
+    "result": "{比较结果}",
+    "action": "{执行动作}"
+  }
+}
+```
+
 ### 1.6 创建项目根目录 version.json
 
 ```json
 {
   "name": "DevFlow",
-  "version": "{1.5 获取到的版本号}"
+  "devflowVersion": "{1.5 获取到的版本号}"
 }
 ```
 
@@ -137,7 +191,7 @@ else:
 ```json
 {
   "project": "{项目名称}",
-  "version": "{1.5 获取到的 DevFlow 版本号}",
+  "devflowVersion": "{1.5 获取到的 DevFlow 版本号}",
   "currentPhase": "{2. 推断的阶段}",
   "completedPhases": ["{基于 currentPhase 倒推的已完成阶段}"],
   "currentDocuments": {},
@@ -145,9 +199,9 @@ else:
 }
 ```
 
-**注意**：`version` 字段填入 DevFlow 插件版本号（来自步骤 1.5），`currentPhase` 和 `completedPhases` 填入步骤 2 的推断结果。
+**注意**：`devflowVersion` 字段填入 DevFlow 插件版本号（来自步骤 1.5），`currentPhase` 和 `completedPhases` 填入步骤 2 的推断结果。
 
-**如果 `.devflow/state.json` 已存在**，则合并更新 `version`、`currentPhase`、`completedPhases` 字段，保留 `currentDocuments` 和 `auditResults` 中的已有值。
+**如果 `.devflow/state.json` 已存在**，则合并更新 `devflowVersion`、`currentPhase`、`completedPhases` 字段，保留 `currentDocuments` 和 `auditResults` 中的已有值。
 
 ### 5. 输出初始化报告
 

@@ -1,4 +1,4 @@
----
+﻿---
 name: devflow-phase-manager
 description: "DevFlow 阶段状态机。管理项目当前所处的开发阶段（Step 0-5），记录已完成阶段，控制阶段切换门禁。每个会话开始时读取状态，阶段完成时更新状态。"
 ---
@@ -27,7 +27,7 @@ description: "DevFlow 阶段状态机。管理项目当前所处的开发阶段�
 ```json
 {
   "project": "MyProject",
-  "version": "v1.0.0",
+  "devflowVersion": "v1.0.0",
   "mode": "full_loop",
   "currentPhase": "step_3_coding",
   "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design"],

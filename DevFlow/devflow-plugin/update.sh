@@ -36,7 +36,7 @@ if [ -z "$REPO_URL" ]; then
 fi
 
 # 1. Check current version
-CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('.devflow/config.json')).get('projectVersion', json.load(open('.devflow/config.json')).get('devflowVersion', 'unknown')))" 2>/dev/null || echo "unknown")
+CURRENT_VERSION=$(python3 -c "import json; s=json.load(open('.devflow/state.json')); print(s.get('devflowVersion','unknown'))" 2>/dev/null || echo "unknown")
 echo "Current DevFlow version: $CURRENT_VERSION"
 
 # 2. Determine latest version
@@ -44,11 +44,11 @@ if [ -z "$VERSION" ]; then
     # Try local version.json first
     LOCAL_VERSION_JSON="${SCRIPT_DIR}/version.json"
     if [ -f "$LOCAL_VERSION_JSON" ]; then
-        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_VERSION_JSON'))['version'])" 2>/dev/null || true)
+        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_VERSION_JSON'))['devflowVersion'])" 2>/dev/null || true)
     fi
     # If repo configured and local failed, try remote
     if [ -n "$REPO_URL" ] && [ -z "$VERSION" ]; then
-        VERSION=$(curl -sf "${REPO_URL}/raw/main/version.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])" 2>/dev/null || true)
+        VERSION=$(curl -sf "${REPO_URL}/raw/main/version.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['devflowVersion'])" 2>/dev/null || true)
     fi
     if [ -z "$VERSION" ]; then
         err "Cannot determine target version. Please specify --version."
@@ -98,6 +98,10 @@ SKILL_MAP["prototype-coverage"]="skills/L3/prototype-coverage.md"
 SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
 SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
 SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
+
+# v2.7.5: Plugin configuration (version.json) and sync tool
+SKILL_MAP["devflow-plugin-config"]="version.json"
+SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)
 echo ""
