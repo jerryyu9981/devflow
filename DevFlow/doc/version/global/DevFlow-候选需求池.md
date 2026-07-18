@@ -2,13 +2,8 @@
 
 > 文档类型：候选需求池
 > 文档状态：[Draft]
-<<<<<<< HEAD
-> 版本：v1.8
-> 日期：2026-07-15
-=======
-> 版本：v1.0
-> 日期：2026-07-07
->>>>>>> origin/master
+> 版本：v2.2
+> 日期：2026-07-18
 > 维护者：DevFlow 维护团队
 
 ---
@@ -58,97 +53,45 @@
 | V260-003 | 追溯链可视化：实现从需求→设计→开发→测试→部署的全链路可视化追溯看板 | 🟢 P2 | 追溯链 | ⚠️ 需预研（需评估前端看板方案） | 📋 候选 | v2.8.0 |
 | V260-004 | 并行阶段执行支持：允许多个阶段（如设计+开发、开发+测试）在受控条件下并行推进 | 🟢 P2 | 流程优化 | ⚠️ 需预研（需定义并行阶段协调机制） | 📋 候选 | v2.8.0 |
 | V260-005 | 国际化文档模板：提供多语言项目文档模板支持（英文/繁体中文等） | 🟢 P2 | 国际化 | ✅ 可行（模板翻译+多语系方案） | 📋 候选 | v2.8.0 |
-| V260-036-01 | **新增 download-devflow.ps1 脚本**：实现从云端仓库下载最新 DevFlow 到本地副本的功能，支持 Clone（首次克隆）、Update（拉取更新）、SetRepo（设置仓库地址）三种模式；仓库地址从 version.json.repository 读取 | 🟡 P1 | 三阶段架构 | ✅ 可行（新增 PowerShell 脚本） | 📋 候选 | v2.8.0 |
-| V260-036-07 | **devflow-init 版本差异检测增强**：在步骤 1.5 之后插入版本差异检测步骤；读取 TRAE 系统目录版本 vs 项目记录版本；根据差异结果执行不同操作；将检测结果写入 state.json.versionCheck 字段 | 🔴 P0 | 三阶段架构 | ✅ 可行（SKILL.md 流程增强） | 📋 候选 | v2.8.0 |
-| V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段；用户在首次使用时通过 download-devflow.ps1 -Action SetRepo 设置 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
-| V260-037 | **修复 setup.ps1 复制逻辑：对非 .md 文件保留原文件名**——setup.ps1 第 98 行写死 `$dstFile = Join-Path $dstDir "SKILL.md"`，导致 `version.json` 和 `sync-skills.ps1` 被错误复制为 `SKILL.md`。增加文件扩展名判断逻辑：.md 文件→SKILL.md，非 .md 文件→保留原文件名，与 sync-skills.ps1 的 `$preserveFileName` 机制一致 | 🔴 P0 | 架构修复（v2.7.5 衍生） | ✅ 可行（复制逻辑增强） | 📋 候选 | v2.8.0 |
+| V260-036-01 | **新增 download-devflow.ps1 脚本**：实现从云端仓库下载最新 DevFlow 到本地副本的功能，支持 Clone（首次克隆）、Update（拉取更新）、SetRepo（设置仓库地址）三种模式 | 🟡 P1 | 三阶段架构 | ✅ 可行（新增 PowerShell 脚本） | 📋 候选 | v2.8.0 |
+| V260-036-07 | **devflow-init 版本差异检测增强**：在步骤 1.5 之后插入版本差异检测步骤；读取 TRAE 系统目录版本 vs 项目记录版本 | 🔴 P0 | 三阶段架构 | ✅ 可行（SKILL.md 流程增强） | 📋 候选 | v2.8.0 |
+| V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
+| V260-037 | **修复 setup.ps1 复制逻辑：对非 .md 文件保留原文件名**——增加文件扩展名判断逻辑 | 🔴 P0 | 架构修复 | ✅ 可行（复制逻辑增强） | 📋 候选 | v2.8.0 |
 
-<<<<<<< HEAD
 ### v2.8.1 已纳入（三步走交互完善 + 技术债务修复版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-038 | **修复 update.ps1 复制逻辑中 SKILL.md 硬编码**——update.ps1 第 153 行 `$dst = Join-Path $dstDir "SKILL.md"` 对所有技能使用固定文件名，导致 `version.json`、`sync-skills.ps1`、`download-devflow.ps1` 等非 .md 文件被错误命名为 `SKILL.md`。修复方式参照 setup.ps1 的 V260-037 方案，增加文件扩展名判断：.md 文件→SKILL.md，非 .md 文件→保留原文件名。影响范围：推荐更新路径 `update-devflow.bat`（调用 sync-skills.ps1）不受影响，仅直接影响用户直接运行 `update.ps1` 的场景 | 🟡 P1 | 技术债务 | ✅ 可行（参照 V260-037 方案，约 10 行代码修改） | ✅ 已纳入 | v2.8.1 |
-| V260-044 | **download-devflow.ps1 增加版本比较+交互确认**——Download 步骤增强：① Clone/Update 前交互确认源地址（从 version.json.repository 读取并展示，用户可修改或确认）和目的地址（默认当前目录，用户可修改）；② 通过 `git ls-remote --tags` 获取远程仓库最新 tag 的版本号，与本地 version.json.devflowVersion 比较；③ 仅当远程版本更新时才执行 clone/pull，否则提示"已是最新版本"并跳过 | 🔴 P0 | 三步走交互完善 | ✅ 可行（git ls-remote + 语义版本比较 + Read-Host 确认） | ✅ 已纳入 | v2.8.1 |
-| V260-045 | **setup.ps1 增加交互确认步骤**——Setup 步骤增强：在执行文件复制到 TRAE 系统目录之前，展示将要从本地副本（Download 目的地址）安装的版本号和文件数量，交互确认"是否安装到 TRAE 系统目录？"，用户输入 y/Y 后才执行复制；展示安装后的目标路径（`~/.trae-cn/skills/`） | 🔴 P0 | 三步走交互完善 | ✅ 可行（版本号展示 + 文件计数 + Read-Host 确认） | ✅ 已纳入 | v2.8.1 |
-| V260-046 | **devflow-init 版本更新时同步项目 devflow 文件**——Init 步骤增强：当检测到 `installed_newer`（TRAE 版本比项目版本更新）时，不仅更新 `state.json.devflowVersion` 字段，还需将 TRAE 系统目录（`~/.trae-cn/skills/`）中的 DevFlow 相关文件同步到项目的 `.devflow/` 目录（如有），包括更新 config.json 和 state.json 的模板结构。确保项目目录的 DevFlow 配置与 TRAE 系统目录保持一致 | 🔴 P0 | 三步走交互完善 | ✅ 可行（从 TRAE 目录复制到项目 .devflow/） | ✅ 已纳入 | v2.8.1 |
+| V260-038 | **修复 update.ps1 复制逻辑中 SKILL.md 硬编码**——update.ps1 第 153 行 `$dst = Join-Path $dstDir "SKILL.md"` 对所有技能使用固定文件名，导致 `version.json`、`sync-skills.ps1`、`download-devflow.ps1` 等非 .md 文件被错误命名为 `SKILL.md` | 🟡 P1 | 技术债务 | ✅ 可行（参照 V260-037 方案，约 10 行代码修改） | ✅ 已纳入 | v2.8.1 |
+| V260-044 | **download-devflow.ps1 增加版本比较+交互确认**——Download 步骤增强：Clone/Update 前交互确认源地址和目的地址；通过 `git ls-remote --tags` 获取远程最新 tag 版本号；仅当远程版本更新时才执行 | 🔴 P0 | 三步走交互完善 | ✅ 可行（git ls-remote + 语义版本比较 + Read-Host 确认） | ✅ 已纳入 | v2.8.1 |
+| V260-045 | **setup.ps1 增加交互确认步骤**——Setup 步骤增强：在执行文件复制前展示版本号和文件数量，确认后才执行；展示安装后的目标路径 | 🔴 P0 | 三步走交互完善 | ✅ 可行（版本号展示 + 文件计数 + Read-Host 确认） | ✅ 已纳入 | v2.8.1 |
+| V260-046 | **devflow-init 版本更新时同步项目 devflow 文件**——Init 步骤增强：当检测到 `installed_newer` 时，将 TRAE 系统目录中的 DevFlow 文件同步到项目的 `.devflow/` 目录 | 🔴 P0 | 三步走交互完善 | ✅ 可行（从 TRAE 目录复制到项目 .devflow/） | ✅ 已纳入 | v2.8.1 |
 
 ### v2.8.2 已纳入（安装流程三步走对齐版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-047 | **install.ps1 下载步骤对齐 download-devflow.ps1**——当前 install.ps1 的 Step 1 内联了一套简化版 git clone 逻辑（约 100 行），与 download-devflow.ps1 功能重复且不完整（缺少版本比较、语义版本排序等）。改为：Step 1 直接调用 `download-devflow.ps1 -Action Clone`，将下载职责统一收敛到 download-devflow.ps1；install.ps1 只保留流程编排和错误处理。同步修改 `install.bat` 确保路径传递正确 | 🔴 P0 | 三步走对齐 | ✅ 可行（替换内联逻辑为脚本调用，约 80 行净删减） | ✅ 已纳入 | v2.8.2 |
-| V260-048 | **install.ps1 首次安装时引导设置下载仓库地址**——当 `version.json.repository` 为空时，install.ps1 的 Step 1 不应直接跳过下载，而应自动调用 `download-devflow.ps1 -Action SetRepo` 引导用户输入仓库 URL（交互式 Read-Host），设置完成后再继续 Clone 流程。同时 install.ps1 应支持 `-TargetDir` 参数，允许用户指定本地副本下载目录，替代当前的"使用脚本所在目录"的隐式行为 | 🔴 P0 | 三步走交互完善 | ✅ 可行（检测空字段 + 调用 SetRepo + 参数透传） | ✅ 已纳入 | v2.8.2 |
-| V260-049 | **setup.ps1/sh IDE 系统目录可配置化**——当前 `setup.ps1` 中 `$TraeSkillsDir = "$env:USERPROFILE\.trae-cn\skills"` 为硬编码，不支持非标准安装路径的 TRAE（如自定义 `TRAE_SKILLS_DIR` 环境变量）。改为：优先读取环境变量 `DEVFLOW_SKILLS_DIR`（如已设置则使用），其次读取 `$env:USERPROFILE\.trae-cn\skills`，并在安装确认步骤中展示该目录供用户确认。同步修改 `setup.sh`、`update.ps1`、`update.sh`、`sync-skills.ps1` 保持一致 | 🟡 P1 | 安装健壮性 | ✅ 可行（环境变量读取 + 硬编码回退，5 个脚本同步修改） | ✅ 已纳入 | v2.8.2 |
-| V260-050 | **setup.ps1/sh 安装后自动去除 SKILL.md 的 UTF-8 BOM 头**——TRAE 的 Write/SearchReplace 工具在 Windows 上编辑文件时会自动添加 UTF-8 BOM（`EF BB BF`），而 TRAE 技能扫描器无法正确解析 BOM 开头的 YAML frontmatter，导致技能无法加载。v2.7.3~v2.8.1 开发过程中三个 orchestrator 技能（devflow-init、devflow-phase-manager、devflow-project-config）因此无法被识别。修复：在 setup.ps1/sh 的 Phase 2 文件复制完成后，对所有已安装的 `.md` 文件执行 BOM 检测并自动去除（读取 UTF-8 BOM → 写入无 BOM）。同步修改 `update.ps1`、`update.sh`、`sync-skills.ps1` 保持一致 | 🔴 P0 | 安装修复 | ✅ 可行（约 10 行 PowerShell 代码，检测首三字节并重写） | ✅ 已纳入 | v2.8.2 |
-=======
-### v2.8.1 候选（技术债务修复版本）
-
-| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
-|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-038 | **修复 update.ps1 复制逻辑中 SKILL.md 硬编码**——update.ps1 第 153 行 `$dst = Join-Path $dstDir "SKILL.md"` 对所有技能使用固定文件名，导致 `version.json`、`sync-skills.ps1`、`download-devflow.ps1` 等非 .md 文件被错误命名为 `SKILL.md`。修复方式参照 setup.ps1 的 V260-037 方案，增加文件扩展名判断：.md 文件→SKILL.md，非 .md 文件→保留原文件名。影响范围：推荐更新路径 `update-devflow.bat`（调用 sync-skills.ps1）不受影响，仅直接影响用户直接运行 `update.ps1` 的场景 | 🟡 P1 | 技术债务 | ✅ 可行（参照 V260-037 方案，约 10 行代码修改） | 📋 候选 | v2.8.1 |
->>>>>>> origin/master
+| V260-047 | **install.ps1 下载步骤对齐 download-devflow.ps1**——当前 install.ps1 的 Step 1 内联了一套简化版 git clone 逻辑（约 100 行），与 download-devflow.ps1 功能重复且不完整。改为：Step 1 直接调用 `download-devflow.ps1 -Action Clone`，将下载职责统一收敛 | 🔴 P0 | 三步走对齐 | ✅ 可行（替换内联逻辑为脚本调用，约 80 行净删减） | ✅ 已纳入 | v2.8.2 |
+| V260-048 | **install.ps1 首次安装时引导设置下载仓库地址**——当 `version.json.repository` 为空时，自动调用 `download-devflow.ps1 -Action SetRepo` 引导用户输入仓库 URL，设置完成后再继续 Clone。支持 `-TargetDir` 参数 | 🔴 P0 | 三步走交互完善 | ✅ 可行（检测空字段 + 调用 SetRepo + 参数透传） | ✅ 已纳入 | v2.8.2 |
+| V260-049 | **setup.ps1/sh IDE 系统目录可配置化**——当前硬编码 `$env:USERPROFILE\.trae-cn\skills`，改为优先读取 `DEVFLOW_SKILLS_DIR` 环境变量，5 个脚本同步修改 | 🟡 P1 | 安装健壮性 | ✅ 可行（环境变量读取 + 硬编码回退） | ✅ 已纳入 | v2.8.2 |
+| V260-050 | **setup.ps1/sh 安装后自动去除 SKILL.md 的 UTF-8 BOM 头**——TRAE 的 Write/SearchReplace 工具在 Windows 上编辑文件时会自动添加 UTF-8 BOM，导致 TRAE 技能扫描器无法解析 YAML frontmatter。5 个脚本同步新增 BOM 检测+去除函数 | 🔴 P0 | 安装修复 | ✅ 可行（约 10 行 PowerShell 代码，检测首三字节并重写） | ✅ 已纳入 | v2.8.2 |
 
 ### v2.9.0 候选（全自动循环架构版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-039 | **重试管理器（retry-manager）**——嵌入到 devflow-phase-manager 的阶段切换门禁中，为每个 Step 增加重试计数（retryCount）和上限（maxRetries=3）。单步超过上限后自动诊断：部分失败→通过项标记 passed，失败项移入 deferredItems；全部失败→本版本所有未完成项移入 deferredItems，强制进入下一步。用于防止"测试-修复循环""审计门禁循环""覆盖率循环"等死锁场景 | 🔴 P0 | 全自动循环 | ⚠️ 需预研（需定义各阶段的超限策略） | 📋 候选 | v2.9.0 |
-| V260-040 | **空池检测器（empty-pool-detector）**——在 Step 5 闭环后检测候选需求池状态。候选池为空→终止循环（completed）；仅剩 P2→暂停循环等待用户确认（paused）；有 P0/P1→执行滞留检测后启动下一版本。绑定额度检测：滞留 3 版的需求自动移入 blockedItems。用于防止"空版本循环"死锁 | 🔴 P0 | 全自动循环 | ✅ 可行（文件读取+JSON 解析逻辑） | 📋 候选 | v2.9.0 |
-| V260-041 | **自动降级机制（auto-degrade）**——嵌入到 testing-stage-execution 等 L2 技能中，为测试覆盖率略低（≥90% <95%）、非 P0 测试失败（P1/P2）、代码审查 warnings 等"灰色地带"提供自动通过逻辑。降级结果：pass_with_note（记录缺口项）、partial_pass（记录 knownIssues）、pass_with_warnings。P0 失败和覆盖率<90%永不自动降级，确保质量底线 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义降级判断矩阵） | 📋 候选 | v2.9.0 |
-| V260-042 | **致命错误处理器（fatal-error-handler）**——贯穿所有 Step，捕获不可恢复的错误（state.json 损坏、TRAE 目录不可写、磁盘空间不足、候选池文件损坏、版本号无意义）。检测到致命错误时：设置 cycleState.status=aborted，立即终止循环，输出错误报告。非致命错误（外部依赖超时、部署非核心技能失败）自动降级。连续 3 次 fatal 后永久 abort | 🟡 P1 | 全自动循环 | ✅ 可行（错误捕获+状态设置逻辑） | 📋 候选 | v2.9.0 |
-| V260-043 | **循环状态机（cycle-state-machine）**——新增 orchestrator 技能，位于 devflow-phase-manager 上层，管理"版本间循环"生命周期。状态：idle→planning→version_executing→cycle_checking→idle（循环）或 paused（等待）或 completed（终止）。在 Step 5 闭环后触发空池检测+滞留检测，决定是否启动下一版本。版本号自动递增策略：热修复→修订号，新功能→次版本号 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义状态机切换逻辑+版本号递增策略） | 📋 候选 | v2.9.0 |
+| V260-039 | **重试管理器（retry-manager）**——嵌入到 devflow-phase-manager 的阶段切换门禁中，为每个 Step 增加重试计数和上限 | 🔴 P0 | 全自动循环 | ⚠️ 需预研（需定义各阶段的超限策略） | 📋 候选 | v2.9.0 |
+| V260-040 | **空池检测器（empty-pool-detector）**——在 Step 5 闭环后检测候选需求池状态，防止"空版本循环"死锁 | 🔴 P0 | 全自动循环 | ✅ 可行（文件读取+JSON 解析逻辑） | 📋 候选 | v2.9.0 |
+| V260-041 | **自动降级机制（auto-degrade）**——为测试覆盖率略低、非 P0 测试失败等"灰色地带"提供自动通过逻辑 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义降级判断矩阵） | 📋 候选 | v2.9.0 |
+| V260-042 | **致命错误处理器（fatal-error-handler）**——贯穿所有 Step，捕获不可恢复的错误，终止循环并输出错误报告 | 🟡 P1 | 全自动循环 | ✅ 可行（错误捕获+状态设置逻辑） | 📋 候选 | v2.9.0 |
+| V260-043 | **循环状态机（cycle-state-machine）**——新增 orchestrator 技能，管理"版本间循环"生命周期，版本号自动递增 | 🟡 P1 | 全自动循环 | ⚠️ 需预研（需定义状态机切换逻辑+版本号递增策略） | 📋 候选 | v2.9.0 |
 
-### v2.7.1 已纳入（修订版本）
-
-| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
-|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-024 | 补齐 `security-design-review` 和 `secure-coding-practices` 在 L2 技能速查表中的技能名引用（内容已在 v2.7.0 新增，仅缺技能名标记） | 🟡 P1 | L3 引用审计 | ✅ 可行（速查表追加技能名） | ✅ 已纳入 | v2.7.1 |
-| V260-025 | 补齐 `database-migration` 在 L2 中的引用：在 `operations-stage-execution` 5.2 步追加"数据库迁移检查"步骤及速查表引用 | 🟡 P1 | L3 引用审计 | ✅ 可行（步骤表追加） | ✅ 已纳入 | v2.7.1 |
-| V260-026 | 补齐 `container-deployment` 在 L2 中的引用：在 `operations-stage-execution` 5.4 部署执行说明中追加容器部署参考 | 🟡 P1 | L3 引用审计 | ✅ 可行（说明文案追加） | ✅ 已纳入 | v2.7.1 |
-| V260-027 | 补齐 `performance-engineering` 在 L2 中的引用：在 `testing-stage-execution` 4.7b-1 后追加性能工程参考 | 🟡 P1 | L3 引用审计 | ✅ 可行（速查表追加） | ✅ 已纳入 | v2.7.1 |
-| V260-028 | 补齐 `project-document-templates` 在 L2 中的引用：在每个 L2 输出要求章节追加"参照模板"注释 | 🟢 P2 | L3 引用审计 | ✅ 可行（注释追加） | ✅ 已纳入 | v2.7.1 |
-
-### v2.7.2 已纳入（修订版本）
+### v2.8.3 候选（安装一致性架构修复版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-029 | `config.json` 字段重命名：`devflowVersion` → `projectVersion`。涉及 devflow-init/SKILL.md 模板、devflow-project-config/SKILL.md 说明和字段表、setup.ps1、update.ps1 共 4 处代码修改。向后兼容：读 `projectVersion`，不存在时回退读 `devflowVersion` | 🟡 P1 | 配置治理 | ✅ 可行（字段改名+兼容逻辑） | ✅ 已纳入 | v2.7.2 |
-
-### v2.7.3 候选（职责边界清理版本）
-
-| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
-|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-030 | **Install DevFlow 职责清理**——`setup.ps1/sh` 移除项目初始化逻辑（项目名检测、`.devflow/` 创建、config.json/state.json 生成），仅保留全局技能安装到 `~/.trae-cn/skills/` 和可选 Git hook 安装 | 🔴 P0 | 职责边界清理 | ✅ 可行（代码剥离） | 📋 候选 | v2.7.3 |
-| V260-031 | **Update DevFlow 修正**——`update.ps1/sh` 移除修改 `.devflow/config.json` 中 `projectVersion` 的逻辑，只做 TRAE 技能目录 `~/.trae-cn/skills/` 的增量同步（含 `devflow-plugin-config/version.json` 版本更新） | 🔴 P0 | 职责边界清理 | ✅ 可行（移除越界逻辑） | 📋 候选 | v2.7.3 |
-| V260-032 | **devflow-init 增强：DevFlow 版本号读取与写入**——新增从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取 DevFlow 版本号的能力；写入项目根目录 `version.json` 记录"本项目使用的 DevFlow 版本"；写入 `.devflow/state.json` 的 `version` 字段 | 🔴 P0 | 职责边界清理 | ✅ 可行（SKILL.md 规则实现） | 📋 候选 | v2.7.3 |
-| V260-033 | **devflow-init 增强：projectVersion 自动扫描+交互补充**——按照优先级链自动检测项目版本号：① 已有 `.devflow/config.json.projectVersion`（非空）→ 保留 ② 最新 Git tag ③ `package.json` version ④ `pyproject.toml` version ⑤ 其他项目配置文件；以上均无法获取时交互询问用户输入。写入 `.devflow/config.json` 的 `projectVersion` 字段 | 🔴 P0 | 职责边界清理 | ✅ 可行（自动检测链+交互补充） | 📋 候选 | v2.7.3 |
-| V260-034 | **devflow-init 增强：currentPhase 推断并写入 state.json**——完善文档扫描推断逻辑，实际将推断得出的 `currentPhase` 写入 `.devflow/state.json`，而非仅提示用户；确保 state.json 反映真实项目状态 | 🟡 P1 | 职责边界清理 | ✅ 可行（状态写入增强） | 📋 候选 | v2.7.3 |
-
----
-
-### v2.7.4 候选（版本字段命名规范化版本）
-
-| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
-|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-035 | **所有 version 字段统一命名规范化**——消除 `version` 字段歧义：`devflow-plugin/version.json` 的 `version` → `devflowVersion`、项目根 `version.json` 的 `version` → `devflowVersion`、`.devflow/state.json` 的 `version` → `devflowVersion`；同步更新所有技能模板中的字段引用（devflow-init、devflow-phase-manager、devflow-project-config）；删除 `.devflow/version.json` 旧版备份遗留文件；同步更新 setup.ps1/sh、sync-skills.ps1、update.ps1/sh 中的字段读取。**修复 update.ps1/sh 语义错误**：`$CurrentVersion` 来源从 `config.json.projectVersion`（项目版本）改为读取 `state.json.devflowVersion`（项目使用的 DevFlow 版本），与 `$LatestVersion`（来自 `devflow-plugin/version.json.devflowVersion`，插件源版本）形成正确的"已安装 vs 最新"比较。 | 🔴 P0 | 配置治理 | ✅ 可行（字段重命名+语义修正） | ✅ 已纳入 | v2.7.4 |
-
----
-
-### v2.7.5 候选（三阶段版本管理架构修复）
-
-| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
-|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-036 | **建立完整的三阶段版本管理流程**——修复 DevFlow 版本管理中"云端仓库→本地副本→TRAE 系统目录→项目目录"全链路的断裂问题，消除 6 个执行文件的职责边界模糊，实现项目初始化时的版本差异检测。包含 9 项子需求： | 🔴 P0 | 架构修复（v2.7.4 衍生） | ✅ 可行（已有完整设计文档） | ✅ 已纳入 | v2.7.5 |
-| V260-036-01 | **新增 download-devflow.ps1 脚本**：实现从云端仓库下载最新 DevFlow 到本地副本的功能，支持 Clone（首次克隆）、Update（拉取更新）、SetRepo（设置仓库地址）三种模式；仓库地址从 version.json.repository 读取 | 🟡 P1 | 三阶段架构 | ✅ 可行（新增 PowerShell 脚本） | 📋 候选 | v2.8.0 |
-| V260-036-02 | **修复 install.ps1 组件边界违规**：将 \$verInfo.version 改为 \$verInfo.devflowVersion；移除复制整个 devflow-plugin/ 到项目 .devflow/ 的代码；移除提示用户从 .devflow/ 运行 update.ps1 的代码 | 🔴 P0 | 三阶段架构 | ✅ 可行（代码剥离+字段修正） | ✅ 已纳入 | v2.7.5 |
-| V260-036-03 | **修复 setup.ps1 skillMap 遗漏**：在 skillMap 中添加 devflow-plugin-config → version.json 和 devflow-plugin-sync → sync-skills.ps1 | 🔴 P0 | 三阶段架构 | ✅ 可行（skillMap 条目追加） | ✅ 已纳入 | v2.7.5 |
-| V260-036-04 | **修复 sync-skills.ps1 缺少自身引用**：在 \$DevFlowSkills 列表中添加 devflow-plugin-sync → sync-skills.ps1 | 🔴 P0 | 三阶段架构 | ✅ 可行（列表条目追加） | ✅ 已纳入 | v2.7.5 |
-| V260-036-05 | **修复 update.ps1 skillMap 遗漏**：在 skillMap 中添加 devflow-plugin-config → version.json 和 devflow-plugin-sync → sync-skills.ps1 | 🟡 P1 | 三阶段架构 | ✅ 可行（skillMap 条目追加） | ✅ 已纳入 | v2.7.5 |
-| V260-036-06 | **修复 update-devflow.bat 硬编码版本号**：标题从 v2.6.0 改为通用标题 DevFlow Updater | 🟢 P2 | 三阶段架构 | ✅ 可行（字面量文本修改） | ✅ 已纳入 | v2.7.5 |
-| V260-036-07 | **devflow-init 版本差异检测增强**：在步骤 1.5 之后插入版本差异检测步骤；读取 TRAE 系统目录版本 vs 项目记录版本；根据差异结果执行不同操作；将检测结果写入 state.json.versionCheck 字段 | 🔴 P0 | 三阶段架构 | ✅ 可行（SKILL.md 流程增强） | 📋 候选 | v2.8.0 |
-| V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段；用户在首次使用时通过 download-devflow.ps1 -Action SetRepo 设置 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
-| V260-036-09 | **同步修改 setup.sh / update.sh**：在 SKILL_MAP 中添加 devflow-plugin-config 和 devflow-plugin-sync 条目 | 🟡 P1 | 三阶段架构 | ✅ 可行（SKILL_MAP 条目追加） | ✅ 已纳入 | v2.7.5 |
+| V260-051 | **新增 devflow-manifest.json 插件文件清单**——创建 `devflow-manifest.json` 作为 DevFlow 插件所有文件的单一事实源。该文件定义每个文件的路径、类别（entry/tool/skill/config）、是否必需、安装目标位置（TRAE skills 目录下的映射名称）。所有 5 个安装/更新/同步脚本（setup.ps1/sh、update.ps1/sh、sync-skills.ps1）改为运行时从 manifest 动态加载 skillMap，替换当前硬编码的 5 份重复定义。覆盖三步走全流程：① Download 步骤完成后对照 manifest 校验所有 `required=true` 文件是否存在，缺失则报错；② Setup 步骤从 manifest 读取技能列表逐个安装，完成后校验安装数量与 manifest 声明的 `skillCount` 一致；③ Init 步骤验证已安装技能数量与 manifest 一致，不一致时告警提示重新运行 Setup。从根本上消除"新增/删除技能时需同步修改 N 个脚本"的人为遗漏风险 | 🔴 P0 | 安装架构 | ✅ 可行（JSON 配置文件 + 脚本动态加载 + 数量校验） | 📋 候选 | v2.8.3 |
+| V260-052 | **修复 4 个脚本的 skillMap 历史遗漏**——setup.ps1、update.ps1、update.sh 的 hardcoded skillMap 均缺少 v2.5.0 新增的 6 个 L3 技能（skill-md-writing-standards、security-design-review、secure-coding-practices、container-deployment、performance-engineering、database-migration）；setup.sh Bash 分支同时缺少这 6 个 L3 技能 + v2.8.0 的 devflow-plugin-download。这些遗漏导致通过 setup.ps1 或 update.ps1 安装时 6 个 L3 技能静默缺失。本需求为 V260-051（manifest 改造）的前置修复，在切换到 manifest 动态加载之前确保所有脚本的 skillMap 已完整，避免改造过程引入额外的迁移风险 | 🔴 P0 | 安装架构 | ✅ 已在 v2.8.2 发布后修复（commit 3d0fa2d） | ✅ 已纳入 | v2.8.3 |
 
 ---
 
@@ -171,13 +114,10 @@
 | v1.3 | 2026-07-11 | 清理 v2.7.1 重复候选条目；标记 v2.7.2 为已纳入；新增 V260-030~034（Install/Update/Init 三组件职责边界清理需求），v2.7.3 候选 | DevFlow 维护团队 |
 | v1.4 | 2026-07-12 | 新增 V260-035（version 字段统一命名规范化+update 语义修复），v2.7.4 候选；新增 V260-036（devflow-init 跨项目版本检测），v2.7.5 候选 | DevFlow 维护团队 |
 | v1.5 | 2026-07-12 | 新增 V260-038（update.ps1 SKILL.md 硬编码技术债务），v2.8.1 候选 | DevFlow 维护团队 |
-<<<<<<< HEAD
 | v1.6 | 2026-07-12 | 新增 V260-039~043（全自动版本循环执行架构），v2.9.0 候选；新增设计文档 `DevFlow-全自动版本循环执行架构设计文档.md` | DevFlow 维护团队 |
 | v1.7 | 2026-07-15 | 新增 V260-044~046（三步走交互完善：Download 版本比较+确认、Setup 交互确认、Init 文件同步），v2.8.1 候选 | DevFlow 维护团队 |
 | v1.8 | 2026-07-15 | V260-038、V260-044、V260-045、V260-046 标记为"已纳入 v2.8.1"；v2.8.1 候选区域更名为已纳入 | PM-DevFlow-Dev |
 | v1.9 | 2026-07-17 | 新增 V260-047~049（install.ps1 下载步骤对齐、首次安装引导设置仓库地址、IDE 系统目录可配置化），v2.8.2 候选 | PM-DevFlow-Dev |
 | v2.0 | 2026-07-17 | 新增 V260-050（setup/update/sync 脚本安装后自动去除 SKILL.md UTF-8 BOM 头），v2.8.2 候选 | PM-DevFlow-Dev |
 | v2.1 | 2026-07-18 | V260-047~050 标记为"已纳入 v2.8.2"；v2.8.2 候选区域更名为已纳入 | PM-DevFlow-Dev |
-=======
-| v1.6 | 2026-07-12 | 新增 V260-039~043（全自动版本循环执行架构），v2.9.0 候选；新增设计文档 `DevFlow-全自动版本循环执行架构设计文档.md` | DevFlow 维护团队 |
->>>>>>> origin/master
+| v2.2 | 2026-07-18 | 新增 V260-051（devflow-manifest.json 插件文件清单单一事实源）、V260-052（skillMap 历史遗漏修复，commit 3d0fa2d），v2.8.3 候选；合并远程历史冲突修复 | PM-DevFlow-Dev |
