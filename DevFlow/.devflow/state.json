@@ -1,9 +1,8 @@
 {
   "project": "DevFlow",
-<<<<<<< HEAD
   "devflowVersion": "2.8.2",
-  "currentPhase": "step_5_operations",
-  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding", "step_4_testing"],
+  "currentPhase": "closed",
+  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding", "step_4_testing", "step_5_operations"],
   "currentDocuments": {
     "version_plan": "doc/version/releases/v2.8.2/DevFlow-单版本规划文档-v2.8.2.md",
     "backlog": "doc/version/releases/v2.8.2/DevFlow-本版本Backlog-v2.8.2.md",
@@ -19,39 +18,22 @@
     "design_review": "doc/design/DevFlow-设计评审记录-v2.8.2.md",
     "devlog_report": "doc/development/DevFlow-DevLogReport-v2.8.2.md",
     "test_report": "doc/test/DevFlow-测试报告-v2.8.2.md",
-    "test_audit": "doc/audit/verification/DevFlow-测试回溯对比审计报告-v2.8.2.md"
-=======
-  "devflowVersion": "2.8.0",
-  "currentPhase": "step_5_deployed",
-  "completedPhases": ["step_0_planning", "step_1_requirements", "step_2_design", "step_3_coding", "step_4_testing", "step_5_deployed"],
-  "currentDocuments": {
-    "version_plan": "doc/version/releases/v2.8.0/DevFlow-单版本规划文档-v2.8.0.md",
-    "backlog": "doc/version/releases/v2.8.0/DevFlow-本版本Backlog-v2.8.0.md",
-    "phase_plan": "doc/version/releases/v2.8.0/DevFlow-Phase迭代计划-v2.8.0.md",
-    "requirements_doc": "doc/requirements/DevFlow-开发需求文档-v2.8.0.md",
-    "requirements_review": "doc/requirements/DevFlow-需求评审记录-v2.8.0.md",
-    "requirements_handoff": "doc/requirements/DevFlow-需求基线及设计移交说明-v2.8.0.md",
-    "design_doc": "doc/design/DevFlow-三步走流程设计文档-v2.8.0.md",
-    "design_review": "doc/design/DevFlow-设计评审记录-v2.8.0.md",
-    "devlog_report": "doc/development/DevFlow-DevLogReport-v2.8.0.md",
-    "test_report": "doc/test/DevFlow-测试报告-v2.8.0.md"
->>>>>>> origin/master
+    "test_audit": "doc/audit/verification/DevFlow-测试回溯对比审计报告-v2.8.2.md",
+    "deploy_report": "doc/operation/DevFlow-部署执行报告-v2.8.2.md",
+    "rollback_plan": "doc/operation/DevFlow-回滚方案-v2.8.2.md",
+    "postmortem": "doc/operation/DevFlow-发布复盘报告-v2.8.2.md",
+    "operations_audit": "doc/audit/comprehensive/DevFlow-运维审计报告-v2.8.2.md",
+    "closure_audit": "doc/audit/comprehensive/DevFlow-全流程闭环审计报告-v2.8.2.md"
   },
   "auditResults": {
     "step_0_review": "passed",
     "step_1_review": "passed",
-<<<<<<< HEAD
     "step_1_assessment": "passed",
     "step_2_review": "passed",
     "step_3_review": "passed",
     "step_4_review": "passed",
-    "step_4_audit": "passed"
-=======
-    "step_2_review": "passed",
-    "step_3_review": "passed",
-    "step_4_review": "passed",
-    "step_5_deployed": "passed",
+    "step_4_audit": "passed",
+    "step_5_operations": "passed",
     "step_5_closed": true
->>>>>>> origin/master
   }
 }
