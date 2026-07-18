@@ -1,5 +1,18 @@
 # DevFlow Changelog
 
+## v2.8.3
+
+### Added
+- **devflow-manifest.json 单一事实源**（V260-051）：新增 `devflow-manifest.json` 作为 DevFlow 插件所有文件的单一事实源，覆盖 31 个技能 + 6 个工具/配置
+- **5 个脚本动态加载改造**（V260-051）：setup.ps1/sh、update.ps1/sh、sync-skills.ps1 全部改为从 devflow-manifest.json 动态加载技能清单，删除约 170 行硬编码 skillMap
+- **三步走文件完整性校验**（V260-051）：① Download 后对照 manifest 校验 required 文件存在性 ② Setup 后校验技能安装数与 manifest.skillCount 一致 ③ Init 时告警技能数量不一致
+- **download-devflow.ps1 交互增强**：SetRepo 时显示已有默认值（回车保留）、Clone 时显示目标目录并支持 Y/n 确认后自定义路径
+
+### Fixed
+- version.json 合并冲突残留修复
+- install.ps1 合并冲突残留修复 + BOM 去除
+- devflow-init/SKILL.md BOM 去除
+
 ## v2.8.2
 
 ### Changed

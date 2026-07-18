@@ -1,4 +1,4 @@
-﻿---
+---
 name: devflow-init
 description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断所处开发阶段，引导用户进入正确的 DevFlow 阶段。每个项目首次使用 DevFlow 时调用。"
 ---
@@ -104,6 +104,32 @@ elif devflowVersionInTrae < devflowVersionInProject（语义版本比较）:
   }
 }
 ```
+
+### 1.5.5 技能数量一致性检测（DT-07）
+
+在版本检测之后执行技能数量一致性检查：
+
+```powershell
+# 从 TRAE 系统目录读取 devflow-manifest.json
+$manifestPath = "$env:USERPROFILE\.trae-cn\skills\devflow-plugin-config\devflow-manifest.json"
+if (Test-Path $manifestPath) {
+    try {
+        $manifest = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
+        $installedSkills = Get-ChildItem "$env:USERPROFILE\.trae-cn\skills" -Directory |
+            Where-Object { $manifest.skills.name -contains $_.Name }
+        if ($installedSkills.Count -ne $manifest.skillCount) {
+            Write-Warn "[WARN] DevFlow skill count mismatch: installed=$($installedSkills.Count), expected=$($manifest.skillCount)"
+            Write-Warn "[WARN] Run 'sync-skills.ps1 -Action Sync -Target IDE' to reinstall"
+        }
+    } catch {
+        Write-Warn "[WARN] Manifest check skipped: $_"
+    }
+} else {
+    Write-Warn "[WARN] devflow-manifest.json not found, skill count check skipped"
+}
+```
+
+---
 
 ### 1.6 创建项目根目录 version.json
 

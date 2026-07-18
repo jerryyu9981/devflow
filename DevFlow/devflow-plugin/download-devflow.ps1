@@ -96,17 +96,29 @@ function Invoke-SetRepoMode {
     }
 
     # Show current values
-    $currentRepo = if ($config.repository) { $config.repository } else { "(empty)" }
-    $currentHomepage = if ($config.homepage) { $config.homepage } else { "(empty)" }
-    Write-Host "Current repository: $currentRepo"
-    Write-Host "Current homepage:   $currentHomepage"
+    $currentRepo = if ($config.repository) { $config.repository } else { "" }
+    $currentHomepage = if ($config.homepage) { $config.homepage } else { "" }
+    Write-Host "Current repository: $(if ($currentRepo) { $currentRepo } else { '(empty)' })"
+    Write-Host "Current homepage:   $(if ($currentHomepage) { $currentHomepage } else { '(empty)' })"
     Write-Host ""
 
-    # Prompt for new repo URL
-    $newRepo = Read-Host "Enter DevFlow repository URL (e.g. https://github.com/your-org/devflow-plugin)"
-    if (-not $newRepo) {
-        Write-Warn "Repository URL cannot be empty, keeping current value"
-        return $false
+    # Prompt for new repo URL (default to current value if exists)
+    if ($currentRepo) {
+        $newRepo = Read-Host "Enter DevFlow repository URL (default: $currentRepo)"
+        if (-not $newRepo) {
+            $newRepo = $currentRepo
+            Write-Host "  Keeping current value: $currentRepo" -ForegroundColor DarkGray
+        }
+    } else {
+        Write-Host "No repository URL configured." -ForegroundColor Yellow
+        Write-Host "Enter the Git repository URL where DevFlow plugin is hosted."
+        Write-Host "Example: http://192.168.0.14/jerry.yu/devflow.git"
+        Write-Host ""
+        $newRepo = Read-Host "Enter DevFlow repository URL"
+        if (-not $newRepo) {
+            Write-Warn "Repository URL cannot be empty"
+            return $false
+        }
     }
 
     # Auto-generate homepage and bugs URL
@@ -147,6 +159,22 @@ function Invoke-CloneMode {
     # Determine target directory
     if (-not $TargetDir) {
         $TargetDir = $ScriptDir
+    }
+    Write-Host "Repository: $repoUrl"
+    Write-Host "Target directory: $TargetDir (default: current script directory)"
+    Write-Host ""
+
+    # Interactive confirmation for target directory
+    $confirmDir = Read-Host "Clone to this directory? (Y/n)"
+    if ($confirmDir -eq "n" -or $confirmDir -eq "N") {
+        $customDir = Read-Host "Enter custom target directory"
+        if ($customDir) {
+            $TargetDir = $customDir
+            Write-Host "  Target directory set to: $TargetDir" -ForegroundColor DarkGray
+        } else {
+            Write-Info "Clone cancelled"
+            return $false
+        }
     }
 
     # Check if target directory already has a git repo
@@ -197,6 +225,31 @@ function Invoke-CloneMode {
 
         # Clean up temp directory
         Remove-Item -Path $tempDir -Recurse -Force
+
+        # DT-05: Verify manifest integrity after clone
+        $manifestPath = Join-Path $TargetDir "devflow-manifest.json"
+        if (Test-Path $manifestPath) {
+            try {
+                $manifest = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
+                $missingFiles = @()
+                foreach ($s in $manifest.skills) {
+                    if ($s.required) {
+                        $f = Join-Path $TargetDir $s.source
+                        if (-not (Test-Path $f)) { $missingFiles += "$($s.name): $($s.source)" }
+                    }
+                }
+                if ($missingFiles.Count -gt 0) {
+                    Write-Warn "MANIFEST CHECK: $($missingFiles.Count) required file(s) missing"
+                    $missingFiles | ForEach-Object { Write-Warn "  missing: $_" }
+                } else {
+                    Write-Success "Manifest integrity: $($manifest.skills.Count) files OK"
+                }
+            } catch {
+                Write-Warn "Manifest check skipped (parse error): $_"
+            }
+        } else {
+            Write-Warn "devflow-manifest.json not found, skipping integrity check"
+        }
 
         Write-Success "DevFlow downloaded successfully to $TargetDir"
         Write-Host ""

@@ -90,7 +90,7 @@
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
 |:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
-| V260-051 | **新增 devflow-manifest.json 插件文件清单**——创建 `devflow-manifest.json` 作为 DevFlow 插件所有文件的单一事实源。该文件定义每个文件的路径、类别（entry/tool/skill/config）、是否必需、安装目标位置（TRAE skills 目录下的映射名称）。所有 5 个安装/更新/同步脚本（setup.ps1/sh、update.ps1/sh、sync-skills.ps1）改为运行时从 manifest 动态加载 skillMap，替换当前硬编码的 5 份重复定义。覆盖三步走全流程：① Download 步骤完成后对照 manifest 校验所有 `required=true` 文件是否存在，缺失则报错；② Setup 步骤从 manifest 读取技能列表逐个安装，完成后校验安装数量与 manifest 声明的 `skillCount` 一致；③ Init 步骤验证已安装技能数量与 manifest 一致，不一致时告警提示重新运行 Setup。从根本上消除"新增/删除技能时需同步修改 N 个脚本"的人为遗漏风险 | 🔴 P0 | 安装架构 | ✅ 可行（JSON 配置文件 + 脚本动态加载 + 数量校验） | 📋 候选 | v2.8.3 |
+| V260-051 | **新增 devflow-manifest.json 插件文件清单**——创建 `devflow-manifest.json` 作为 DevFlow 插件所有文件的单一事实源。该文件定义每个文件的路径、类别（entry/tool/skill/config）、是否必需、安装目标位置（TRAE skills 目录下的映射名称）。所有 5 个安装/更新/同步脚本（setup.ps1/sh、update.ps1/sh、sync-skills.ps1）改为运行时从 manifest 动态加载 skillMap，替换当前硬编码的 5 份重复定义。覆盖三步走全流程：① Download 步骤完成后对照 manifest 校验所有 `required=true` 文件是否存在，缺失则报错；② Setup 步骤从 manifest 读取技能列表逐个安装，完成后校验安装数量与 manifest 声明的 `skillCount` 一致；③ Init 步骤验证已安装技能数量与 manifest 一致，不一致时告警提示重新运行 Setup。从根本上消除"新增/删除技能时需同步修改 N 个脚本"的人为遗漏风险 | 🔴 P0 | 安装架构 | ✅ 可行（JSON 配置文件 + 脚本动态加载 + 数量校验） | ✅ 已纳入 | v2.8.3 |
 | V260-052 | **修复 4 个脚本的 skillMap 历史遗漏**——setup.ps1、update.ps1、update.sh 的 hardcoded skillMap 均缺少 v2.5.0 新增的 6 个 L3 技能（skill-md-writing-standards、security-design-review、secure-coding-practices、container-deployment、performance-engineering、database-migration）；setup.sh Bash 分支同时缺少这 6 个 L3 技能 + v2.8.0 的 devflow-plugin-download。这些遗漏导致通过 setup.ps1 或 update.ps1 安装时 6 个 L3 技能静默缺失。本需求为 V260-051（manifest 改造）的前置修复，在切换到 manifest 动态加载之前确保所有脚本的 skillMap 已完整，避免改造过程引入额外的迁移风险 | 🔴 P0 | 安装架构 | ✅ 已在 v2.8.2 发布后修复（commit 3d0fa2d） | ✅ 已纳入 | v2.8.3 |
 
 ---
@@ -121,3 +121,4 @@
 | v2.0 | 2026-07-17 | 新增 V260-050（setup/update/sync 脚本安装后自动去除 SKILL.md UTF-8 BOM 头），v2.8.2 候选 | PM-DevFlow-Dev |
 | v2.1 | 2026-07-18 | V260-047~050 标记为"已纳入 v2.8.2"；v2.8.2 候选区域更名为已纳入 | PM-DevFlow-Dev |
 | v2.2 | 2026-07-18 | 新增 V260-051（devflow-manifest.json 插件文件清单单一事实源）、V260-052（skillMap 历史遗漏修复，commit 3d0fa2d），v2.8.3 候选；合并远程历史冲突修复 | PM-DevFlow-Dev |
+| v2.3 | 2026-07-18 | V260-051 标记为"已纳入 v2.8.3"；v2.8.3 候选区域更名为已纳入 | PM-DevFlow-Dev |

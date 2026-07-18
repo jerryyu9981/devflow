@@ -1,4 +1,4 @@
-﻿#!/bin/bash
+#!/bin/bash
 # DevFlow Update Script (Bash)
 # Usage: ./update.sh [--version <version>] [--dry-run]
 
@@ -94,45 +94,18 @@ if [ ! -d "$TRA_SKILLS_DIR" ]; then
     mkdir -p "$TRA_SKILLS_DIR"
 fi
 
-# Skill name -> source path mapping (relative to plugin root)
+# DT-01: Load skill map from devflow-manifest.json (Bash, no jq)
+local manifest_file="${SCRIPT_DIR}/devflow-manifest.json"
+ExpectedSkillCount=$(grep -o '"skillCount": *[0-9]*' "$manifest_file" | grep -o '[0-9]*')
 declare -A SKILL_MAP
-SKILL_MAP["devflow-init"]="devflow-init/SKILL.md"
-SKILL_MAP["devflow-phase-manager"]="devflow-phase-manager/SKILL.md"
-SKILL_MAP["devflow-project-config"]="devflow-project-config/SKILL.md"
-SKILL_MAP["project-development-workflow"]="skills/L1/project-development-workflow.md"
-SKILL_MAP["project-document-management"]="skills/L1/project-document-management.md"
-SKILL_MAP["project-role-management"]="skills/L1/project-role-management.md"
-SKILL_MAP["version-planning-stage-execution"]="skills/L2/version-planning-stage-execution.md"
-SKILL_MAP["requirements-stage-execution"]="skills/L2/requirements-stage-execution.md"
-SKILL_MAP["design-stage-execution"]="skills/L2/design-stage-execution.md"
-SKILL_MAP["coding-stage-execution"]="skills/L2/coding-stage-execution.md"
-SKILL_MAP["testing-stage-execution"]="skills/L2/testing-stage-execution.md"
-SKILL_MAP["operations-stage-execution"]="skills/L2/operations-stage-execution.md"
-SKILL_MAP["project-coding-conventions"]="skills/L3/project-coding-conventions.md"
-SKILL_MAP["code-static-quality-check"]="skills/L3/code-static-quality-check.md"
-SKILL_MAP["code-logic-review"]="skills/L3/code-logic-review.md"
-SKILL_MAP["cicd-pipeline-management"]="skills/L3/cicd-pipeline-management.md"
-SKILL_MAP["observability-standards"]="skills/L3/observability-standards.md"
-SKILL_MAP["api-contract-management"]="skills/L3/api-contract-management.md"
-SKILL_MAP["prototype-coverage"]="skills/L3/prototype-coverage.md"
-SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
-SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
-SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
-
-# v2.5.0: Newly added L3 skills
-SKILL_MAP["skill-md-writing-standards"]="skills/L3/skill-md-writing-standards.md"
-SKILL_MAP["security-design-review"]="skills/L3/security-design-review.md"
-SKILL_MAP["secure-coding-practices"]="skills/L3/secure-coding-practices.md"
-SKILL_MAP["container-deployment"]="skills/L3/container-deployment.md"
-SKILL_MAP["performance-engineering"]="skills/L3/performance-engineering.md"
-SKILL_MAP["database-migration"]="skills/L3/database-migration.md"
-
-# v2.7.5: Plugin configuration (version.json) and sync tool
-SKILL_MAP["devflow-plugin-config"]="version.json"
-SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
-
-# v2.8.0: Plugin download tool (git clone/pull for cloud repository)
-SKILL_MAP["devflow-plugin-download"]="download-devflow.ps1"
+while IFS='|' read -r name source; do
+    [ -n "$name" ] && SKILL_MAP["$name"]="$source"
+done < <(python3 -c "
+import json, sys
+m = json.load(open('$manifest_file'))
+for s in m['skills']:
+    print(s['name'] + '|' + s['source'])
+" 2>/dev/null)
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)
 echo ""
@@ -203,6 +176,13 @@ if [ "$FAIL_COUNT" -gt 0 ]; then
     warn "Update summary: $UPDATE_COUNT updated, $FAIL_COUNT failed"
 else
     ok "Update summary: $UPDATE_COUNT updated, $FAIL_COUNT failed"
+fi
+
+# DT-06: Verify installed skill count
+if [ "$UPDATE_COUNT" -eq "$ExpectedSkillCount" ]; then
+    ok "Installed: $UPDATE_COUNT/$ExpectedSkillCount skills"
+else
+    warn "Skill count mismatch: installed=$UPDATE_COUNT, expected=$ExpectedSkillCount"
 fi
 
 ok "DevFlow update to v$VERSION complete"

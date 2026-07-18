@@ -1,8 +1,4 @@
-<<<<<<< HEAD
 # DevFlow Setup Script (PowerShell)
-=======
-﻿# DevFlow Setup Script (PowerShell)
->>>>>>> origin/master
 # Usage: .\setup.ps1 [-InstallHook]
 
 param(
@@ -57,6 +53,13 @@ if ($env:TRAE_IDE -or (Test-Path "$env:USERPROFILE\.trae-cn")) {
 }
 Write-Success "Host detected: $HostType"
 
+# DT-01: Load skill map from devflow-manifest.json
+$ManifestPath = Join-Path $PSScriptRoot "devflow-manifest.json"
+$Manifest = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+$skillMap = @{}
+foreach ($s in $Manifest.skills) { $skillMap[$s.name] = $s.source }
+$ExpectedSkillCount = $Manifest.skillCount
+
 # 2. Install skills to TRAE (if TRAE detected)
 if ($HostType -eq "TRAE") {
     # DT-04: IDE system directory configurable via environment variable
@@ -68,46 +71,7 @@ if ($HostType -eq "TRAE") {
         Write-Host "[INFO] Created skills directory: $TraeSkillsDir" -ForegroundColor Cyan
     }
 
-    # Skill definitions: Name -> SourcePath (relative to plugin root)
-    $skillMap = @{
-        "devflow-init"                  = "devflow-init\SKILL.md"
-        "devflow-phase-manager"         = "devflow-phase-manager\SKILL.md"
-        "devflow-project-config"         = "devflow-project-config\SKILL.md"
-        "project-development-workflow"   = "skills\L1\project-development-workflow.md"
-        "project-document-management"    = "skills\L1\project-document-management.md"
-        "project-role-management"        = "skills\L1\project-role-management.md"
-        "version-planning-stage-execution" = "skills\L2\version-planning-stage-execution.md"
-        "requirements-stage-execution"  = "skills\L2\requirements-stage-execution.md"
-        "design-stage-execution"        = "skills\L2\design-stage-execution.md"
-        "coding-stage-execution"        = "skills\L2\coding-stage-execution.md"
-        "testing-stage-execution"        = "skills\L2\testing-stage-execution.md"
-        "operations-stage-execution"     = "skills\L2\operations-stage-execution.md"
-        "project-coding-conventions"     = "skills\L3\project-coding-conventions.md"
-        "code-static-quality-check"      = "skills\L3\code-static-quality-check.md"
-        "code-logic-review"              = "skills\L3\code-logic-review.md"
-        "cicd-pipeline-management"      = "skills\L3\cicd-pipeline-management.md"
-        "observability-standards"        = "skills\L3\observability-standards.md"
-        "api-contract-management"       = "skills\L3\api-contract-management.md"
-        "prototype-coverage"            = "skills\L3\prototype-coverage.md"
-        "backend-coverage"              = "skills\L3\backend-coverage.md"
-        "project-document-templates"     = "skills\L3\project-document-templates.md"
-        "code-version-backup-management" = "skills\L3\code-version-backup-management.md"
-
-        # v2.5.0: Newly added L3 skills
-        "skill-md-writing-standards"    = "skills\L3\skill-md-writing-standards.md"
-        "security-design-review"        = "skills\L3\security-design-review.md"
-        "secure-coding-practices"       = "skills\L3\secure-coding-practices.md"
-        "container-deployment"          = "skills\L3\container-deployment.md"
-        "performance-engineering"       = "skills\L3\performance-engineering.md"
-        "database-migration"            = "skills\L3\database-migration.md"
-
-        # v2.7.5: Plugin configuration (version.json) and sync tool
-        "devflow-plugin-config"         = "version.json"
-        "devflow-plugin-sync"           = "sync-skills.ps1"
-
-        # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
-        "devflow-plugin-download"       = "download-devflow.ps1"
-    }
+    # Skill definitions loaded from devflow-manifest.json via DT-01 above
 
     # Phase 1: Uninstall existing DevFlow skills (clean slate)
     Write-Header "Uninstalling existing DevFlow Skills"
@@ -150,11 +114,7 @@ if ($HostType -eq "TRAE") {
             if ($ext -eq '.md') {
                 $dstFile = Join-Path $dstDir "SKILL.md"
             } else {
-<<<<<<< HEAD
                 $dstFile = Join-Path $dstDir (Split-Path $skillMap[$skillName] -Leaf)
-=======
-                $dstFile = Join-Path $dstDir $skillMap[$skillName]
->>>>>>> origin/master
             }
             Copy-Item -Path $src -Destination $dstFile -Force
             Write-Success "Installed: $skillName"
@@ -179,6 +139,13 @@ if ($HostType -eq "TRAE") {
 
     Write-Host ""
     Write-Host "Skills install result: $instCount installed, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
+
+    # DT-06: Verify installed skill count
+    if ($instCount -eq $ExpectedSkillCount) {
+        Write-Success "Installed: $instCount/$ExpectedSkillCount skills"
+    } else {
+        Write-Warn "Skill count mismatch: installed=$instCount, expected=$ExpectedSkillCount"
+    }
 }
 
 # 3. Install Git Hook (optional)
@@ -234,8 +201,5 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
 Write-Host "  2. Run '.\update.ps1' to update skills when new versions are available"
-<<<<<<< HEAD
 
 exit 0
-=======
->>>>>>> origin/master
