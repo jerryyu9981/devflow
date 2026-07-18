@@ -14,6 +14,9 @@
 ### Fixed
 - version.json 文件本身去除 UTF-8 BOM
 - install.bat 修正 PowerShell 调用参数传递
+- setup.ps1、update.ps1、update.sh 补齐 v2.5.0 遗漏的 6 个 L3 技能（skill-md-writing-standards、security-design-review、secure-coding-practices、container-deployment、performance-engineering、database-migration）
+- update.sh 补齐 v2.8.0 遗漏的 devflow-plugin-download 条目
+- setup.sh Bash 分支补齐 v2.5.0 的 6 个 L3 技能 + v2.8.0 的 devflow-plugin-download
 
 ## v2.8.1
 

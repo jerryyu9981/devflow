@@ -93,6 +93,14 @@ if ($HostType -eq "TRAE") {
         "project-document-templates"     = "skills\L3\project-document-templates.md"
         "code-version-backup-management" = "skills\L3\code-version-backup-management.md"
 
+        # v2.5.0: Newly added L3 skills
+        "skill-md-writing-standards"    = "skills\L3\skill-md-writing-standards.md"
+        "security-design-review"        = "skills\L3\security-design-review.md"
+        "secure-coding-practices"       = "skills\L3\secure-coding-practices.md"
+        "container-deployment"          = "skills\L3\container-deployment.md"
+        "performance-engineering"       = "skills\L3\performance-engineering.md"
+        "database-migration"            = "skills\L3\database-migration.md"
+
         # v2.7.5: Plugin configuration (version.json) and sync tool
         "devflow-plugin-config"         = "version.json"
         "devflow-plugin-sync"           = "sync-skills.ps1"

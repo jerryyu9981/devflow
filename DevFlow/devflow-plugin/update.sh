@@ -119,9 +119,20 @@ SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
 SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
 SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
 
+# v2.5.0: Newly added L3 skills
+SKILL_MAP["skill-md-writing-standards"]="skills/L3/skill-md-writing-standards.md"
+SKILL_MAP["security-design-review"]="skills/L3/security-design-review.md"
+SKILL_MAP["secure-coding-practices"]="skills/L3/secure-coding-practices.md"
+SKILL_MAP["container-deployment"]="skills/L3/container-deployment.md"
+SKILL_MAP["performance-engineering"]="skills/L3/performance-engineering.md"
+SKILL_MAP["database-migration"]="skills/L3/database-migration.md"
+
 # v2.7.5: Plugin configuration (version.json) and sync tool
 SKILL_MAP["devflow-plugin-config"]="version.json"
 SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
+
+# v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+SKILL_MAP["devflow-plugin-download"]="download-devflow.ps1"
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)
 echo ""
