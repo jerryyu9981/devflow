@@ -1,4 +1,4 @@
-# DevFlow Plugin Installer for Windows
+﻿# DevFlow Plugin Installer for Windows
 # Usage: Right-click -> "Run with PowerShell" or double-click install.bat
 #
 # 三步走架构 - 首次安装流程：Download + Setup
@@ -47,9 +47,14 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  DevFlow Plugin Installer v$Version" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
+<<<<<<< HEAD
 Write-Host "This wizard will:" -ForegroundColor White
 Write-Host "  Step 1: Download DevFlow from cloud repository (via download-devflow.ps1)"
 Write-Host "  Step 2: Install DevFlow skills to TRAE system directory"
+=======
+# 更新欢迎文字
+Write-Host "This wizard will install DevFlow skills into your TRAE environment."
+>>>>>>> origin/master
 Write-Host ""
 
 # 保留 .devflow 目录自检（安全检测）
@@ -69,6 +74,7 @@ if ($pluginDirName -eq ".devflow" -or $cwd -match "\.devflow[\\/]?$") {
     exit 1
 }
 
+<<<<<<< HEAD
 # ─── Step 1: Download (via download-devflow.ps1) ──────────────────
 $DownloadScript = Join-Path $PluginDir "download-devflow.ps1"
 
@@ -147,6 +153,13 @@ if (Test-Path $DownloadScript) {
 
 Write-Header "Step 2/2: Install DevFlow Skills to TRAE"
 
+=======
+# ─── Run setup.ps1 directly from current directory ─────────────
+
+Write-Host ""
+Write-Header "Installing DevFlow Skills to TRAE"
+
+>>>>>>> origin/master
 $setupScript = Join-Path $PluginDir "setup.ps1"
 if (Test-Path $setupScript) {
     Write-Host "Launching setup.ps1...`n" -ForegroundColor White
@@ -173,9 +186,12 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Restart TRAE IDE to load new skills"
 Write-Host "  2. Open your project in TRAE and invoke: devflow-init"
+<<<<<<< HEAD
 Write-Host ""
 Write-Host "To update DevFlow in the future:"
 Write-Host "  - Run update-devflow.bat (download + setup in one step)"
+=======
+>>>>>>> origin/master
 Write-Host ""
 Read-Host "Press Enter to exit"
 

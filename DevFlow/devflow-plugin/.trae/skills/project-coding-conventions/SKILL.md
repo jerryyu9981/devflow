@@ -341,3 +341,48 @@ ComponentName/
 - 不替代 `coplayer-naming-conventions` 和 `universal-naming-conventions`：通用命名规范由该技能负责，本技能只定义项目级命名模板
 - 不替代 `api-design`：API 设计模式由该技能负责，本技能只定义项目级约定
 - 不替代 `react-skills` / `vue-skills`：框架特定最佳实践由该技能负责
+
+## 本地质量配置
+
+### Pre-commit 钩子配置
+
+推荐使用 Husky + lint-staged 组合，确保每次提交前自动运行代码质量和格式检查。
+
+#### Husky 配置（推荐 v9+）
+
+```json
+// .husky/pre-commit
+"lint-staged": {
+  "*.{js,ts,tsx}": ["eslint --fix", "prettier --write"],
+  "*.{css,scss}": ["stylelint --fix", "prettier --write"],
+  "*.py": ["ruff check --fix", "ruff format"],
+  "*.md": ["prettier --write"]
+}
+```
+
+#### IDE 配置建议
+
+| IDE | 配置文件 | 推荐插件 |
+|:----|:---------|:---------|
+| VS Code | `.vscode/settings.json` | ESLint / Prettier / Ruff / EditorConfig for VS Code |
+| WebStorm | File → Settings → Tools → Actions on Save | 内置 ESLint + Prettier 集成 |
+
+#### .editorconfig 通用配置
+
+```ini
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = true
+insert_final_newline = true
+
+[*.py]
+indent_size = 4
+
+[Makefile]
+indent_style = tab
+```

@@ -104,6 +104,7 @@ Step 5 部署与运维
 7. **发现 P0/P1 上线问题必须停止发布或回滚**。
 8. **Step 5 未完成运维审计不得关闭全流程**。
 9. **回滚后必须验证**：回滚完成后 15 分钟内必须完成健康检查+冒烟验证，未验证通过视为回滚失败，必须升级至 P0 处理。
+10. **版本号自动更新为原子步骤**：5.1 阶段必须检测 version.json 版本号与待发布版本的一致性。不一致时必须自动更新 version.json 并提交 commit，不允许手动跳过。跳过版本号更新视为发布失败。
 
 ## 部署运维技能速查
 
@@ -114,11 +115,11 @@ Step 5 部署与运维
 | DevLogReport、构建和配置输入 | `coding-stage-execution` |
 | 发布版本、分支、tag、回滚 | `code-version-backup-management`、`git-commit` |
 | GitHub PR、Actions、Release、Artifacts | `gh-cli` |
-| 容器、镜像、Compose、服务部署 | `docker` |
+| 容器、镜像、Compose、服务部署 | `docker`、`container-deployment` |
 | 静态站点和 Pages 部署 | `iga-pages`、`byted-bp-cdn-pagesdeploy` |
 | 上线 Web 验证和浏览器诊断 | `webapp-testing`、`browser-devtools` |
 | 上线 API 验证 | `api-design` |
-| 数据迁移和校验 | `sql-database`、`mongodb` |
+| 数据迁移和校验 | `sql-database`、`mongodb`、`database-migration` |
 | 缓存、队列、事件流运维 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
 | 上线性能检查 | `frontend-performance` |
 | 上线安全检查 | `security-best-practices` |
@@ -140,6 +141,7 @@ Step 5 部署与运维
 - {项目名}-问题跟踪记录-v{版本号}.md（含：变更请求；跨阶段跟踪）
 
 文档命名、路径和版本规则遵循 `project-document-management`。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 ## 专项技能反向声明规则
 
@@ -164,8 +166,55 @@ Step 5 可完成的最低条件：
 5. 回滚预案明确，并完成必要演练或风险批准。
 6. 运维手册和运维移交清单齐备。
 7. 发布问题和遗留风险已记录。
-8. 运维审计材料已准备好并通过。
-9. 已明确允许关闭全流程。
+8. 部署验证清单已增加"关联 TT-ID"列，每项验证关联对应的测试用例编号。
+9. 运维审计材料已准备好并通过。
+10. 已明确允许关闭全流程。
+
+## 内部工作流
+
+### 步骤序列
+
+```text
+5.0 入场检查 → 5.1 发布计划 → 5.2 环境/DB → 5.3 缓存/消息
+→ 5.4 部署执行 → 5.5 上线验证 → 5.6 监控/日志/告警
+→ 5.7 性能/安全上线检查 → 5.8 回滚预案 → 5.9 运维移交
+→ 5.10 发布复盘 → 5.11 运维审计移交
+```
+
+### 5.0 入场检查
+| 维度 | 独立模式 | 全流程模式 |
+|------|---------|-----------|
+| 检查内容 | 可部署制品已存在 | Step 4 移交齐备 + 测试回溯审计通过 + P0/P1 全部关闭；**CI/CD 流水线全部通过（检出→构建→质量门禁→部署→验证各阶段无失败）** |
+
+### 5.1~5.4 部署准备与执行
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 5.1 发布计划 + 版本/制品确认 + **版本号自动更新** | 制品版本核对；**检查 version.json 版本号与待发布版本是否一致；不一致时自动更新并提交 version.json**；**确认 tag 已推送到 backup 远程仓库** | 发布计划 + **更新后的 version.json commit**；**备份验证记录** |
+| 5.2 环境配置核验 + 数据库迁移 | 环境核对、DB 迁移脚本检查 | 环境核验记录 |
+| 5.3 缓存/消息运维 | 缓存预热、消息队列状态检查 | 缓存运维记录 |
+| 5.4 部署执行 | 按部署方案执行 | 部署执行记录 |
+
+### 5.5~5.7 上线验证
+| 步骤 | 活动 | 新增内容 |
+|------|------|---------|
+| 5.5 上线验证 | 验证部署成功 | 部署验证清单增加"关联 TT-ID"列，每项验证关联对应的测试用例编号 |
+| 5.6 监控/日志/告警检查 | 检查监控面板、日志、告警规则 | — |
+| 5.7 性能/安全上线检查 | 性能基线、安全扫描 | — |
+
+### 5.8 回滚预案与触发决策
+| 条件 | 行动 |
+|------|------|
+| 自动触发：健康检查失败 / 错误率 > 1% / P99 超基线 50% | 判断故障级别 |
+| P0 故障 | 紧急回滚（跳过审批，2 小时补材料） |
+| 非 P0 故障 | 按回滚预案执行（审批 + 数据备份） |
+| 回滚后要求 | 15 分钟内完成验证 |
+
+### 5.9~5.11 移交与闭环
+| 步骤 | 活动 |
+|------|------|
+| 5.9 运维移交 | 运维文档归档 |
+| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致** |
+| 5.11 运维审计移交 | 全流程闭环审计，含追溯链闭环检查 |
 
 ## L3 部署运维速查
 
@@ -190,12 +239,7 @@ Step 5 可完成的最低条件：
 - 权限：只有审查者/PM/管理员可合入 develop/release/main；只有管理员可创建 tag
 - 备份触发：tag 创建时自动 git push --mirror 到备份远程仓库
 
-## CI/CD Pipeline Integration
+## Integration 参考文献
 
-Step 5 部署运维阶段必须参考 `cicd-pipeline-management` 技能定义的标准流水线、质量闸门和部署策略执行 CI/CD 流程。`project-development-workflow` 总流程主控中引用的自动化标准以本技能为入口。
-
-> **API 契约 CI 校验**：如果项目使用 OpenAPI 契约管理（参考 `api-contract-management` 技能），应在 CI/CD 流水线中加入 API 契约变更检测环节——每次提交自动导出最新 OpenAPI、重新生成前端客户端代码、检查是否有未提交的变更（意味着契约被破坏）。`api-contract-management` 的 Step 5 部署指南提供了 GitHub Actions 配置示例和 Nginx 反向代理配置。
-
-## Observability Integration
-
-Step 5 监控日志告警检查环节必须参考 `observability-standards` 技能定义的可观测性标准：日志格式验证、指标采集完整性检查、告警规则配置验证、Dashboard 就绪检查。在生产环境发布前必须确认可观测性基础设施已按标准配置到位。
+- **CI/CD Pipeline**：Step 5 必须参考 `cicd-pipeline-management` 技能定义的标准流水线、质量闸门和部署策略执行 CI/CD 流程。`project-development-workflow` 总流程主控中引用的自动化标准以本技能为入口。如果项目使用 OpenAPI 契约管理（参考 `api-contract-management` 技能），应在 CI/CD 流水线中加入 API 契约变更检测环节——每次提交自动导出最新 OpenAPI、重新生成前端客户端代码、检查是否有未提交的变更（意味着契约被破坏）。`api-contract-management` 的 Step 5 部署指南提供了 GitHub Actions 配置示例和 Nginx 反向代理配置。
+- **Observability**：Step 5 监控日志告警检查环节必须参考 `observability-standards` 技能定义的可观测性标准：日志格式验证、指标采集完整性检查、告警规则配置验证、Dashboard 就绪检查。在生产环境发布前必须确认可观测性基础设施已按标准配置到位。

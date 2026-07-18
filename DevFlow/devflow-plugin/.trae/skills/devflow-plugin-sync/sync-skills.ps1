@@ -1,4 +1,4 @@
-﻿# DevFlow Skills Sync Script (PowerShell)
+# DevFlow Skills Sync Script (PowerShell)
 # Usage: .\sync-skills.ps1 [-Target <IDE|Work|All>] [-Action <Install|Uninstall|Sync>] [-DryRun]
 #
 # Description:
@@ -87,9 +87,6 @@ $DevFlowSkills = @(
 
     # v2.7.5: Plugin sync tool (self-reference for self-update capability)
     @{ Name = "devflow-plugin-sync";           SourceDir = "sync-skills.ps1" }
-
-    # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
-    @{ Name = "devflow-plugin-download";       SourceDir = "download-devflow.ps1" }
 )
 
 $SkillNames = $DevFlowSkills | ForEach-Object { $_.Name }
@@ -116,18 +113,6 @@ function Write-Err($text) {
 
 function Write-Dry($text) {
     Write-Host "  [DRY] $text" -ForegroundColor DarkGray
-}
-
-function Remove-Utf8Bom {
-    param([string]$FilePath)
-    $bytes = [System.IO.File]::ReadAllBytes($FilePath)
-    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
-        $content = [System.IO.File]::ReadAllText($FilePath, [System.Text.UTF8Encoding]::new($true))
-        [System.IO.File]::WriteAllText($FilePath, $content, (New-Object System.Text.UTF8Encoding $false))
-        Write-Host "[BOM Fixed] $(Split-Path $FilePath -Leaf)" -ForegroundColor Yellow
-        return $true
-    }
-    return $false
 }
 
 function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [ref]$failCounter) {
@@ -230,11 +215,7 @@ if ($DryRun) {
 
 # ─── Determine Target Directories ───────────────────────────────
 
-if ($env:DEVFLOW_SKILLS_DIR) {
-    $GlobalSkillsDir = $env:DEVFLOW_SKILLS_DIR
-} else {
-    $GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
-}
+$GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
 $ProjectSkillsDir = ""
 
 if ($ProjectPath) {
@@ -300,22 +281,6 @@ foreach ($t in $targets) {
         $totalFailed += $instFail
         Write-Host "`n  Installed: $instCount, Failed: $instFail" -ForegroundColor $(if ($instFail -gt 0) { "Yellow" } else { "Green" })
     }
-}
-
-# DT-03: Remove UTF-8 BOM from all synced .md files
-$bomFixedCount = 0
-foreach ($t in $targets) {
-    if (Test-Path $t.Dir) {
-        Get-ChildItem -Path $t.Dir -Recurse -Filter "*.md" | ForEach-Object {
-            if (Remove-Utf8Bom -FilePath $_.FullName) {
-                $bomFixedCount++
-            }
-        }
-    }
-}
-if ($bomFixedCount -gt 0) {
-    Write-Host ""
-    Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
 }
 
 # ─── Summary ──────────────────────────────────────────────────────

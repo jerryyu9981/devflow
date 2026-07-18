@@ -2,8 +2,13 @@
 
 > 文档类型：候选需求池
 > 文档状态：[Draft]
+<<<<<<< HEAD
 > 版本：v1.8
 > 日期：2026-07-15
+=======
+> 版本：v1.0
+> 日期：2026-07-07
+>>>>>>> origin/master
 > 维护者：DevFlow 维护团队
 
 ---
@@ -58,6 +63,7 @@
 | V260-036-08 | **填充 version.json 仓库地址字段**：填充 repository 和 homepage 字段；用户在首次使用时通过 download-devflow.ps1 -Action SetRepo 设置 | 🟢 P2 | 三阶段架构 | ✅ 可行（字段填写） | 📋 候选 | v2.8.0 |
 | V260-037 | **修复 setup.ps1 复制逻辑：对非 .md 文件保留原文件名**——setup.ps1 第 98 行写死 `$dstFile = Join-Path $dstDir "SKILL.md"`，导致 `version.json` 和 `sync-skills.ps1` 被错误复制为 `SKILL.md`。增加文件扩展名判断逻辑：.md 文件→SKILL.md，非 .md 文件→保留原文件名，与 sync-skills.ps1 的 `$preserveFileName` 机制一致 | 🔴 P0 | 架构修复（v2.7.5 衍生） | ✅ 可行（复制逻辑增强） | 📋 候选 | v2.8.0 |
 
+<<<<<<< HEAD
 ### v2.8.1 已纳入（三步走交互完善 + 技术债务修复版本）
 
 | ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
@@ -75,6 +81,13 @@
 | V260-048 | **install.ps1 首次安装时引导设置下载仓库地址**——当 `version.json.repository` 为空时，install.ps1 的 Step 1 不应直接跳过下载，而应自动调用 `download-devflow.ps1 -Action SetRepo` 引导用户输入仓库 URL（交互式 Read-Host），设置完成后再继续 Clone 流程。同时 install.ps1 应支持 `-TargetDir` 参数，允许用户指定本地副本下载目录，替代当前的"使用脚本所在目录"的隐式行为 | 🔴 P0 | 三步走交互完善 | ✅ 可行（检测空字段 + 调用 SetRepo + 参数透传） | ✅ 已纳入 | v2.8.2 |
 | V260-049 | **setup.ps1/sh IDE 系统目录可配置化**——当前 `setup.ps1` 中 `$TraeSkillsDir = "$env:USERPROFILE\.trae-cn\skills"` 为硬编码，不支持非标准安装路径的 TRAE（如自定义 `TRAE_SKILLS_DIR` 环境变量）。改为：优先读取环境变量 `DEVFLOW_SKILLS_DIR`（如已设置则使用），其次读取 `$env:USERPROFILE\.trae-cn\skills`，并在安装确认步骤中展示该目录供用户确认。同步修改 `setup.sh`、`update.ps1`、`update.sh`、`sync-skills.ps1` 保持一致 | 🟡 P1 | 安装健壮性 | ✅ 可行（环境变量读取 + 硬编码回退，5 个脚本同步修改） | ✅ 已纳入 | v2.8.2 |
 | V260-050 | **setup.ps1/sh 安装后自动去除 SKILL.md 的 UTF-8 BOM 头**——TRAE 的 Write/SearchReplace 工具在 Windows 上编辑文件时会自动添加 UTF-8 BOM（`EF BB BF`），而 TRAE 技能扫描器无法正确解析 BOM 开头的 YAML frontmatter，导致技能无法加载。v2.7.3~v2.8.1 开发过程中三个 orchestrator 技能（devflow-init、devflow-phase-manager、devflow-project-config）因此无法被识别。修复：在 setup.ps1/sh 的 Phase 2 文件复制完成后，对所有已安装的 `.md` 文件执行 BOM 检测并自动去除（读取 UTF-8 BOM → 写入无 BOM）。同步修改 `update.ps1`、`update.sh`、`sync-skills.ps1` 保持一致 | 🔴 P0 | 安装修复 | ✅ 可行（约 10 行 PowerShell 代码，检测首三字节并重写） | ✅ 已纳入 | v2.8.2 |
+=======
+### v2.8.1 候选（技术债务修复版本）
+
+| ID | 需求描述 | 优先级 | 来源 | 技术可行性 | 状态 | 目标版本 |
+|:--:|:---------|:------:|:-----|:----------:|:----:|:--------:|
+| V260-038 | **修复 update.ps1 复制逻辑中 SKILL.md 硬编码**——update.ps1 第 153 行 `$dst = Join-Path $dstDir "SKILL.md"` 对所有技能使用固定文件名，导致 `version.json`、`sync-skills.ps1`、`download-devflow.ps1` 等非 .md 文件被错误命名为 `SKILL.md`。修复方式参照 setup.ps1 的 V260-037 方案，增加文件扩展名判断：.md 文件→SKILL.md，非 .md 文件→保留原文件名。影响范围：推荐更新路径 `update-devflow.bat`（调用 sync-skills.ps1）不受影响，仅直接影响用户直接运行 `update.ps1` 的场景 | 🟡 P1 | 技术债务 | ✅ 可行（参照 V260-037 方案，约 10 行代码修改） | 📋 候选 | v2.8.1 |
+>>>>>>> origin/master
 
 ### v2.9.0 候选（全自动循环架构版本）
 
@@ -158,9 +171,13 @@
 | v1.3 | 2026-07-11 | 清理 v2.7.1 重复候选条目；标记 v2.7.2 为已纳入；新增 V260-030~034（Install/Update/Init 三组件职责边界清理需求），v2.7.3 候选 | DevFlow 维护团队 |
 | v1.4 | 2026-07-12 | 新增 V260-035（version 字段统一命名规范化+update 语义修复），v2.7.4 候选；新增 V260-036（devflow-init 跨项目版本检测），v2.7.5 候选 | DevFlow 维护团队 |
 | v1.5 | 2026-07-12 | 新增 V260-038（update.ps1 SKILL.md 硬编码技术债务），v2.8.1 候选 | DevFlow 维护团队 |
+<<<<<<< HEAD
 | v1.6 | 2026-07-12 | 新增 V260-039~043（全自动版本循环执行架构），v2.9.0 候选；新增设计文档 `DevFlow-全自动版本循环执行架构设计文档.md` | DevFlow 维护团队 |
 | v1.7 | 2026-07-15 | 新增 V260-044~046（三步走交互完善：Download 版本比较+确认、Setup 交互确认、Init 文件同步），v2.8.1 候选 | DevFlow 维护团队 |
 | v1.8 | 2026-07-15 | V260-038、V260-044、V260-045、V260-046 标记为"已纳入 v2.8.1"；v2.8.1 候选区域更名为已纳入 | PM-DevFlow-Dev |
 | v1.9 | 2026-07-17 | 新增 V260-047~049（install.ps1 下载步骤对齐、首次安装引导设置仓库地址、IDE 系统目录可配置化），v2.8.2 候选 | PM-DevFlow-Dev |
 | v2.0 | 2026-07-17 | 新增 V260-050（setup/update/sync 脚本安装后自动去除 SKILL.md UTF-8 BOM 头），v2.8.2 候选 | PM-DevFlow-Dev |
 | v2.1 | 2026-07-18 | V260-047~050 标记为"已纳入 v2.8.2"；v2.8.2 候选区域更名为已纳入 | PM-DevFlow-Dev |
+=======
+| v1.6 | 2026-07-12 | 新增 V260-039~043（全自动版本循环执行架构），v2.9.0 候选；新增设计文档 `DevFlow-全自动版本循环执行架构设计文档.md` | DevFlow 维护团队 |
+>>>>>>> origin/master

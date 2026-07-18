@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # DevFlow Setup Script (PowerShell)
+=======
+﻿# DevFlow Setup Script (PowerShell)
+>>>>>>> origin/master
 # Usage: .\setup.ps1 [-InstallHook]
 
 param(
@@ -138,7 +142,11 @@ if ($HostType -eq "TRAE") {
             if ($ext -eq '.md') {
                 $dstFile = Join-Path $dstDir "SKILL.md"
             } else {
+<<<<<<< HEAD
                 $dstFile = Join-Path $dstDir (Split-Path $skillMap[$skillName] -Leaf)
+=======
+                $dstFile = Join-Path $dstDir $skillMap[$skillName]
+>>>>>>> origin/master
             }
             Copy-Item -Path $src -Destination $dstFile -Force
             Write-Success "Installed: $skillName"
@@ -218,5 +226,8 @@ Write-Host ""
 Write-Host "Next steps:"
 Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
 Write-Host "  2. Run '.\update.ps1' to update skills when new versions are available"
+<<<<<<< HEAD
 
 exit 0
+=======
+>>>>>>> origin/master

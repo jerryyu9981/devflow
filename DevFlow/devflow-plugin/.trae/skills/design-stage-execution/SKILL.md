@@ -119,7 +119,7 @@ Step 2 架构与设计
 | MCP 服务设计 | `mcp-builder` |
 | 数据模型和数据库设计 | `sql-database`、`mongodb` |
 | 缓存和消息设计 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
-| 安全设计 | `security-best-practices` |
+| 安全设计 | `security-best-practices`、`security-design-review` |
 | 性能设计 | `frontend-performance`、`sql-database`、`redis-development` |
 | 可访问性和 Web 界面规范 | `accessibility`、`web-design-guidelines` |
 | 部署和环境设计 | `docker` |
@@ -143,6 +143,7 @@ Step 2 架构与设计
 - {项目名}-设计评审记录-v{版本号}.md（主文件：含入场检查/需求设计追溯矩阵/审计移交/测试移交）
 
 文档命名、路径和版本规则遵循 project-document-management。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
 
 > 设计阶段结束时，开发者将在 Step 3 开头根据设计文档创建 {项目名}-设计开发追溯矩阵-v{版本号}.md，作为编码实现的逐项指引。该矩阵不属于设计阶段产出，不在本阶段输出要求中列出。
 
@@ -169,31 +170,104 @@ Step 2 可完成的最低条件：
 6. 需求架构对比审计材料已准备好。
 7. 已明确允许进入 Step 3。
 
+## 内部工作流
+
+Step 2 架构设计采用四轨并行模型，按以下自适应步骤执行。
+
+### 轨道选择机制
+
+四条轨道中：
+
+| 轨道 | 图标 | 特性 | 激活规则 |
+|------|------|------|---------|
+| 整体 | 🎯 | 永恒轨道 | 始终激活 |
+| 后端 | ⚙️ | 永恒轨道 | 始终激活 |
+| 前端 | 🎨 | 可选轨道 | 项目中存在前端页面/组件需求时激活 |
+| 第三方集成 | 🔗 | 可选轨道 | 项目存在外部依赖集成时激活 |
+
+**轨道确定时机**：2.0 入场检查时正式确定，写入入场检查记录。轨道一旦确定该版本内不得增减（变更需回退 Step 0）。
+
+### 2.0 设计入场检查 + 轨道选择确认
+
+| 维度 | 独立模式 | 全流程模式 |
+|------|---------|-----------|
+| **检查内容** | 需求基线至少存在 | Step 1 移交齐备 + 需求追溯矩阵齐全 + 需求评估审计通过 |
+| **产出** | 入场检查记录 + 激活轨道清单 |
+
+### 2.1~2.2 整体设计
+
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.1 需求-设计追溯 | 建立 DT-ID，每个设计项关联 RT-ID | 需求设计追溯矩阵 |
+| 2.2 系统架构设计 | 分层架构、模块划分、部署拓扑 | 系统架构设计文档 |
+
+### 2.3 并行技术选型（三选一或三选多）
+| 步骤 | 轨道 | 活动 | 产出 |
+|------|------|------|------|
+| 2.3a 后端技术选型+ADR | ⚙️ | 后端技术栈决策 + ADR 记录 | 后端 ADR + 技术选型报告 |
+| 2.3b 前端技术选型+ADR | 🎨 [按需] | 前端框架/UI库决策 + ADR 记录 | 前端 ADR + 技术选型报告 |
+| 2.3c 第三方集成设计 | 🔗 [按需] | 外部依赖盘点、版本兼容矩阵、Adapter 接口设计 | 第三方集成设计文档 |
+
+**ADR 要求**：每个关键决策必须记录 ADR，包含决策标题、上下文、备选方案（≥2 个）、决策与理由、已知后果与风险。
+
+### 2.4~2.6 并行详细设计
+| 步骤 | 轨道 | 活动 |
+|------|------|------|
+| 2.4a 后端数据模型设计 | ⚙️ | 核心实体定义、属性类型、约束、关系 |
+| 2.5a 后端 API 接口设计 | ⚙️ | API 路径、方法、请求/响应格式、错误码 |
+| 2.5b 前端 UI/组件/状态设计 | 🎨 [按需] | 页面布局、组件树、状态管理、路由设计；**原型覆盖率检查（页面清单 + 状态覆盖 + 交互标注 vs prototype-coverage 七步流程）** |
+| 2.6a 后端专项设计 | ⚙️ | 缓存、消息队列、安全方案；**安全设计评审（威胁建模 + 数据分类分级 + 安全需求追溯）** |
+
+> 2.6a 产出：安全设计审查记录
+
+### 2.7 整体专项设计
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.7 整体专项 | 性能指标、可观测性、部署方案、CI/CD 策略 | 整体专项设计文档；**可观测性覆盖检查表（日志格式/14 种关键指标/OTLP 追踪/6 种 Dashboard 逐项核对）** |
+
+### 2.8 覆盖检查（分轨）
+| 步骤 | 轨道 | 产出 |
+|------|------|------|
+| 2.8a 后端覆盖检查 | ⚙️ | **后端设计覆盖检查（API 契约/数据模型/状态机/安全设计覆盖率逐项核对，参考 backend-coverage 五步流程）** |
+| 2.8b 前端覆盖检查 | 🎨 [按需] | 前端覆盖率报告 |
+| 2.8c 第三方集成专项检查 | 🔗 [按需] | 第三方集成检查报告（依赖漏洞、License 合规、升级策略） |
+
+**覆盖率缺口处置规则**：覆盖率目标 ≥ 95%。剩余 ≤ 5% 必须标记为"已知设计缺口"并记录在设计评审记录中，Step 3 审计时检查缺口是否已关闭。
+
+### 2.9 API 契约对齐（衔接点）
+| 条件 | 活动 | 产出 |
+|------|------|------|
+| 前端+后端轨道均激活 | 前后端共同验证 API 路径、请求/响应格式、错误码一致性 | API 契约对齐记录 |
+| 仅后端轨道激活 | 从略 | [N/A] |
+
+### 2.10~2.12 评审与移交
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.10 设计评审 | 完整性、一致性、可行性、覆盖率评审 | 设计评审记录 |
+| 2.11 需求架构对比审计 | DT-ID 全覆盖检查、设计响应需求无遗漏 | 需求架构对比审计报告 |
+| 2.12 开发测试移交 | 向 Step 3 移交全量设计文档 + 追溯矩阵 + 测试移交说明 | 设计基线 + 移交说明 |
+
+### 回退路径
+- 设计评审退回 → 回到 **2.3** 或 **2.7** 修改
+- 审计发现覆盖率缺口 → 回到 **2.8** 补检
+- Step 3 发现设计偏差 → 评估后回到 **2.10** 重评
+
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with `requirements-stage-execution`.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions & acceptance criteria in requirements doc, do not replace Step 1 review/audit. P0/P1 gap → fix within Step 1, update traceability matrix, rerun review before design handoff.
 
-- Treat `requirements-stage-execution` as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
 ## Operations Stage Integration
 
+When called within Step 5: treat `operations-stage-execution` as controller, use only for specialty area, record deployment/verification evidence in ops doc, do not replace Step 5 release verification or ops audit. P0/P1 deployment issue → stop or rollback, update records, rerun verification.
 
-When this skill is used during the formal deployment and operations stage, coordinate with `operations-stage-execution`.
-
-- Treat `operations-stage-execution` as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-`r`n## L3 可观测性设计速查
+## L3 可观测性设计速查
 
 以下规则内联自 observability-standards 技能：
 - 日志结构：每个服务须输出结构化JSON日志(traceId/spanId/service/module/message)
 - 关键指标(14种)：http_requests_total/http_request_duration_seconds/db_query_duration_seconds/cache_hit_total 等
 - 链路追踪：OTLP协议/W3C TraceContext传播/生产默认采样10%/错误追踪100%
 - 必备Dashboard(6个)：Service Overview/Resource/Dependencies/Business/Errors/Alert History
+  ↑ 以上 4 条标准必须在 2.7 步逐一检查
 
 ## Observability Integration
 

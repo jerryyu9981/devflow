@@ -33,6 +33,7 @@ header() { echo -e "${CYAN}\n=== $1 ===${NC}"; }
 ok() { echo -e "${GREEN}[OK] $1${NC}"; }
 warn() { echo -e "${YELLOW}[WARN] $1${NC}"; }
 
+<<<<<<< HEAD
 # ─── BOM Removal Helper (DT-03) ──────────────────────────────────
 remove_utf8_bom() {
     local file="$1"
@@ -167,6 +168,8 @@ if [ "$HOST_TYPE" = "TRAE" ]; then
     fi
 fi
 
+=======
+>>>>>>> origin/master
 # 3. Install Git Hook (optional)
 if [ "$INSTALL_HOOK" = "true" ] && [ -d ".git" ]; then
     header "Installing Git Post-Push Hook"
@@ -207,6 +210,72 @@ HOOKEOF
     ok "Created: .devflow/logs"
 fi
 
+<<<<<<< HEAD
+=======
+# 2. Install skills to TRAE (if TRAE detected)
+TRA_SKILLS_DIR="${HOME}/.trae-cn/skills"
+if [ -d "$HOME/.trae-cn" ]; then
+    # Skill definitions: Name -> SourcePath (relative to plugin root)
+    declare -A SKILL_MAP
+    SKILL_MAP["devflow-init"]="devflow-init/SKILL.md"
+    SKILL_MAP["devflow-phase-manager"]="devflow-phase-manager/SKILL.md"
+    SKILL_MAP["devflow-project-config"]="devflow-project-config/SKILL.md"
+    SKILL_MAP["project-development-workflow"]="skills/L1/project-development-workflow.md"
+    SKILL_MAP["project-document-management"]="skills/L1/project-document-management.md"
+    SKILL_MAP["project-role-management"]="skills/L1/project-role-management.md"
+    SKILL_MAP["version-planning-stage-execution"]="skills/L2/version-planning-stage-execution.md"
+    SKILL_MAP["requirements-stage-execution"]="skills/L2/requirements-stage-execution.md"
+    SKILL_MAP["design-stage-execution"]="skills/L2/design-stage-execution.md"
+    SKILL_MAP["coding-stage-execution"]="skills/L2/coding-stage-execution.md"
+    SKILL_MAP["testing-stage-execution"]="skills/L2/testing-stage-execution.md"
+    SKILL_MAP["operations-stage-execution"]="skills/L2/operations-stage-execution.md"
+    SKILL_MAP["project-coding-conventions"]="skills/L3/project-coding-conventions.md"
+    SKILL_MAP["code-static-quality-check"]="skills/L3/code-static-quality-check.md"
+    SKILL_MAP["code-logic-review"]="skills/L3/code-logic-review.md"
+    SKILL_MAP["cicd-pipeline-management"]="skills/L3/cicd-pipeline-management.md"
+    SKILL_MAP["observability-standards"]="skills/L3/observability-standards.md"
+    SKILL_MAP["api-contract-management"]="skills/L3/api-contract-management.md"
+    SKILL_MAP["prototype-coverage"]="skills/L3/prototype-coverage.md"
+    SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
+    SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
+    SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
+
+    # v2.7.5: Plugin configuration (version.json) and sync tool
+    SKILL_MAP["devflow-plugin-config"]="version.json"
+    SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
+
+    # Phase 1: Uninstall existing DevFlow skills (clean slate)
+    header "Uninstalling existing DevFlow Skills"
+    for skill in $(echo "${!SKILL_MAP[@]}" | tr ' ' '\n' | sort); do
+        dst_dir="${TRA_SKILLS_DIR}/${skill}"
+        if [ -d "$dst_dir" ]; then
+            rm -rf "$dst_dir"
+            ok "Removed: $skill"
+        fi
+    done
+
+    # Phase 2: Install DevFlow skills from plugin source
+    header "Installing DevFlow Skills to TRAE"
+    inst_count=0
+    fail_count=0
+    for skill in $(echo "${!SKILL_MAP[@]}" | tr ' ' '\n' | sort); do
+        src="${SCRIPT_DIR}/${SKILL_MAP[$skill]}"
+        dst="${TRA_SKILLS_DIR}/${skill}/SKILL.md"
+        if [ -f "$src" ]; then
+            mkdir -p "$(dirname "$dst")"
+            cp "$src" "$dst"
+            ok "Installed: $skill"
+            inst_count=$((inst_count + 1))
+        else
+            warn "Skill source not found: $skill ($src)"
+            fail_count=$((fail_count + 1))
+        fi
+    done
+    echo ""
+    echo "Skills install result: $inst_count installed, $fail_count failed"
+fi
+
+>>>>>>> origin/master
 # 4. Summary
 header "DevFlow Setup Complete"
 echo "DevFlow Version: $DEVFLOW_VERSION"
@@ -214,5 +283,8 @@ echo ""
 echo "Next steps:"
 echo "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
 echo "  2. Run './update.sh' to update skills when new versions are available"
+<<<<<<< HEAD
 
 exit 0
+=======
+>>>>>>> origin/master

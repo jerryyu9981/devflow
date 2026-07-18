@@ -152,11 +152,67 @@ Step 0 可完成的最低条件：
 
 ## Requirements Stage Integration
 
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions & acceptance criteria in requirements doc, do not replace Step 1 review/audit. P0/P1 gap → fix within Step 1, update traceability matrix, rerun review before design handoff.
 
-When this skill is used during the formal requirements stage, coordinate with `requirements-stage-execution`.
+## 内部工作流
 
-- Treat `requirements-stage-execution` as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
+Step 0 版本规划按以下 6 个子步骤顺序执行。每个子步骤有明确的输入、活动、产出和通过标准。
+
+### 步骤序列
+
+```text
+0.0 收集候选需求 → 0.1 技术可行性粗筛 → 0.2 版本目标与范围决策
+→ 0.3 创建本版本 Backlog → 0.4 Phase 拆分 + 资源风险评估 → 0.5 版本规划评审
+```
+
+### 0.0 收集候选需求
+| 维度 | 内容 |
+|------|------|
+| **输入** | 用户反馈、业务输入、线上问题、技术债、竞品信息 |
+| **活动** | 汇总所有待评估的需求，写入全局候选需求池 |
+| **产出** | 候选需求池更新 |
+| **通过标准** | 每个需求有：来源、价值、初步成本、目标版本、状态 |
+
+### 0.1 技术可行性粗筛
+| 维度 | 内容 |
+|------|------|
+| **输入** | 候选需求池中的新候选需求 |
+| **活动** | 对新候选需求做粗略技术评估：技术栈匹配、复杂度、依赖可行性、风险预判 |
+| **产出** | 可行性结论 + 预研建议 |
+| **通过标准** | P0 风险需求有明确结论（可行/需预研/不推荐） |
+
+### 0.2 版本目标与范围决策
+| 维度 | 内容 |
+|------|------|
+| **输入** | 0.1 可行性结论、全局候选需求池 |
+| **活动** | 确定当前版本目标；从候选需求池筛选纳入本版本的需求；明确包含/不包含范围 |
+| **产出** | 单版本规划文档（范围章节） |
+| **通过标准** | 包含范围 + 不包含范围均已定义；目标可衡量 |
+
+### 0.3 创建本版本 Backlog
+| 维度 | 内容 |
+|------|------|
+| **输入** | 0.2 范围决策结果 |
+| **活动** | 从全局候选需求池取出本版本需求子集；标记 P0/P1/P2 优先级 |
+| **产出** | 本版本 Backlog |
+| **通过标准** | 所有 P0 项有对应 Backlog 条目；优先级排序可解释 |
+
+### 0.4 Phase 拆分 + 资源风险评估
+| 维度 | 内容 |
+|------|------|
+| **输入** | 0.3 本版本 Backlog |
+| **活动** | 将 Backlog 拆分为 Phase/里程碑；评估依赖、资源、风险、高层验收目标 |
+| **产出** | Phase 迭代计划 + 版本风险清单 + 版本依赖清单 + 技术债务清单 |
+| **通过标准** | 每个 Phase 可独立推进和验证；P0 风险有缓解计划 |
+
+### 0.5 版本规划评审
+| 维度 | 内容 |
+|------|------|
+| **输入** | 0.0~0.4 的全部产出 |
+| **活动** | 评审版本目标、范围、优先级、风险、资源；版本规划评审记录归档 |
+| **产出** | 版本规划评审记录 |
+| **通过标准** | 明确批准或退回结论；批准后通知 devflow-phase-manager 更新 state.json 进入 Step 1 |
+
+### 回退路径
+- 评审退回 → 回到 **0.2**（范围决策）或 **0.3**（Backlog 调整）修改
+- Step 1~5 发现新需求 → 回写全局候选需求池 → 触发版本范围变更 → 回到 **0.2** 评审

@@ -1,4 +1,4 @@
-# DevFlow Update Script (PowerShell)
+﻿# DevFlow Update Script (PowerShell)
 # Usage: .\update.ps1 [-Version <version>] [-DryRun]
 
 param(
@@ -231,4 +231,8 @@ if ($bomFixedCount -gt 0) {
 Write-Host ""
 Write-Host "Update summary: $updateCount updated, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
 
+<<<<<<< HEAD
 Write-Success "DevFlow update to v$LatestVersion complete"
+=======
+Write-Success "DevFlow update to v$LatestVersion complete"
+>>>>>>> origin/master

@@ -5,19 +5,36 @@ description: "Implements Step 0 version planning plus 5-step development workflo
 
 # Project Development Workflow (项目开发 Step 0 + 五步流程)
 
-## Overview
+## 技能三层架构说明
 
-### 技能三层架构说明
+本流程体系采用三层技能架构，控制 LLM 执行深度不超过 2 层：
 
-本流程体系采用三层技能架构，控制LLM执行深度不超过2层：
+### 三层职责边界
 
-| 层 | 角色 | 技能 | 加载策略 |
-|---|------|------|---------|
-| Layer 1 | 总控调度 | project-development-workflow + doc-management + role-management | **运行时预加载** |
-| Layer 2 | 阶段执行 | 6个 stage-execution 主控 | **运行时预加载**；内联L3速查规则 |
-| Layer 3 | 专项参考 | project-coding-conventions / static-quality-check / logic-review / doc-templates / cicd-pipeline / observability-standards | **按需加载**（运行时不被反引号引用） |
+| 层 | 名称 | 职责 | 加载策略 | 能否独立执行 |
+|:--:|:-----|:-----|:---------|:-----------:|
+| L1 | 总控调度层 | **定义流程框架、门禁条件、阶段间交接、产出矩阵**。不执行具体工作，只调度 L2 | 运行时预加载 | ❌ 不独立执行 |
+| L2 | 阶段执行层 | **定义阶段内部工作流的每一步（输入→活动→产出→通过标准）**。是 LLM 执行时实际操作的"施工图纸" | 运行时预加载 | ✅ 可直接执行 |
+| L3 | 专项参考层 | **提供某垂直领域的完整知识、阈值、工具链和最佳实践**。内容由 L2 内联速查引用，不定义执行步骤 | 按需加载 | ⚠️ 仅提供知识，不含执行流程 |
 
-> **运行时规则**：Layer 2 内联 Layer 3 的核心规则速查表，Layer 1→Layer 2→Layer 3 的执行链深度恒为 2 层。Layer 3 技能文件在运行时不被预加载，仅在必要场景下显式请求加载。
+### 核心约束
+
+1. **L2 是执行主体，L3 是知识来源**：L2 的工作流步骤是 LLM 执行时唯一遵循的施工图纸。L3 的内容（阈值、工具、规则）必须通过 L2 的工作流步骤转化为可执行的门禁，不能指望 LLM 自行跳转到 L3 文件执行。
+2. **内联即承诺**：L2 中内联 L3 速查内容的每一块，都必须在 L2 的**内部工作流步骤表**中找到对应的显式步骤（输入→活动→产出→通过标准）。速查不是装饰，是承诺。
+3. **内联≠执行**：仅仅是把 L3 的内容复制到 L2 的"速查"章节，但没有在 L2 的工作流中增加对应的步骤，等于没有执行。LLM 会跳过它。
+4. **执行链深度恒为 2 层**：L1 调度 L2，L2 执行时读取自身内联的 L3 速查（不跳出文件查找 L3 技能）。所以 L3 内容必须出现在 L2 的工作流步骤中，否则永远不会被执行。
+5. **L3 不可定义流程**：L3 技能只定义知识（阈值/工具/模板），不定义"先做什么再做什么"。执行顺序由 L2 的工作流负责编排。
+
+> **运行时规则**：Layer 1→Layer 2→Layer 3 的执行链深度恒为 2 层。Layer 3 技能文件在运行时不被预加载，仅在必要场景下显式请求加载。
+
+### 三层示例对照
+
+| 场景 | L1 做的事 | L2 做的事 | L3 做的事 |
+|:-----|:----------|:----------|:----------|
+| 检查代码质量 | 定义"Step 3 必须经过代码质量门禁才进入 Step 4" | 3.4 步定义"执行静态质量检查"，产出"质量检查记录" | `code-static-quality-check` 提供 12 类检查项的具体阈值和工具命令 |
+| 发布版本 | 定义"Step 5 必须经过发布入场检查才上线" | 5.1 步定义"版本号自动更新"，产出"更新后的 version.json" | `code-version-backup-management` 提供 tag/backup/回滚的具体命令 |
+| UI 设计审查 | 定义"Step 2 设计评审覆盖率≥95%" | 2.8a 步定义"后端覆盖检查"，2.8b 定义"前端覆盖检查" | `prototype-coverage` 提供七步检查流程表格 |
+| 安全审计 | 定义"Step 2 安全设计必须纳入审计" | 2.6a 步定义"安全设计评审"，产出"安全审查记录" | `security-design-review` 提供威胁建模方法和数据分类标准 |
 
 
 
@@ -166,6 +183,34 @@ Step 5 的不可变门禁如下：
 
 部署运维类别、通过标准和强制产出以 `operations-stage-execution` 与 `project-document-management` 为准。
 
+## 阶段间交接箱
+
+每个阶段完成后向下一阶段传递的标准化交接包。
+
+### 交接包定义
+
+| 交接方向 | 交接内容 | 接收方门禁检查 |
+|---------|---------|---------------|
+| Step 0 → Step 1 | 单版本规划 + 本版本 Backlog + Phase 计划 + 评审结论 + 候选需求池 | 1.0 入场检查确认 Step 0 输入齐备 |
+| Step 1 → Step 2 | 需求基线 + 需求追溯矩阵(RT-ID) + 验收标准清单 + 需求评估报告 + 风险清单 | 2.0 入场检查确认追溯矩阵齐全 |
+| Step 2 → Step 3 | 全量设计文档 + 需求设计追溯矩阵(DT-ID) + 设计评审记录 + 审计报告 + 移交说明 | 3.0 入场确认 TD-ID 需创建 |
+| Step 3 → Step 4 | DevLogReport + 静态质量记录 + code-logic-review + 修复复审 + 开发审计报告 + 移交说明 | 4.0 入场检查确认 code-logic-review 通过 |
+| Step 4 → Step 5 | 测试报告 + 覆盖率报告 + UAT + 测试回溯审计报告 + 缺陷闭环记录 | 5.0 入场检查确认 P0/P1 关闭 |
+
+### 追溯链贯通说明
+```text
+全流程追溯链（从 Step 0 到 Step 5）：
+Step 0 Backlog ─→ Step 1 RT-ID ─→ Step 2 DT-ID ─→ Step 3 TD-ID ─→ Step 4 TT-ID ─→ Step 5 部署验证项
+
+编号规则：
+  RT-ID: RT-{版本号}-{序号}    (Step 1 产生)
+  DT-ID: DT-{版本号}-{序号}    (Step 2 产生，关联 RT-ID)
+  TD-ID: TD-{版本号}-{序号}    (Step 3 产生，关联 DT-ID)
+  TT-ID: TT-{版本号}-{序号}    (Step 4 产生，关联 RT-ID + TD-ID)
+
+独立模式时使用 EXT 代替版本号：RT-EXT-001, DT-EXT-001, TD-EXT-001, TT-EXT-001
+```
+
 ## Audit Framework (审计框架)
 
 每个阶段均包含审计子步骤，由审计师（Auditor Agent）负责执行。审计未通过时，流程回退至对应阶段修改。
@@ -175,7 +220,7 @@ Step 5 的不可变门禁如下：
 | Step 0 | 版本规划评审 | 进入需求分析前 | 版本规划总纲 + 版本迭代路线图 + 单版本规划文档 + 本版本Backlog + Phase迭代计划 | 版本目标、范围、优先级、风险、资源和高层验收目标已确认 | 退回版本规划修改 |
 | Step 1 | 需求评估 | 阶段1批准前 | 需求文档 + 需求追溯矩阵 + 验收标准清单 + 需求基线说明 | P0/P1 需求来源、场景、业务规则、验收标准完整，范围合规 | 退回 Step 0 修改范围或退回 Step 1 修改需求 |
 | Step 2 | 需求架构对比 | 阶段2批准前 | 需求文档（已批准）+ 需求设计追溯矩阵 + 完整设计文档矩阵 | 覆盖率≥95%，无重大偏差，P0/P1 设计缺口已闭环 | 退回阶段1修改需求或退回 Step 2 修改设计 |
-| Step 3 | 开发设计对比 | 阶段3完成后 | 架构设计文档 + DevLogReport + 静态质量检查记录 + 代码逻辑审查记录 | 覆盖率≥90%，静态质量和代码逻辑 P0/P1 已闭环，偏差有记录 | 退回 Step 2 修改设计或退回 Step 3 修复 |
+| Step 3 | 开发设计对比 | 阶段3完成后 | 架构设计文档 + DevLogReport + 静态质量检查记录 + 代码逻辑审查记录 | 覆盖率≥95%，静态质量和代码逻辑 P0/P1 已闭环，偏差有记录 | 退回 Step 2 修改设计或退回 Step 3 修复 |
 | Step 4 | 测试回溯对比 | 阶段4完成后 | 需求文档 + 测试报告 + 覆盖率报告 + 全部测试子报告 | 全量回归通过率≥95%，修改文件覆盖率≥80%，所有P0/P1问题有闭环 | 退回阶段3修复并重新执行完整Step 4 |
 | Step 5 | 全流程闭环 / 运维审计 | 阶段5部署后 | 全部文档 + 发布入场检查 + 部署执行记录 + 上线验证报告 + 监控日志检查 + 回滚证据 + 运维移交材料 | 所有审计问题已关闭，发布可验证、可回滚、可监控、可运维 | 按影响范围回退至 Step 0-5 对应阶段 |
 
@@ -239,44 +284,23 @@ When the user asks to:
 Invoke this skill to provide standardized project management guidance.
 ## Coding Stage Integration
 
-When this skill is used during the formal coding stage, coordinate with `coding-stage-execution`.
-
-- Treat `coding-stage-execution` as the Step 3 coding-stage controller.
-- Require `code-static-quality-check` before `code-logic-review` whenever syntax, lint, type, build, symbol, parameter, return, import/export, env, or API consistency is relevant.
-- Require `code-logic-review` before development audit and Step 4 testing handoff.
-- Do not let development self-tests, specialty checks, or partial smoke tests replace the Step 3 development gate.
-- If a P0/P1 static quality or code logic issue is found, fix it within Step 3, rerun the relevant checks, update `DevLogReport`, then repeat the review gate before handoff.
+When called within Step 3: treat `coding-stage-execution` as controller, use only for static quality or logic review specialty, record decisions in DevLogReport, do not replace Step 3 development gate or audit. P0/P1 gap → fix within Step 3, update DevLogReport and rerun relevant review before handoff.
 
 ## Version Planning Stage Integration
 
-When this skill is used during Step 0 version planning, coordinate with `version-planning-stage-execution`.
-
-- Treat `version-planning-stage-execution` as the Step 0 controller for roadmap, release scope, backlog prioritization, phase planning, risks, and review evidence.
-- Keep global version documents separate from single-version documents according to `project-document-management`.
-- Do not let detailed requirements, design, development, or testing work start until Step 0 approval confirms version goals, scope, priorities, risks, and handoff inputs.
-- Record decisions, assumptions, scope changes, and review conclusions in the relevant version planning documents.
+When called within Step 0: treat `version-planning-stage-execution` as controller, use only for specialty area, record decisions in version planning documents, do not replace Step 0 review. P0/P1 gap → fix within Step 0, update version planning documents, rerun review before handoff.
 
 ## Design Stage Integration
 
-When this skill is used during the formal design stage, coordinate with design-stage-execution.
-
-- Treat design-stage-execution as the Step 2 design-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole design stage complete.
-- Record design decisions, assumptions, alternatives, risks, open questions, and downstream impacts in the relevant design document.
-- Do not let a successful specialty design review replace the Step 2 design review or requirements-architecture audit.
-- If a P0/P1 design gap is found, fix it within Step 2, update the relevant design document and traceability matrix, then rerun the relevant design review before development handoff.
+When called within Step 2: treat `design-stage-execution` as controller, use only for specialty area, record decisions in design documents, do not replace Step 2 design review or requirements-architecture audit. P0/P1 gap → fix within Step 2, update design document and traceability matrix, rerun design review before handoff.
 
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with requirements-stage-execution.
-
-- Treat requirements-stage-execution as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions in requirements documents, do not replace Step 1 requirements review or audit. P0/P1 gap → fix within Step 1, update requirements baseline and traceability matrix, rerun requirements review before handoff.
 
 ## Operations Stage Integration
+
+When called within Step 5: treat `operations-stage-execution` as controller, use only for specialty area, record commands, environment, release version, verification evidence, and risks in operations documents, do not replace Step 5 release verification or operations audit. P0/P1 gap → stop rollout or trigger rollback, update release records, rerun required verification before handoff.
 
 ## Coding Conventions Integration
 
@@ -286,12 +310,6 @@ Step 3 编码实现阶段必须遵循 `project-coding-conventions` 技能中定�
 
 各阶段文档产出时参考 `project-document-templates` 技能中的对应模板，确保文档内容完整性。
 
-When this skill is used during the formal deployment and operations stage, coordinate with operations-stage-execution.
+## CI/CD Pipeline Integration
 
-- Treat operations-stage-execution as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-`r`n## CI/CD Pipeline Integration
-`r`nStep 5 部署运维阶段自动化的 CI/CD 流水线标准由 `cicd-pipeline-management` 技能定义。项目初始化、流水线配置、质量闸门设置和部署策略选择时调用该技能。
-- If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
+Step 5 部署运维阶段自动化的 CI/CD 流水线标准由 `cicd-pipeline-management` 技能定义。项目初始化、流水线配置、质量闸门设置和部署策略选择时调用该技能。

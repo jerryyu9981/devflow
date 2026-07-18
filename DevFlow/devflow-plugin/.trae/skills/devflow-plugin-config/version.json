@@ -1,15 +1,11 @@
-﻿{
+{
   "_meta": {
     "sourceOfTruth": true,
     "description": "本文件是 DevFlow 插件的唯一权威版本来源。任何技能、配置模板或文档中的版本号必须与此文件保持一致。修改版本时，先更新此文件，再同步至所有引用位置。"
   },
   "name": "DevFlow",
   "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、28个核心技能、24个文档模板和完整的追溯链。",
-<<<<<<< HEAD
-  "devflowVersion": "2.8.2",
-=======
-  "devflowVersion": "2.8.0",
->>>>>>> origin/master
+  "devflowVersion": "2.7.5",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",
@@ -61,6 +57,5 @@
   "license": "MIT",
   "repository": "",
   "homepage": "",
-  "bugs": "",
   "author": "DevFlow Team"
 }
