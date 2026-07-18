@@ -24,6 +24,20 @@ ok() { echo -e "${GREEN}[OK] $1${NC}"; }
 warn() { echo -e "${YELLOW}[WARN] $1${NC}"; }
 err() { echo -e "${RED}[ERROR] $1${NC}"; }
 
+# ─── BOM Removal Helper (DT-03) ──────────────────────────────────
+remove_utf8_bom() {
+    local file="$1"
+    if [ ! -f "$file" ]; then return 1; fi
+    local first3=$(head -c 3 "$file" 2>/dev/null | xxd -p 2>/dev/null)
+    if [ "$first3" = "efbbbf" ]; then
+        local tmpfile="${file}.tmp"
+        tail -c +4 "$file" > "$tmpfile" 2>/dev/null && mv "$tmpfile" "$file"
+        echo -e "${YELLOW}[BOM Fixed] $(basename "$file")${NC}"
+        return 0
+    fi
+    return 1
+}
+
 # Resolve repository URL: env var > config.json > fallback empty
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_URL="${DEVFLOW_REPO_URL:-}"
@@ -36,7 +50,7 @@ if [ -z "$REPO_URL" ]; then
 fi
 
 # 1. Check current version
-CURRENT_VERSION=$(python3 -c "import json; print(json.load(open('.devflow/config.json'))['devflowVersion'])" 2>/dev/null || echo "unknown")
+CURRENT_VERSION=$(python3 -c "import json; s=json.load(open('.devflow/state.json')); print(s.get('devflowVersion','unknown'))" 2>/dev/null || echo "unknown")
 echo "Current DevFlow version: $CURRENT_VERSION"
 
 # 2. Determine latest version
@@ -44,11 +58,11 @@ if [ -z "$VERSION" ]; then
     # Try local version.json first
     LOCAL_VERSION_JSON="${SCRIPT_DIR}/version.json"
     if [ -f "$LOCAL_VERSION_JSON" ]; then
-        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_VERSION_JSON'))['version'])" 2>/dev/null || true)
+        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_VERSION_JSON'))['devflowVersion'])" 2>/dev/null || true)
     fi
     # If repo configured and local failed, try remote
     if [ -n "$REPO_URL" ] && [ -z "$VERSION" ]; then
-        VERSION=$(curl -sf "${REPO_URL}/raw/main/version.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['version'])" 2>/dev/null || true)
+        VERSION=$(curl -sf "${REPO_URL}/raw/main/version.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['devflowVersion'])" 2>/dev/null || true)
     fi
     if [ -z "$VERSION" ]; then
         err "Cannot determine target version. Please specify --version."
@@ -72,9 +86,15 @@ fi
 echo ""
 echo "=== Updating DevFlow to v$VERSION ==="
 
-TRA_SKILLS_DIR="${HOME}/.trae-cn/skills"
+# DT-04: IDE system directory configurable via environment variable
+TRA_SKILLS_DIR="${DEVFLOW_SKILLS_DIR:-$HOME/.trae-cn/skills}"
 
-# Skill name 鈫?source path mapping (relative to plugin root)
+# Ensure target directory exists
+if [ ! -d "$TRA_SKILLS_DIR" ]; then
+    mkdir -p "$TRA_SKILLS_DIR"
+fi
+
+# Skill name -> source path mapping (relative to plugin root)
 declare -A SKILL_MAP
 SKILL_MAP["devflow-init"]="devflow-init/SKILL.md"
 SKILL_MAP["devflow-phase-manager"]="devflow-phase-manager/SKILL.md"
@@ -98,6 +118,10 @@ SKILL_MAP["prototype-coverage"]="skills/L3/prototype-coverage.md"
 SKILL_MAP["backend-coverage"]="skills/L3/backend-coverage.md"
 SKILL_MAP["project-document-templates"]="skills/L3/project-document-templates.md"
 SKILL_MAP["code-version-backup-management"]="skills/L3/code-version-backup-management.md"
+
+# v2.7.5: Plugin configuration (version.json) and sync tool
+SKILL_MAP["devflow-plugin-config"]="version.json"
+SKILL_MAP["devflow-plugin-sync"]="sync-skills.ps1"
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)
 echo ""
@@ -151,24 +175,23 @@ for skill in $(echo "${!SKILL_MAP[@]}" | tr ' ' '\n' | sort); do
     fi
 done
 
+# DT-03: Remove UTF-8 BOM from all installed/updated .md files
+bom_fixed=0
+find "$TRA_SKILLS_DIR" -name "*.md" -type f 2>/dev/null | while read -r mdfile; do
+    if remove_utf8_bom "$mdfile"; then
+        bom_fixed=$((bom_fixed + 1))
+    fi
+done
+if [ "$bom_fixed" -gt 0 ]; then
+    echo ""
+    echo -e "${YELLOW}BOM fix: $bom_fixed file(s) cleaned${NC}"
+fi
+
 echo ""
 if [ "$FAIL_COUNT" -gt 0 ]; then
     warn "Update summary: $UPDATE_COUNT updated, $FAIL_COUNT failed"
 else
     ok "Update summary: $UPDATE_COUNT updated, $FAIL_COUNT failed"
-fi
-
-# 4. Update config version
-if [ -f ".devflow/config.json" ]; then
-    python3 -c "
-import json
-with open('.devflow/config.json') as f:
-    c = json.load(f)
-c['devflowVersion'] = '$VERSION'
-with open('.devflow/config.json', 'w') as f:
-    json.dump(c, f, indent=2)
-"
-    ok "Updated config.devflowVersion to v$VERSION"
 fi
 
 ok "DevFlow update to v$VERSION complete"

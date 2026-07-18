@@ -37,7 +37,7 @@ $Version = "unknown"
 $VersionJsonPath = Join-Path $PluginDir "version.json"
 if (Test-Path $VersionJsonPath) {
     $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.version
+    $Version = $verInfo.devflowVersion
 }
 
 # ─── DevFlow Skill Definitions ──────────────────────────────────
@@ -48,6 +48,9 @@ $DevFlowSkills = @(
     @{ Name = "devflow-init";                   SourceDir = "devflow-init" }
     @{ Name = "devflow-phase-manager";          SourceDir = "devflow-phase-manager" }
     @{ Name = "devflow-project-config";         SourceDir = "devflow-project-config" }
+
+    # Plugin configuration (version.json for runtime version detection)
+    @{ Name = "devflow-plugin-config";          SourceDir = "version.json" }
 
     # L1 - Master control skills (single .md files)
     @{ Name = "project-development-workflow";   SourceDir = "skills\L1\project-development-workflow.md" }
@@ -81,6 +84,12 @@ $DevFlowSkills = @(
     @{ Name = "container-deployment";          SourceDir = "skills\L3\container-deployment.md" }
     @{ Name = "performance-engineering";       SourceDir = "skills\L3\performance-engineering.md" }
     @{ Name = "database-migration";            SourceDir = "skills\L3\database-migration.md" }
+
+    # v2.7.5: Plugin sync tool (self-reference for self-update capability)
+    @{ Name = "devflow-plugin-sync";           SourceDir = "sync-skills.ps1" }
+
+    # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+    @{ Name = "devflow-plugin-download";       SourceDir = "download-devflow.ps1" }
 )
 
 $SkillNames = $DevFlowSkills | ForEach-Object { $_.Name }
@@ -109,6 +118,18 @@ function Write-Dry($text) {
     Write-Host "  [DRY] $text" -ForegroundColor DarkGray
 }
 
+function Remove-Utf8Bom {
+    param([string]$FilePath)
+    $bytes = [System.IO.File]::ReadAllBytes($FilePath)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $content = [System.IO.File]::ReadAllText($FilePath, [System.Text.UTF8Encoding]::new($true))
+        [System.IO.File]::WriteAllText($FilePath, $content, (New-Object System.Text.UTF8Encoding $false))
+        Write-Host "[BOM Fixed] $(Split-Path $FilePath -Leaf)" -ForegroundColor Yellow
+        return $true
+    }
+    return $false
+}
+
 function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [ref]$failCounter) {
     # Source: the entire source directory (contains SKILL.md or a single .md file)
     $srcFullPath = Join-Path $PluginDir $sourceDir
@@ -120,12 +141,19 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
         return
     }
 
-    # If source is a single .md file (L1/L2/L3 skills), wrap it into SKILL.md
+    # If source is a single file:
+    # - .md files (L1/L2/L3 skills) → wrap into SKILL.md
+    # - Other files (e.g. version.json) → keep original filename
     $isSingleFile = $false
     $singleFileSrc = ""
+    $preserveFileName = $false
     if (Test-Path $srcFullPath -PathType Leaf) {
         $isSingleFile = $true
         $singleFileSrc = $srcFullPath
+        $ext = [System.IO.Path]::GetExtension($srcFullPath)
+        if ($ext -ne '.md') {
+            $preserveFileName = $true
+        }
     }
 
     # Remove existing destination (full directory replace)
@@ -146,7 +174,8 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
     # Create destination and copy
     if ($DryRun) {
         if ($isSingleFile) {
-            Write-Dry "$skillName : would create $dstSkillDir\SKILL.md from $singleFileSrc"
+            $targetName = if ($preserveFileName) { [System.IO.Path]::GetFileName($singleFileSrc) } else { "SKILL.md" }
+            Write-Dry "$skillName : would create $dstSkillDir\$targetName from $singleFileSrc"
         } else {
             Write-Dry "$skillName : would copy directory $srcFullPath -> $dstSkillDir"
         }
@@ -154,7 +183,8 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
         New-Item -ItemType Directory -Path $dstSkillDir -Force | Out-Null
 
         if ($isSingleFile) {
-            Copy-Item -Path $singleFileSrc -Destination (Join-Path $dstSkillDir "SKILL.md") -Force
+            $targetName = if ($preserveFileName) { [System.IO.Path]::GetFileName($singleFileSrc) } else { "SKILL.md" }
+            Copy-Item -Path $singleFileSrc -Destination (Join-Path $dstSkillDir $targetName) -Force
         } else {
             Copy-Item -Path "$srcFullPath\*" -Destination $dstSkillDir -Recurse -Force
         }
@@ -200,7 +230,11 @@ if ($DryRun) {
 
 # ─── Determine Target Directories ───────────────────────────────
 
-$GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
+if ($env:DEVFLOW_SKILLS_DIR) {
+    $GlobalSkillsDir = $env:DEVFLOW_SKILLS_DIR
+} else {
+    $GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
+}
 $ProjectSkillsDir = ""
 
 if ($ProjectPath) {
@@ -266,6 +300,22 @@ foreach ($t in $targets) {
         $totalFailed += $instFail
         Write-Host "`n  Installed: $instCount, Failed: $instFail" -ForegroundColor $(if ($instFail -gt 0) { "Yellow" } else { "Green" })
     }
+}
+
+# DT-03: Remove UTF-8 BOM from all synced .md files
+$bomFixedCount = 0
+foreach ($t in $targets) {
+    if (Test-Path $t.Dir) {
+        Get-ChildItem -Path $t.Dir -Recurse -Filter "*.md" | ForEach-Object {
+            if (Remove-Utf8Bom -FilePath $_.FullName) {
+                $bomFixedCount++
+            }
+        }
+    }
+}
+if ($bomFixedCount -gt 0) {
+    Write-Host ""
+    Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
 }
 
 # ─── Summary ──────────────────────────────────────────────────────

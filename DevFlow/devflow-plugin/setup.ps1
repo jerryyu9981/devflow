@@ -1,12 +1,8 @@
-﻿# DevFlow Setup Script (PowerShell)
-# Usage: .\setup.ps1 [-ProjectName <name>] [-BranchStrategy <strategy>]
+# DevFlow Setup Script (PowerShell)
+# Usage: .\setup.ps1 [-InstallHook]
 
 param(
-    [string]$ProjectName = "",
-    [ValidateSet("trunk-based", "github-flow", "git-flow")]
-    [string]$BranchStrategy = "git-flow",
-    [switch]$InstallHook,
-    [switch]$SkipConfig
+    [switch]$InstallHook
 )
 
 $ErrorActionPreference = "Stop"
@@ -16,7 +12,7 @@ $ScriptDir = $PSScriptRoot
 $VersionJsonPath = Join-Path $ScriptDir "version.json"
 if (Test-Path $VersionJsonPath) {
     $versionInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $DevFlowVersion = $versionInfo.version
+    $DevFlowVersion = $versionInfo.devflowVersion
 } else {
     $DevFlowVersion = "unknown"
     Write-Host "[WARN] version.json not found, version will be 'unknown'" -ForegroundColor Yellow
@@ -34,6 +30,19 @@ function Write-Warn($text) {
     Write-Host "[WARN] $text" -ForegroundColor Yellow
 }
 
+# ─── BOM Removal Helper (DT-03) ──────────────────────────────────
+function Remove-Utf8Bom {
+    param([string]$FilePath)
+    $bytes = [System.IO.File]::ReadAllBytes($FilePath)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $content = [System.IO.File]::ReadAllText($FilePath, [System.Text.UTF8Encoding]::new($true))
+        [System.IO.File]::WriteAllText($FilePath, $content, (New-Object System.Text.UTF8Encoding $false))
+        Write-Host "[BOM Fixed] $(Split-Path $FilePath -Leaf)" -ForegroundColor Yellow
+        return $true
+    }
+    return $false
+}
+
 # 1. Detect Host
 Write-Header "Detecting Host Environment"
 $HostType = "unknown"
@@ -44,104 +53,16 @@ if ($env:TRAE_IDE -or (Test-Path "$env:USERPROFILE\.trae-cn")) {
 }
 Write-Success "Host detected: $HostType"
 
-# 2. Detect Project Name
-Write-Header "Detecting Project Name"
-if (-not $ProjectName) {
-    if (Test-Path "package.json") {
-        $pkg = Get-Content "package.json" -Encoding UTF8 | ConvertFrom-Json
-        $ProjectName = $pkg.name
-    } elseif (Test-Path ".git") {
-        $remote = git remote get-url origin 2>$null
-        if ($remote) {
-            $ProjectName = ($remote -split '/')[-1] -replace '\.git$', ''
-        }
-    }
-    if (-not $ProjectName) {
-        $ProjectName = (Get-Item .).Name
-    }
-}
-Write-Success "Project name: $ProjectName"
-
-# 3. Create .devflow directory
-Write-Header "Creating .devflow Configuration"
-$DevFlowDir = ".devflow"
-New-Item -ItemType Directory -Path $DevFlowDir -Force | Out-Null
-
-# 4. Generate config.json
-if (-not $SkipConfig) {
-    $config = @{
-        project = $ProjectName
-        devflowVersion = $DevFlowVersion
-        branchStrategy = $BranchStrategy
-        remote = @{
-            origin = ""
-            backup = ""
-        }
-        backup = @{
-            type = "git-mirror"
-            environments = @{
-                dev = @{ backup = "" }
-                test = @{ backup = "" }
-                pro = @{ backup = ""; disaster = "" }
-            }
-            schedule = @{
-                type = "post-push"
-                weeklyArchive = "sunday-02:00"
-                retentionDays = 90
-            }
-        }
-    }
-
-    # Interactive prompts
-    Write-Host ""
-    Write-Host "NOTE: DevFlow recommends using SSH Key + Deploy Key for backup authentication." -ForegroundColor DarkCyan
-    Write-Host "      HTTP Basic Auth with credentials in URL is discouraged for security." -ForegroundColor DarkCyan
-    Write-Host ""
-
-    $originUrl = Read-Host "Enter your Git origin remote URL (press Enter to skip)"
-    if ($originUrl) {
-        $config.remote.origin = $originUrl
-
-        # Auto-infer backup URL based on origin
-        $backupUrlSuggestion = $originUrl -replace '\.git$', '-backup.git'
-        $useSuggestion = Read-Host "Suggested backup URL: $backupUrlSuggestion. Use it? (Y/n)"
-        if ($useSuggestion -ne 'n') {
-            $config.remote.backup = $backupUrlSuggestion
-            # Auto-generate environment-specific backup URLs
-            $config.backup.environments.dev.backup = $backupUrlSuggestion -replace '-backup\.git$', '-dev-backup.git'
-            $config.backup.environments.test.backup = $backupUrlSuggestion -replace '-backup\.git$', '-test-backup.git'
-            $config.backup.environments.pro.backup = $backupUrlSuggestion -replace '-backup\.git$', '-pro-backup.git'
-            $config.backup.environments.pro.disaster = $backupUrlSuggestion -replace '-backup\.git$', '-disaster-backup.git'
-        } else {
-            $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-            if ($backupUrl) { $config.remote.backup = $backupUrl }
-        }
-    } else {
-        $backupUrl = Read-Host "Enter your Git backup remote URL (press Enter to skip)"
-        if ($backupUrl) { $config.remote.backup = $backupUrl }
-    }
-
-    $configPath = Join-Path $DevFlowDir "config.json"
-    $config | ConvertTo-Json -Depth 4 | Set-Content $configPath -Encoding UTF8
-    Write-Success "Created: $configPath"
-}
-
-# 5. Generate state.json
-$state = @{
-    project = $ProjectName
-    version = ""
-    currentPhase = "step_0_planning"
-    completedPhases = @()
-    currentDocuments = @{}
-    auditResults = @{}
-}
-$statePath = Join-Path $DevFlowDir "state.json"
-$state | ConvertTo-Json -Depth 4 | Set-Content $statePath -Encoding UTF8
-Write-Success "Created: $statePath"
-
-# 6. Install skills to TRAE (if TRAE detected)
+# 2. Install skills to TRAE (if TRAE detected)
 if ($HostType -eq "TRAE") {
-    $TraeSkillsDir = "$env:USERPROFILE\.trae-cn\skills"
+    # DT-04: IDE system directory configurable via environment variable
+    $TraeSkillsDir = if ($env:DEVFLOW_SKILLS_DIR) { $env:DEVFLOW_SKILLS_DIR } else { "$env:USERPROFILE\.trae-cn\skills" }
+
+    # Ensure target directory exists
+    if (-not (Test-Path $TraeSkillsDir)) {
+        New-Item -ItemType Directory -Path $TraeSkillsDir -Force | Out-Null
+        Write-Host "[INFO] Created skills directory: $TraeSkillsDir" -ForegroundColor Cyan
+    }
 
     # Skill definitions: Name -> SourcePath (relative to plugin root)
     $skillMap = @{
@@ -167,6 +88,13 @@ if ($HostType -eq "TRAE") {
         "backend-coverage"              = "skills\L3\backend-coverage.md"
         "project-document-templates"     = "skills\L3\project-document-templates.md"
         "code-version-backup-management" = "skills\L3\code-version-backup-management.md"
+
+        # v2.7.5: Plugin configuration (version.json) and sync tool
+        "devflow-plugin-config"         = "version.json"
+        "devflow-plugin-sync"           = "sync-skills.ps1"
+
+        # v2.8.0: Plugin download tool (git clone/pull for cloud repository)
+        "devflow-plugin-download"       = "download-devflow.ps1"
     }
 
     # Phase 1: Uninstall existing DevFlow skills (clean slate)
@@ -183,6 +111,18 @@ if ($HostType -eq "TRAE") {
         }
     }
 
+    # Phase 1.5: Interactive confirmation before installation
+    Write-Header "Installation Confirmation"
+    Write-Host "DevFlow Version: $DevFlowVersion"
+    Write-Host "Skills to install: $($skillMap.Count)"
+    Write-Host "Target directory: $TraeSkillsDir"
+    Write-Host ""
+    $confirm = Read-Host "Proceed with installing DevFlow skills to TRAE? (Y/n)"
+    if ($confirm -eq "n" -or $confirm -eq "N") {
+        Write-Host "Installation cancelled by user." -ForegroundColor Yellow
+        exit 0
+    }
+
     # Phase 2: Install DevFlow skills from plugin source
     Write-Header "Installing DevFlow Skills to TRAE"
     $instCount = 0
@@ -190,10 +130,16 @@ if ($HostType -eq "TRAE") {
     foreach ($skillName in $skillMap.Keys | Sort-Object) {
         $src = Join-Path $PSScriptRoot $skillMap[$skillName]
         $dstDir = Join-Path $TraeSkillsDir $skillName
-        $dstFile = Join-Path $dstDir "SKILL.md"
 
         if (Test-Path $src) {
             New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
+            # v2.7.5 fix: preserve original filename for non-.md files (e.g. version.json, sync-skills.ps1)
+            $ext = [System.IO.Path]::GetExtension($src)
+            if ($ext -eq '.md') {
+                $dstFile = Join-Path $dstDir "SKILL.md"
+            } else {
+                $dstFile = Join-Path $dstDir (Split-Path $skillMap[$skillName] -Leaf)
+            }
             Copy-Item -Path $src -Destination $dstFile -Force
             Write-Success "Installed: $skillName"
             $instCount++
@@ -202,11 +148,24 @@ if ($HostType -eq "TRAE") {
             $failCount++
         }
     }
+
+    # DT-03: Remove UTF-8 BOM from all installed .md files
+    $bomFixedCount = 0
+    Get-ChildItem -Path $TraeSkillsDir -Recurse -Filter "*.md" | ForEach-Object {
+        if (Remove-Utf8Bom -FilePath $_.FullName) {
+            $bomFixedCount++
+        }
+    }
+    if ($bomFixedCount -gt 0) {
+        Write-Host ""
+        Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
+    }
+
     Write-Host ""
     Write-Host "Skills install result: $instCount installed, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
 }
 
-# 7. Install Git Hook (optional)
+# 3. Install Git Hook (optional)
 if ($InstallHook -and (Test-Path ".git")) {
     Write-Header "Installing Git Post-Push Hook"
 
@@ -252,15 +211,12 @@ fi
     Write-Success "Created: $logDir"
 }
 
-# 8. Summary
+# 4. Summary
 Write-Header "DevFlow Setup Complete"
-Write-Host "Project:        $ProjectName"
-Write-Host "Branch Strategy: $BranchStrategy"
 Write-Host "DevFlow Version: $DevFlowVersion"
-Write-Host "Config:         .devflow/config.json"
-Write-Host "State:          .devflow/state.json"
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Run '.\update.ps1' to update skills when new versions are available"
-Write-Host "  2. Edit .devflow/config.json to set your backup remote URL"
-Write-Host "  3. Start with: Invoke devflow-init skill to detect your current phase"
+Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
+Write-Host "  2. Run '.\update.ps1' to update skills when new versions are available"
+
+exit 0

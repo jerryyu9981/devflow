@@ -1,4 +1,4 @@
-﻿@echo off
+@echo off
 chcp 65001 >nul
 echo ========================================
 echo   DevFlow Plugin Installer
@@ -17,7 +17,8 @@ if %errorlevel% neq 0 (
 )
 
 :: Run the PowerShell installer with bypass execution policy
-powershell -ExecutionPolicy Bypass -File "%~dp0install.ps1"
+:: Pass optional TargetDir argument: install.bat [TargetDir]
+powershell -ExecutionPolicy Bypass -File "%~dp0install.ps1" -TargetDir "%~1"
 
 if %errorlevel% neq 0 (
     echo.

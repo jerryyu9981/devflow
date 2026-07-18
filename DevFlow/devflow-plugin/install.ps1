@@ -1,17 +1,28 @@
 # DevFlow Plugin Installer for Windows
 # Usage: Right-click -> "Run with PowerShell" or double-click install.bat
+#
+# 三步走架构 - 首次安装流程：Download + Setup
+#   Step 1 (Download): 调用 download-devflow.ps1 从云端仓库下载
+#   Step 2 (Setup):    从本地副本安装 DevFlow 技能到 TRAE 系统目录
+
+param(
+    [string]$TargetDir = ""
+)
 
 $ErrorActionPreference = "Continue"
 
 # Get the directory where this script is located (plugin bundle root)
 $PluginDir = $PSScriptRoot
 
+# Resolve effective target directory
+$EffectiveDir = if ($TargetDir) { $TargetDir } else { $PluginDir }
+
 # Read version
 $VersionJsonPath = Join-Path $PluginDir "version.json"
 $Version = "unknown"
 if (Test-Path $VersionJsonPath) {
     $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.version
+    $Version = $verInfo.devflowVersion
 }
 
 function Write-Header($text) {
@@ -36,11 +47,12 @@ Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  DevFlow Plugin Installer v$Version" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "This wizard will install DevFlow into your project directory."
-Write-Host "DevFlow will be installed as a .devflow/ subfolder inside your project."
+Write-Host "This wizard will:" -ForegroundColor White
+Write-Host "  Step 1: Download DevFlow from cloud repository (via download-devflow.ps1)"
+Write-Host "  Step 2: Install DevFlow skills to TRAE system directory"
 Write-Host ""
 
-# Prevent running from inside a .devflow directory
+# 保留 .devflow 目录自检（安全检测）
 $pluginDirName = Split-Path $PluginDir -Leaf
 $cwd = (Get-Location).Path
 if ($pluginDirName -eq ".devflow" -or $cwd -match "\.devflow[\\/]?$") {
@@ -57,131 +69,114 @@ if ($pluginDirName -eq ".devflow" -or $cwd -match "\.devflow[\\/]?$") {
     exit 1
 }
 
-# Ask for project path
-Write-Host "Enter the path to your project directory:" -ForegroundColor White
-Write-Host "(A .devflow folder will be created inside it)"
-Write-Host ""
-$projectPath = Read-Host "Project path"
+# ─── Step 1: Download (via download-devflow.ps1) ──────────────────
+$DownloadScript = Join-Path $PluginDir "download-devflow.ps1"
 
-if (-not $projectPath) {
-    Write-Err "Project path is required."
-    Write-Host ""
-    Write-Host "Example: D:\MyProject"
-    Write-Host "DevFlow will create D:\MyProject\.devflow\"
-    Write-Host ""
-    Read-Host "Press Enter to exit"
-    exit 1
-}
-
-# Reject paths ending with .devflow
-if ($projectPath -match "\.devflow[\\/]?$") {
-    Write-Err "The project path should NOT end with .devflow"
-    Write-Host "Enter the parent project directory instead."
-    Write-Host "Example: D:\MyProject (not D:\MyProject\.devflow)"
-    Write-Host ""
-    Read-Host "Press Enter to exit"
-    exit 1
-}
-
-# Validate path
-if (-not (Test-Path $projectPath)) {
-    Write-Host ""
-    $create = Read-Host "Directory does not exist. Create it? (Y/n)"
-    if ($create -eq "" -or $create -eq "Y" -or $create -eq "y") {
-        New-Item -ItemType Directory -Path $projectPath -Force | Out-Null
-        Write-Success "Created directory: $projectPath"
-    } else {
-        Write-Host "Installation cancelled." -ForegroundColor Red
-        exit 1
+if (Test-Path $DownloadScript) {
+    # Read repository URL from version.json
+    $RepoUrl = ""
+    if (Test-Path $VersionJsonPath) {
+        $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
+        $RepoUrl = if ($verInfo.repository) { $verInfo.repository } else { "" }
     }
-}
 
-$projectPath = (Resolve-Path $projectPath).Path
-$devflowDir = Join-Path $projectPath ".devflow"
-
-# Check if .devflow already exists
-if (Test-Path $devflowDir) {
-    Write-Host ""
-    Write-Warn ".devflow already exists at: $devflowDir"
-    $overwrite = Read-Host "Overwrite? (y/N)"
-    if ($overwrite -eq "y" -or $overwrite -eq "Y") {
-        # Retry loop for file-in-use errors
-        $maxRetries = 3
-        for ($i = 1; $i -le $maxRetries; $i++) {
-            try {
-                Remove-Item -Path $devflowDir -Recurse -Force -ErrorAction Stop
-                Write-Success "Removed existing .devflow"
-                break
-            } catch {
-                if ($i -lt $maxRetries) {
-                    Write-Warn "Retry $i/$maxRetries - some files are locked, closing handles..."
-                    Start-Sleep -Seconds 2
-                } else {
-                    Write-Err "Cannot remove .devflow after $maxRetries attempts."
-                    Write-Err "Please close any programs using files in $devflowDir and try again."
-                    Write-Host ""
-                    Read-Host "Press Enter to exit"
-                    exit 1
-                }
+    # Check if already a git repo (already downloaded)
+    $gitDir = Join-Path $EffectiveDir ".git"
+    if (Test-Path $gitDir) {
+        Write-Header "Step 1/2: Download (Skipped)"
+        Write-Success "Local copy already exists (git repository detected)"
+        Write-Host "  To update: run update-devflow.bat instead"
+        Write-Host ""
+    } elseif ($RepoUrl) {
+        # Repository configured → Clone
+        Write-Header "Step 1/2: Download DevFlow from Cloud Repository"
+        Write-Host "Calling download-devflow.ps1 -Action Clone..."
+        & $DownloadScript -Action Clone -TargetDir $EffectiveDir
+        if ($LASTEXITCODE -ne 0) {
+            Write-Warn "Download failed. Using local files only."
+        } else {
+            # Re-read version after download
+            if (Test-Path $VersionJsonPath) {
+                $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
+                $Version = $verInfo.devflowVersion
             }
         }
+        Write-Host ""
     } else {
-        Write-Host "Installation cancelled." -ForegroundColor Red
-        exit 1
-    }
-}
+        # Repository not configured → Guide user to SetRepo
+        Write-Header "Step 1/2: Configure Cloud Repository"
+        Write-Warn "No repository URL configured in version.json"
+        Write-Host ""
+        Write-Host "DevFlow supports downloading from a cloud Git repository." -ForegroundColor White
+        Write-Host "Let's set up the repository URL now." -ForegroundColor White
+        Write-Host ""
 
-# Create .devflow directory
-New-Item -ItemType Directory -Path $devflowDir -Force | Out-Null
+        & $DownloadScript -Action SetRepo
+        if ($LASTEXITCODE -eq 0) {
+            # Re-read repository after SetRepo
+            if (Test-Path $VersionJsonPath) {
+                $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
+                $RepoUrl = if ($verInfo.repository) { $verInfo.repository } else { "" }
+            }
 
-# Copy plugin files
-Write-Header "Installing DevFlow"
-
-$excludeFiles = @("install.ps1", "install.bat")
-$items = Get-ChildItem -Path $PluginDir
-
-$copyCount = 0
-foreach ($item in $items) {
-    if ($excludeFiles -contains $item.Name) {
-        continue
-    }
-    $dst = Join-Path $devflowDir $item.Name
-    try {
-        if ($item.PSIsContainer) {
-            Copy-Item -Path $item.FullName -Destination $dst -Recurse -Force -ErrorAction Stop
+            if ($RepoUrl) {
+                Write-Host ""
+                Write-Host "Repository configured. Starting download..." -ForegroundColor White
+                & $DownloadScript -Action Clone -TargetDir $EffectiveDir
+                if ($LASTEXITCODE -ne 0) {
+                    Write-Warn "Download failed. Using local files only."
+                } else {
+                    if (Test-Path $VersionJsonPath) {
+                        $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
+                        $Version = $verInfo.devflowVersion
+                    }
+                }
+            }
         } else {
-            Copy-Item -Path $item.FullName -Destination $dst -Force -ErrorAction Stop
+            Write-Warn "Repository setup cancelled. Using local files only."
         }
-        Write-Success "Copied: $($item.Name)"
-        $copyCount++
-    } catch {
-        Write-Warn "Failed to copy: $($item.Name) - $_"
+        Write-Host ""
     }
+} else {
+    Write-Header "Step 1/2: Download (Skipped)"
+    Write-Warn "download-devflow.ps1 not found. Using local files only."
+    Write-Host ""
 }
 
-Write-Success "DevFlow installed to: $devflowDir ($copyCount items)"
+# ─── Step 2: Setup - Install skills to TRAE ─────────────────────
 
-# Run setup.ps1
-Write-Header "Running Setup"
-$setupScript = Join-Path $devflowDir "setup.ps1"
+Write-Header "Step 2/2: Install DevFlow Skills to TRAE"
+
+$setupScript = Join-Path $PluginDir "setup.ps1"
 if (Test-Path $setupScript) {
     Write-Host "Launching setup.ps1...`n" -ForegroundColor White
     & $setupScript
+    if ($LASTEXITCODE -ne 0) {
+        Write-Err "Setup failed with exit code $LASTEXITCODE"
+        Write-Host ""
+        Read-Host "Press Enter to exit"
+        exit 1
+    }
 } else {
-    Write-Warn "setup.ps1 not found. Please run it manually:"
-    Write-Host "  cd '$devflowDir'"
-    Write-Host "  .\setup.ps1"
+    Write-Err "setup.ps1 not found alongside this installer."
+    Write-Host "  Expected at: $setupScript"
+    Write-Host ""
+    Read-Host "Press Enter to exit"
+    exit 1
 }
 
-# Summary
+# ─── Summary ────────────────────────────────────────────────────
+
 Write-Header "Installation Complete"
-Write-Host "DevFlow v$Version has been installed to your project." -ForegroundColor Green
-Write-Host ""
-Write-Host "Project:  $projectPath"
-Write-Host "DevFlow:  $devflowDir"
+Write-Host "DevFlow v$Version has been installed to TRAE." -ForegroundColor Green
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Open TRAE and invoke: devflow-init"
-Write-Host "  2. Or run '.\update.ps1' in $devflowDir to update skills"
+Write-Host "  1. Restart TRAE IDE to load new skills"
+Write-Host "  2. Open your project in TRAE and invoke: devflow-init"
+Write-Host ""
+Write-Host "To update DevFlow in the future:"
+Write-Host "  - Run update-devflow.bat (download + setup in one step)"
 Write-Host ""
 Read-Host "Press Enter to exit"
+
+exit 0
