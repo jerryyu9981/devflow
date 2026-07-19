@@ -1,5 +1,6 @@
 {
   "project": "DevFlow",
+  "devflowVersion": "2.8.3",
   "version": "2.5.0",
   "currentPhase": "step_5_deployed",
   "completedPhases": [
@@ -9,6 +10,13 @@
     "step_3_coding",
     "step_4_testing"
   ],
+  "versionCheck": {
+    "lastCheck": "2026-07-19",
+    "installedDevflowVersion": "2.8.3",
+    "recordedDevflowVersion": "2.5.0",
+    "result": "installed_newer",
+    "action": "auto_updated"
+  },
   "previousVersion": "2.4.1",
   "releaseInfo": {
     "commit": "128d370",

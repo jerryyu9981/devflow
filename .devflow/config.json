@@ -1,4 +1,4 @@
-﻿{
+{
     "backup":  {
                    "type":  "git-mirror",
                    "schedule":  {
@@ -10,7 +10,7 @@
                },
     "branchStrategy":  "git-flow",
     "project":  "DevFlow",
-    "devflowVersion":  "2.4.0",
+    "projectVersion":  "2.8.3",
     "remote":  {
                    "backup":  "http://192.168.0.14/jerry.yu/devflow-backup.git",
                    "origin":  "http://192.168.0.14/jerry.yu/devflow.git"
