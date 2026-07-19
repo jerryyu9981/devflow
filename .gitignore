@@ -17,3 +17,6 @@ Thumbs.db
 # Temp
 tmp/
 temp/
+
+# Local version copies (extracted from tags for reference only, not tracked)
+devflow-plugin-v*/
