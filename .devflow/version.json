@@ -1,7 +1,7 @@
 {
   "name": "DevFlow",
   "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、26个核心技能、24个文档模板和完整的追溯链。",
-  "version": "2.4.0",
+  "version": "2.8.5",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",

@@ -212,6 +212,23 @@ else:
 
 **如果 `.devflow/config.json` 已存在**，则只更新 `projectVersion` 字段，保留其他字段不变。
 
+### 3.1 远程仓库地址交互输入
+
+> 如果 config 已存在且 remote.origin/backup 已有值，则跳过此步骤（向后兼容）。
+
+在创建/更新 config.json 后，执行交互确认：
+
+1. 提示输出：`当前配置中远程仓库地址：origin="{current_origin}", backup="{current_backup}"`
+2. 询问：`是否更新远程仓库地址？(Y/N) [默认 N]：`
+3. 如果回答 Y：
+   - 提示：`请输入远程仓库地址（origin）：`
+   - 输入后显示：`远程仓库地址为：{url}，确认？(Y/N)`
+   - Y → 写入 config.json 的 remote.origin 字段
+   - N → 重新输入或跳过
+   - 继续提示：`请输入备份仓库地址（backup，可选，留空跳过）：`
+   - 输入后按同样逻辑确认
+4. 如果回答 N → 跳过，保持现有配置
+
 ### 4. 创建 .devflow/state.json
 
 ```json
@@ -237,6 +254,7 @@ else:
 - 检测到的项目文档结构
 - 推断的当前阶段
 - 建议的下一步操作
+- 远程仓库地址配置状态（已配置/已跳过/未配置）
 - 生成的配置文件路径
 
 ## 安装 Git Hook（可选）
