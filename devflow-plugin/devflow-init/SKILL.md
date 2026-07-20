@@ -142,6 +142,36 @@ if (Test-Path $manifestPath) {
 
 写入项目根目录（`.devflow/` 同级），记录"本项目使用的 DevFlow 版本"。此文件在后续 Update 时由 devflow-init 覆盖更新。
 
+### 1.6.1 version.json 字段补全
+
+在 1.6 创建 version.json 之后执行字段补全：
+
+```text
+[1] 检查 version.json 的 repository 和 homepage 字段是否为空
+[2] 若为空 → 从 .devflow/config.json remote.origin 读取仓库地址
+[3] repository.url = remote.origin 的值
+[4] repository.type = "git"
+[5] homepage = remote.origin（去掉 .git 后缀）
+[6] 将更新后的 repository 和 homepage 字段写入 version.json
+```
+
+**补全示例**：
+- `config.json` 中 `remote.origin = "http://192.168.0.14/jerry.yu/devflow.git"`
+- 补全后 `version.json` 新增字段：
+  ```json
+  {
+    "name": "DevFlow",
+    "devflowVersion": "2.8.5",
+    "repository": {
+      "type": "git",
+      "url": "http://192.168.0.14/jerry.yu/devflow.git"
+    },
+    "homepage": "http://192.168.0.14/jerry.yu/devflow"
+  }
+  ```
+
+> 如果 `.devflow/config.json` 不存在或 `remote.origin` 为空，则跳过补全并记录跳过原因。
+
 ### 1.7 检测项目版本号
 
 按照优先级链自动检测项目自身版本号，写入 `.devflow/config.json` 的 `projectVersion` 字段：
