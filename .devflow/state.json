@@ -23,7 +23,7 @@
     "step_2": "doc/design/ (4 docs)",
     "step_3": "doc/development/DevFlow-DevLogReport-v2.8.5.md",
     "step_4": "doc/test/DevFlow-测试报告-v2.8.5.md + doc/test/DevFlow-测试用例-v2.8.5.md + doc/audit/verification/DevFlow-测试回溯对比审计报告-v2.8.5.md",
-    "step_5": "doc/release/ (发布计划+Release Note+Changelog) + doc/audit/comprehensive/ (运维审计+全流程闭环审计) (pending)"
+    "step_5": "doc/release/ (发布计划+Release Note+Changelog+回滚方案+运维手册+发布复盘) + doc/audit/comprehensive/ (运维审计+全流程闭环审计)"
   },
   "auditResults": {
     "step_0": "passed",
@@ -31,6 +31,6 @@
     "step_2": "passed",
     "step_3": "passed",
     "step_4": "passed",
-    "step_5": "in_progress"
+    "step_5": "passed"
   }
 }
