@@ -53,7 +53,7 @@ v2.8.5 定位为"流程体系完善版"，聚焦于补全 DevFlow 流程体系�
 |--------|------|:----:|
 | Markdown 格式 | 文件大小和编码验证 | ✅ 9 文件均正确 |
 | PowerShell 语法 | PowerShell Parser 解析 | ✅ release.ps1 语法正确 |
-| 关键内容点验证 | 11 个关键修改点搜索 | ✅ 全部找到 |
+| 关键内容点验证 | 12 个关键修改点搜索 | ✅ 全部找到 |
 
 **技术债务增长率检查**：
 
@@ -82,7 +82,7 @@ v2.8.5 定位为"流程体系完善版"，聚焦于补全 DevFlow 流程体系�
 | 所有技能文件可正常读取 | ✅ |
 | 修改点上下文合理 | ✅ |
 
-### L3 冒烟测试（11 个关键修改点）
+### L3 冒烟测试（12 个关键修改点）
 
 ```
 ✅ coding-stage-execution.md: '风险归集门禁' 
@@ -92,6 +92,7 @@ v2.8.5 定位为"流程体系完善版"，聚焦于补全 DevFlow 流程体系�
 ✅ operations-stage-execution.md: '发布交付物门禁'
 ✅ operations-stage-execution.md: 'Release Checklist'
 ✅ version-planning-stage-execution.md: '0.0a 跨版本债务审查'
+✅ version-planning-stage-execution.md: '全局技术债务总表'（输出文档清单）
 ✅ code-logic-review.md: '技能间委托关系一致性审查'
 ✅ project-document-templates.md: '模板：Release Note'
 ✅ release.ps1: 'DevFlow 自动化发布脚本'

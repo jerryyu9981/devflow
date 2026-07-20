@@ -46,13 +46,13 @@
 
 | TT-ID | 测试类型 | 通过 | 失败 | 跳过 | 结论 | 证据 |
 |:-----:|:--------:|:----:|:----:|:----:|:----:|:----:|
-| TT-v2.8.5-001 | 内容验证 | ✅ | — | — | ✅ 通过 | coding-stage-execution.md L228-235 |
-| TT-v2.8.5-002 | 内容验证 | ✅ | — | — | ✅ 通过 | testing-stage-execution.md L248-255 |
-| TT-v2.8.5-003 | 内容验证 | ✅ | — | — | ✅ 通过 | design-stage-execution.md L161-168 |
-| TT-v2.8.5-004 | 内容验证 | ✅ | — | — | ✅ 通过 | operations-stage-execution.md L157-164 |
-| TT-v2.8.5-005 | 内容验证 | ✅ | — | — | ✅ 通过 | version-planning-stage-execution.md L172-179 |
+| TT-v2.8.5-001 | 内容验证 | ✅ | — | — | ✅ 通过 | coding-stage-execution.md L228-236，6 条规则完整（含规则6） |
+| TT-v2.8.5-002 | 内容验证 | ✅ | — | — | ✅ 通过 | testing-stage-execution.md L248-256，6 条规则完整（含规则6） |
+| TT-v2.8.5-003 | 内容验证 | ✅ | — | — | ✅ 通过 | design-stage-execution.md L161-169，6 条规则完整（含规则6） |
+| TT-v2.8.5-004 | 内容验证 | ✅ | — | — | ✅ 通过 | operations-stage-execution.md L157-165，6 条规则完整（含规则6） |
+| TT-v2.8.5-005 | 内容验证 | ✅ | — | — | ✅ 通过 | version-planning-stage-execution.md L172-179，产出含"更新后的债务总表" |
 | TT-v2.8.5-006 | 集成验证 | ✅ | — | — | ✅ 通过 | 步骤序列 0.0a→0.0→0.1→0.2→0.3→0.4→0.5 |
-| TT-v2.8.5-007 | 集成验证 | ✅ | — | — | ✅ 通过 | 4 文件模板文本完全一致 |
+| TT-v2.8.5-007 | 集成验证 | ✅ | — | — | ✅ 通过 | 4 文件模板文本完全一致（6 条规则） |
 
 ### 3.2 R-02 Release Note + Changelog（P1）
 
