@@ -9,7 +9,7 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 本技能是 DevFlow 框架的入口 orchestrator。它不执行具体编码、设计或测试工作，而是：
 
-> **版本来源规则**：DevFlow 插件版本号从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取，该文件由 Install/Update 脚本同步，是 DevFlow 的唯一权威版本来源（Single Source of Truth）。项目根目录的 `version.json` 仅作为"该项目使用的 DevFlow 版本"的记录，不是权威来源。
+> **版本来源规则**：DevFlow 插件版本号从 `~/.trae-cn/skills/devflow-config/devflow-config.json` 读取，该文件由 Install/Update 脚本同步，是 DevFlow 的唯一权威配置源（Single Source of Truth）。项目根目录的 `version.json` 仅作为"该项目使用的 DevFlow 版本"的记录，不是权威来源。
 
 1. **检测项目状态**：通过检查项目目录中的已有文档，推断项目当前处于 DevFlow 哪个阶段
 2. **生成初始配置**：创建 `.devflow/config.json` 和 `.devflow/state.json`
@@ -39,16 +39,16 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 ### 1.5 获取 DevFlow 版本号
 
-从 `~/.trae-cn/skills/devflow-plugin-config/version.json` 读取 `devflowVersion` 字段作为 DevFlow 插件版本号。
+从 `~/.trae-cn/skills/devflow-config/devflow-config.json` 读取 `devflowVersion` 字段作为 DevFlow 插件版本号。
 
 ```bash
 # 读取方式示例
-cat ~/.trae-cn/skills/devflow-plugin-config/version.json
-# → { "name": "DevFlow", "devflowVersion": "2.7.3" }
+cat ~/.trae-cn/skills/devflow-config/devflow-config.json
+# → { "name": "DevFlow", "devflowVersion": "2.9.1", ... }
 ```
 
 **降级规则**：
-- 若 TRAE 技能目录 `version.json` 不存在（如未安装或同步），则读取项目根目录的 `version.json`（如有）
+- 若 TRAE 技能目录 `devflow-config.json` 不存在（如未安装或同步），则读取项目根目录的 `version.json`（如有）
 - 若仍无法读取，标记为 `"unknown"`
 
 ### 1.5.5 版本差异检测
@@ -59,7 +59,7 @@ cat ~/.trae-cn/skills/devflow-plugin-config/version.json
 
 | 版本 | 来源路径 | 字段 |
 |:----|:--------|:----|
-| `devflowVersionInTrae`（TRAE 已安装版本） | `~/.trae-cn/skills/devflow-plugin-config/version.json` | `devflowVersion` |
+| `devflowVersionInTrae`（TRAE 已安装版本） | `~/.trae-cn/skills/devflow-config/devflow-config.json` | `devflowVersion` |
 | `devflowVersionInProject`（项目记录版本） | `.devflow/state.json` | `devflowVersion` |
 
 **比较逻辑**：
@@ -88,7 +88,7 @@ elif devflowVersionInTrae < devflowVersionInProject（语义版本比较）:
 
 **降级处理**：
 - 若 `.devflow/state.json` 不存在（首次初始化），跳过版本检测，`versionCheck.result = "first_check"`
-- 若 TRAE 系统目录 `version.json` 不存在，跳过版本检测，`versionCheck.result = "error"`
+- 若 TRAE 系统目录 `devflow-config.json` 不存在，跳过版本检测，`versionCheck.result = "error"`
 
 **写入 state.json**：
 
@@ -110,22 +110,33 @@ elif devflowVersionInTrae < devflowVersionInProject（语义版本比较）:
 在版本检测之后执行技能数量一致性检查：
 
 ```powershell
-# 从 TRAE 系统目录读取 devflow-manifest.json
+# 从 TRAE 系统目录读取 devflow-config.json（v2.9.1+），降级到 devflow-manifest.json
+$configPath = "$env:USERPROFILE\.trae-cn\skills\devflow-config\devflow-config.json"
 $manifestPath = "$env:USERPROFILE\.trae-cn\skills\devflow-plugin-config\devflow-manifest.json"
-if (Test-Path $manifestPath) {
+
+$skillConfig = $null
+$configSource = ""
+if (Test-Path $configPath) {
+    $skillConfig = Get-Content $configPath -Encoding UTF8 | ConvertFrom-Json
+    $configSource = "devflow-config.json"
+} elseif (Test-Path $manifestPath) {
+    $skillConfig = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
+    $configSource = "devflow-manifest.json (legacy)"
+}
+
+if ($skillConfig) {
     try {
-        $manifest = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
         $installedSkills = Get-ChildItem "$env:USERPROFILE\.trae-cn\skills" -Directory |
-            Where-Object { $manifest.skills.name -contains $_.Name }
-        if ($installedSkills.Count -ne $manifest.skillCount) {
-            Write-Warn "[WARN] DevFlow skill count mismatch: installed=$($installedSkills.Count), expected=$($manifest.skillCount)"
+            Where-Object { $skillConfig.skills.name -contains $_.Name }
+        if ($installedSkills.Count -ne $skillConfig.skillCount) {
+            Write-Warn "[WARN] DevFlow skill count mismatch: installed=$($installedSkills.Count), expected=$($skillConfig.skillCount) ($configSource)"
             Write-Warn "[WARN] Run 'sync-skills.ps1 -Action Sync -Target IDE' to reinstall"
         }
     } catch {
-        Write-Warn "[WARN] Manifest check skipped: $_"
+        Write-Warn "[WARN] Skill count check skipped: $_"
     }
 } else {
-    Write-Warn "[WARN] devflow-manifest.json not found, skill count check skipped"
+    Write-Warn "[WARN] Neither devflow-config.json nor devflow-manifest.json found, skill count check skipped"
 }
 ```
 

@@ -109,12 +109,25 @@ if (-not (Test-Path $TraeSkillsDir)) {
 }
 $ScriptDir = $PSScriptRoot
 
-# DT-01: Load skill map from devflow-manifest.json
+# DT-01: Load skill map - prefer devflow-config.json (v2.9.1+), fallback to devflow-manifest.json (legacy)
+$PluginConfigPath = Join-Path $PSScriptRoot "devflow-config.json"
 $ManifestPath = Join-Path $PSScriptRoot "devflow-manifest.json"
-$Manifest = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
 $skillMap = @{}
-foreach ($s in $Manifest.skills) { $skillMap[$s.name] = $s.source }
-$ExpectedSkillCount = $Manifest.skillCount
+$ExpectedSkillCount = 0
+
+if (Test-Path $PluginConfigPath) {
+    $skillConfig = Get-Content $PluginConfigPath -Encoding UTF8 | ConvertFrom-Json
+    foreach ($s in $skillConfig.skills) { $skillMap[$s.name] = $s.source }
+    $ExpectedSkillCount = $skillConfig.skillCount
+} elseif (Test-Path $ManifestPath) {
+    $Manifest = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+    foreach ($s in $Manifest.skills) { $skillMap[$s.name] = $s.source }
+    $ExpectedSkillCount = $Manifest.skillCount
+    Write-Warn "Using legacy devflow-manifest.json — consider upgrading to devflow-config.json (v2.9.1+)"
+} else {
+    Write-Error "Neither devflow-config.json nor devflow-manifest.json found — cannot proceed with skill update"
+    exit 1
+}
 
 # Phase 1: Uninstall existing DevFlow skills (clean slate)
 Write-Header "Uninstalling existing DevFlow Skills"
@@ -200,6 +213,18 @@ Get-ChildItem -Path $TraeSkillsDir -Recurse -Filter "*.md" | ForEach-Object {
 if ($bomFixedCount -gt 0) {
     Write-Host ""
     Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
+}
+
+# DT-07: Copy devflow-config.json to TRAE skills dir as single source of truth
+$configDir = Join-Path $TraeSkillsDir "devflow-config"
+if (-not (Test-Path $configDir)) {
+    New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+}
+if (Test-Path $PluginConfigPath) {
+    Copy-Item -Path $PluginConfigPath -Destination (Join-Path $configDir "devflow-config.json") -Force
+    Write-Success "Config synced: devflow-config.json"
+} else {
+    Write-Warn "devflow-config.json not found, skipping config sync"
 }
 
 Write-Host ""

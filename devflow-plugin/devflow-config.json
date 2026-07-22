@@ -58,7 +58,7 @@
       "devflow-project-config"
     ]
   },
-  "skillCount": 31,
+  "skillCount": 28,
   "skills": [
     { "name": "devflow-init",                    "source": "devflow-init/SKILL.md",                     "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
     { "name": "devflow-phase-manager",           "source": "devflow-phase-manager/SKILL.md",            "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
@@ -91,11 +91,11 @@
   ],
   "templates": 24,
   "statistics": {
-    "totalSkills": 31,
+    "totalSkills": 28,
     "orchestratorSkills": 3,
     "L1Skills": 3,
     "L2Skills": 6,
-    "L3Skills": 19,
+    "L3Skills": 16,
     "totalFiles": 37,
     "totalLines": 7800,
     "totalBytes": 480000

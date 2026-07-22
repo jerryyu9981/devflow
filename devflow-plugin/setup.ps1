@@ -163,6 +163,18 @@ if ($HostType -eq "TRAE") {
         Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
     }
 
+    # DT-07: Copy devflow-config.json to TRAE skills dir as single source of truth
+    $configDir = Join-Path $TraeSkillsDir "devflow-config"
+    if (-not (Test-Path $configDir)) {
+        New-Item -ItemType Directory -Path $configDir -Force | Out-Null
+    }
+    if (Test-Path $ConfigPath) {
+        Copy-Item -Path $ConfigPath -Destination (Join-Path $configDir "devflow-config.json") -Force
+        Write-Success "Config synced: devflow-config.json"
+    } else {
+        Write-Warn "devflow-config.json not found, skipping config sync"
+    }
+
     Write-Host ""
     Write-Host "Skills install result: $instCount installed, $failCount failed" -ForegroundColor $(if ($failCount -gt 0) { "Yellow" } else { "Green" })
 
