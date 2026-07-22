@@ -1,4 +1,4 @@
-﻿{
+{
     "backup":  {
                    "type":  "git-mirror",
                    "schedule":  {

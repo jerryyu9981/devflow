@@ -1,4 +1,4 @@
-# DevFlow Update Script (PowerShell)
+﻿# DevFlow Update Script (PowerShell)
 # Usage: .\update.ps1 [-Version <version>] [-DryRun]
 
 param(

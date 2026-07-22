@@ -1,0 +1,110 @@
+{
+  "_meta": {
+    "sourceOfTruth": true,
+    "description": "本文件是 DevFlow 插件的唯一权威配置源。所有技能、脚本、文档中的版本号、技能清单、元数据均以此文件为准。修改时先更新此文件，再同步至所有引用位置。",
+    "schemaVersion": "1.0.0",
+    "lastUpdated": "2026-07-22"
+  },
+  "name": "DevFlow",
+  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、28个核心技能、24个文档模板和完整的追溯链。",
+  "devflowVersion": "2.9.1",
+  "minTraeVersion": "1.0.0",
+  "compatibleHosts": [
+    "TRAE",
+    "Claude Code",
+    "Cursor",
+    "Codex CLI"
+  ],
+  "license": "MIT",
+  "repository": "",
+  "homepage": "",
+  "bugs": "",
+  "author": "DevFlow Team",
+  "layers": {
+    "L1": [
+      "project-development-workflow",
+      "project-document-management",
+      "project-role-management"
+    ],
+    "L2": [
+      "version-planning-stage-execution",
+      "requirements-stage-execution",
+      "design-stage-execution",
+      "coding-stage-execution",
+      "testing-stage-execution",
+      "operations-stage-execution"
+    ],
+    "L3": [
+      "project-coding-conventions",
+      "code-static-quality-check",
+      "code-logic-review",
+      "cicd-pipeline-management",
+      "observability-standards",
+      "project-document-templates",
+      "code-version-backup-management",
+      "skill-md-writing-standards",
+      "prototype-coverage",
+      "backend-coverage",
+      "api-contract-management",
+      "security-design-review",
+      "secure-coding-practices",
+      "container-deployment",
+      "performance-engineering",
+      "database-migration"
+    ],
+    "orchestrator": [
+      "devflow-init",
+      "devflow-phase-manager",
+      "devflow-project-config"
+    ]
+  },
+  "skillCount": 31,
+  "skills": [
+    { "name": "devflow-init",                    "source": "devflow-init/SKILL.md",                     "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
+    { "name": "devflow-phase-manager",           "source": "devflow-phase-manager/SKILL.md",            "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
+    { "name": "devflow-project-config",          "source": "devflow-project-config/SKILL.md",           "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
+    { "name": "project-development-workflow",    "source": "skills/L1/project-development-workflow.md", "category": "L1",           "required": true, "destAs": "SKILL.md" },
+    { "name": "project-document-management",     "source": "skills/L1/project-document-management.md",  "category": "L1",           "required": true, "destAs": "SKILL.md" },
+    { "name": "project-role-management",         "source": "skills/L1/project-role-management.md",      "category": "L1",           "required": true, "destAs": "SKILL.md" },
+    { "name": "version-planning-stage-execution", "source": "skills/L2/version-planning-stage-execution.md", "category": "L2", "required": true, "destAs": "SKILL.md" },
+    { "name": "requirements-stage-execution",    "source": "skills/L2/requirements-stage-execution.md",  "category": "L2",           "required": true, "destAs": "SKILL.md" },
+    { "name": "design-stage-execution",          "source": "skills/L2/design-stage-execution.md",        "category": "L2",           "required": true, "destAs": "SKILL.md" },
+    { "name": "coding-stage-execution",          "source": "skills/L2/coding-stage-execution.md",        "category": "L2",           "required": true, "destAs": "SKILL.md" },
+    { "name": "testing-stage-execution",         "source": "skills/L2/testing-stage-execution.md",       "category": "L2",           "required": true, "destAs": "SKILL.md" },
+    { "name": "operations-stage-execution",      "source": "skills/L2/operations-stage-execution.md",    "category": "L2",           "required": true, "destAs": "SKILL.md" },
+    { "name": "project-coding-conventions",      "source": "skills/L3/project-coding-conventions.md",    "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "code-static-quality-check",       "source": "skills/L3/code-static-quality-check.md",     "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "code-logic-review",               "source": "skills/L3/code-logic-review.md",             "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "cicd-pipeline-management",        "source": "skills/L3/cicd-pipeline-management.md",      "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "observability-standards",         "source": "skills/L3/observability-standards.md",       "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "api-contract-management",         "source": "skills/L3/api-contract-management.md",       "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "prototype-coverage",              "source": "skills/L3/prototype-coverage.md",            "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "backend-coverage",                "source": "skills/L3/backend-coverage.md",              "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "project-document-templates",      "source": "skills/L3/project-document-templates.md",    "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "code-version-backup-management",  "source": "skills/L3/code-version-backup-management.md","category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "skill-md-writing-standards",      "source": "skills/L3/skill-md-writing-standards.md",   "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "security-design-review",          "source": "skills/L3/security-design-review.md",       "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "secure-coding-practices",         "source": "skills/L3/secure-coding-practices.md",      "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "container-deployment",            "source": "skills/L3/container-deployment.md",         "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "performance-engineering",         "source": "skills/L3/performance-engineering.md",      "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "database-migration",              "source": "skills/L3/database-migration.md",           "category": "L3",           "required": true, "destAs": "SKILL.md" }
+  ],
+  "templates": 24,
+  "statistics": {
+    "totalSkills": 31,
+    "orchestratorSkills": 3,
+    "L1Skills": 3,
+    "L2Skills": 6,
+    "L3Skills": 19,
+    "totalFiles": 37,
+    "totalLines": 7800,
+    "totalBytes": 480000
+  },
+  "migration": {
+    "deprecatedFiles": [
+      "version.json",
+      "devflow-manifest.json"
+    ],
+    "migrationGuide": "从 v2.9.0 及以下版本升级时，install.ps1 / update.ps1 会自动检测旧配置文件并迁移数据至 devflow-config.json。旧文件将备份至 .devflow/backup/ 目录。"
+  }
+}

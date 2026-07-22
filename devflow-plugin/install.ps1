@@ -1,4 +1,4 @@
-# DevFlow Plugin Installer for Windows
+﻿# DevFlow Plugin Installer for Windows
 # Usage: Right-click -> "Run with PowerShell" or double-click install.bat
 #
 # 三步走架构 - 首次安装流程：Download + Setup

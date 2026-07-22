@@ -1,4 +1,4 @@
-# DevFlow Skills Sync Script (PowerShell)
+﻿# DevFlow Skills Sync Script (PowerShell)
 # Usage: .\sync-skills.ps1 [-Target <IDE|Work|All>] [-Action <Install|Uninstall|Sync>] [-DryRun]
 #
 # Description:

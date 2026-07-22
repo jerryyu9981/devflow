@@ -1,4 +1,4 @@
-# DevFlow Setup Script (PowerShell)
+﻿# DevFlow Setup Script (PowerShell)
 # Usage: .\setup.ps1 [-InstallHook]
 
 param(
@@ -7,15 +7,24 @@ param(
 
 $ErrorActionPreference = "Stop"
 
-# Read version from version.json (same directory as this script)
+# Read version - prefer devflow-config.json (v2.9.1+), fallback to version.json (legacy)
 $ScriptDir = $PSScriptRoot
+$ConfigPath = Join-Path $ScriptDir "devflow-config.json"
 $VersionJsonPath = Join-Path $ScriptDir "version.json"
-if (Test-Path $VersionJsonPath) {
+$ConfigSource = "none"
+
+if (Test-Path $ConfigPath) {
+    $configInfo = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
+    $DevFlowVersion = $configInfo.devflowVersion
+    $ConfigSource = "devflow-config.json"
+} elseif (Test-Path $VersionJsonPath) {
     $versionInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
     $DevFlowVersion = $versionInfo.devflowVersion
+    $ConfigSource = "version.json (legacy)"
+    Write-Warn "Using legacy version.json — consider upgrading to devflow-config.json (v2.9.1+)"
 } else {
     $DevFlowVersion = "unknown"
-    Write-Host "[WARN] version.json not found, version will be 'unknown'" -ForegroundColor Yellow
+    Write-Warn "Neither devflow-config.json nor version.json found, version will be 'unknown'"
 }
 
 function Write-Header($text) {
@@ -53,12 +62,29 @@ if ($env:TRAE_IDE -or (Test-Path "$env:USERPROFILE\.trae-cn")) {
 }
 Write-Success "Host detected: $HostType"
 
-# DT-01: Load skill map from devflow-manifest.json
-$ManifestPath = Join-Path $PSScriptRoot "devflow-manifest.json"
-$Manifest = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+# DT-01: Load skill map - prefer devflow-config.json (v2.9.1+), fallback to devflow-manifest.json (legacy)
+$ManifestPath = Join-Path $ScriptDir "devflow-manifest.json"
 $skillMap = @{}
-foreach ($s in $Manifest.skills) { $skillMap[$s.name] = $s.source }
-$ExpectedSkillCount = $Manifest.skillCount
+$ExpectedSkillCount = 0
+
+if (Test-Path $ConfigPath) {
+    $skillConfig = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
+    foreach ($s in $skillConfig.skills) { $skillMap[$s.name] = $s.source }
+    $ExpectedSkillCount = $skillConfig.skillCount
+    if ($ConfigSource -ne "devflow-config.json") {
+        $ConfigSource = "devflow-config.json"
+    }
+} elseif (Test-Path $ManifestPath) {
+    $Manifest = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+    foreach ($s in $Manifest.skills) { $skillMap[$s.name] = $s.source }
+    $ExpectedSkillCount = $Manifest.skillCount
+    if ($ConfigSource -ne "devflow-config.json") {
+        Write-Warn "Using legacy devflow-manifest.json — consider upgrading to devflow-config.json (v2.9.1+)"
+    }
+} else {
+    Write-Error "Neither devflow-config.json nor devflow-manifest.json found — cannot proceed with skill installation"
+    exit 1
+}
 
 # 2. Install skills to TRAE (if TRAE detected)
 if ($HostType -eq "TRAE") {
@@ -71,7 +97,7 @@ if ($HostType -eq "TRAE") {
         Write-Host "[INFO] Created skills directory: $TraeSkillsDir" -ForegroundColor Cyan
     }
 
-    # Skill definitions loaded from devflow-manifest.json via DT-01 above
+    # Skill definitions loaded from devflow-config.json (or devflow-manifest.json fallback) via DT-01 above
 
     # Phase 1: Uninstall existing DevFlow skills (clean slate)
     Write-Header "Uninstalling existing DevFlow Skills"
@@ -197,9 +223,10 @@ fi
 # 4. Summary
 Write-Header "DevFlow Setup Complete"
 Write-Host "DevFlow Version: $DevFlowVersion"
+Write-Host "Config Source:   $ConfigSource"
 Write-Host ""
 Write-Host "Next steps:"
-Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize project configuration"
+Write-Host "  1. Open your project in TRAE and invoke devflow-init to initialize .devflow/devflow-config.json"
 Write-Host "  2. Run '.\update.ps1' to update skills when new versions are available"
 
 exit 0

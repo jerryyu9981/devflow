@@ -1,4 +1,4 @@
-# DevFlow Download Script (PowerShell)
+﻿# DevFlow Download Script (PowerShell)
 # Usage: .\download-devflow.ps1 [-Action <Clone|Update|SetRepo>] [-RepoUrl <string>] [-TargetDir <string>]
 #
 # Description:
@@ -226,29 +226,81 @@ function Invoke-CloneMode {
         # Clean up temp directory
         Remove-Item -Path $tempDir -Recurse -Force
 
-        # DT-05: Verify manifest integrity after clone
-        $manifestPath = Join-Path $TargetDir "devflow-manifest.json"
-        if (Test-Path $manifestPath) {
+        # v2.9.1: Package 模式验证【强制门禁】
+        # 调用 validate-install.ps1 -Mode package 验证下载包完整性
+        $validateScript = Join-Path $TargetDir ".devflow\scripts\validate-install.ps1"
+        if (Test-Path $validateScript) {
+            Write-Host ""
+            Write-Host "Running package validation..." -ForegroundColor Yellow
             try {
-                $manifest = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
-                $missingFiles = @()
-                foreach ($s in $manifest.skills) {
-                    if ($s.required) {
-                        $f = Join-Path $TargetDir $s.source
-                        if (-not (Test-Path $f)) { $missingFiles += "$($s.name): $($s.source)" }
-                    }
-                }
-                if ($missingFiles.Count -gt 0) {
-                    Write-Warn "MANIFEST CHECK: $($missingFiles.Count) required file(s) missing"
-                    $missingFiles | ForEach-Object { Write-Warn "  missing: $_" }
+                $result = & $validateScript -Mode package -PackagePath $TargetDir -Quiet
+                if ($result.Valid) {
+                    Write-Success "Package validation: $($result.PassCount)/$($result.TotalChecks) checks passed"
                 } else {
-                    Write-Success "Manifest integrity: $($manifest.skills.Count) files OK"
+                    Write-Err "Package validation FAILED: $($result.FailCount)/$($result.TotalChecks) checks failed"
+                    Write-Host ""
+                    Write-Host "Failed checks:" -ForegroundColor Red
+                    $result.Checks | Where-Object { $_.Status -eq "fail" } | ForEach-Object {
+                        Write-Host "  [FAIL] $($_.Name): $($_.Message)" -ForegroundColor Red
+                    }
+                    Write-Host ""
+                    Write-Host "Downloaded package is corrupted. Removing..." -ForegroundColor Yellow
+                    Remove-Item -Path $TargetDir -Recurse -Force -ErrorAction SilentlyContinue
+                    return $false
                 }
             } catch {
-                Write-Warn "Manifest check skipped (parse error): $_"
+                Write-Warn "Package validation script error: $_"
+                Write-Warn "Falling back to basic manifest check..."
+                # Fallback: basic manifest check
+                $manifestPath = Join-Path $TargetDir "devflow-manifest.json"
+                $configPath = Join-Path $TargetDir "devflow-config.json"
+                $manifestFile = if (Test-Path $configPath) { $configPath } else { $manifestPath }
+                if (Test-Path $manifestFile) {
+                    $m = Get-Content $manifestFile -Encoding UTF8 | ConvertFrom-Json
+                    $missing = @()
+                    foreach ($s in $m.skills) {
+                        if ($s.required) {
+                            $f = Join-Path $TargetDir $s.source
+                            if (-not (Test-Path $f)) { $missing += "$($s.name): $($s.source)" }
+                        }
+                    }
+                    if ($missing.Count -gt 0) {
+                        Write-Warn "MANIFEST CHECK: $($missing.Count) required file(s) missing"
+                        $missing | ForEach-Object { Write-Warn "  missing: $_" }
+                    } else {
+                        Write-Success "Manifest integrity: $($m.skills.Count) files OK"
+                    }
+                }
             }
         } else {
-            Write-Warn "devflow-manifest.json not found, skipping integrity check"
+            Write-Warn "validate-install.ps1 not found, skipping package validation"
+            Write-Warn "Falling back to basic manifest check..."
+            # Fallback: basic manifest check (DT-05)
+            $manifestPath = Join-Path $TargetDir "devflow-manifest.json"
+            $configPath = Join-Path $TargetDir "devflow-config.json"
+            $manifestFile = if (Test-Path $configPath) { $configPath } else { $manifestPath }
+            if (Test-Path $manifestFile) {
+                try {
+                    $manifest = Get-Content $manifestFile -Encoding UTF8 | ConvertFrom-Json
+                    $missingFiles = @()
+                    foreach ($s in $manifest.skills) {
+                        if ($s.required) {
+                            $f = Join-Path $TargetDir $s.source
+                            if (-not (Test-Path $f)) { $missingFiles += "$($s.name): $($s.source)" }
+                        }
+                    }
+                    if ($missingFiles.Count -gt 0) {
+                        Write-Warn "MANIFEST CHECK: $($missingFiles.Count) required file(s) missing"
+                        $missingFiles | ForEach-Object { Write-Warn "  missing: $_" }
+                    } else {
+                        Write-Success "Manifest integrity: $($manifest.skills.Count) files OK"
+                    }
+                } catch {
+                    Write-Warn "Manifest check skipped (parse error): $_"
+                }
+            } else {
+                Write-Warn "No manifest/config found, skipping integrity check"
+            }
         }
 
         Write-Success "DevFlow downloaded successfully to $TargetDir"
@@ -315,6 +367,33 @@ function Invoke-UpdateMode {
             Write-Host "Current DevFlow version: v$($config.devflowVersion)" -ForegroundColor Green
         }
 
+        # v2.9.1: Update 模式也执行 package 验证（仅在有更新时）
+        if (-not $alreadyUpToDate) {
+            $validateScript = Join-Path $TargetDir ".devflow\scripts\validate-install.ps1"
+            if (Test-Path $validateScript) {
+                Write-Host ""
+                Write-Host "Running package validation after update..." -ForegroundColor Yellow
+                try {
+                    $result = & $validateScript -Mode package -PackagePath $TargetDir -Quiet
+                    if ($result.Valid) {
+                        Write-Success "Package validation: $($result.PassCount)/$($result.TotalChecks) checks passed"
+                    } else {
+                        Write-Err "Package validation FAILED: $($result.FailCount)/$($result.TotalChecks) checks failed"
+                        Write-Host ""
+                        Write-Host "Failed checks:" -ForegroundColor Red
+                        $result.Checks | Where-Object { $_.Status -eq "fail" } | ForEach-Object {
+                            Write-Host "  [FAIL] $($_.Name): $($_.Message)" -ForegroundColor Red
+                        }
+                        Write-Host ""
+                        Write-Warn "Update corrupted. Local changes have been stashed; please investigate before proceeding."
+                        return $false
+                    }
+                } catch {
+                    Write-Warn "Package validation skipped (script error): $_"
+                }
+            }
+        }
+
         Write-Host ""
         Write-Host "Next step: Run 'update-devflow.bat' to install the updated version to TRAE" -ForegroundColor Yellow
         return $true
@@ -327,7 +406,7 @@ function Invoke-UpdateMode {
 # ─── Main Execution ──────────────────────────────────────────────
 
 Write-Host ""
-Write-Host "  DevFlow Downloader v2.8.0" -ForegroundColor Cyan
+Write-Host "  DevFlow Downloader v2.9.1" -ForegroundColor Cyan
 Write-Host "  Action: $Action" -ForegroundColor DarkGray
 Write-Host ""
 

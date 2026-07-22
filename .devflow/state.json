@@ -1,6 +1,6 @@
 {
   "project": "DevFlow",
-  "devflowVersion": "2.8.5",
+  "devflowVersion": "2.9.1",
   "currentPhase": "step_5_operations",
   "completedPhases": [
     "step_0_planning",
@@ -12,8 +12,8 @@
   ],
   "versionCheck": {
     "lastCheck": "2026-07-20",
-    "installedDevflowVersion": "2.8.5",
-    "recordedDevflowVersion": "2.8.5",
+    "installedDevflowVersion": "2.9.1",
+    "recordedDevflowVersion": "2.9.1",
     "result": "consistent",
     "action": "no_action"
   },

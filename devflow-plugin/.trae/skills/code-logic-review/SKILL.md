@@ -10,7 +10,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 > **编码阶段三技能关系**：本技能与 project-coding-conventions（编码约定）、code-static-quality-check（静态质量检查）共同组成 Step 3 编码阶段的质量保障体系。编码阶段串联执行路径：编码实现 → project-coding-conventions（编码标准）→ code-static-quality-check（静态质量检查）→ 开发自测 → **AI 初筛** → 本技能（逻辑审查）→ 修复复审 → DevLogReport → 开发审计。
 > - project-coding-conventions 定义编码执行时的项目级约定（分层/错误处理/日志/API等），编码实现时必须遵循
 > - code-static-quality-check 在前者通过后执行，检查语法/Lint/类型/构建等 12 类静态问题
-> - 本技能在前两者通过后执行，审查需求覆盖/设计一致性/业务逻辑/API契约/数据一致性/权限安全/异常处理/可测试性/静态质量证据/可维护性等 11 个维度
+> - 本技能在前两者通过后执行，审查需求覆盖/设计一致性/业务流程/状态流转/API契约/可维护性/数据一致性/权限安全/异常处理/可测试性/静态质量证据等 11 个维度
 
 本技能用于在编码完成后、开发审计之前，对实现代码进行正式逻辑审查。它是开发阶段内部的质量门禁，输出作为 `DevLogReport` 和开发审计的重要输入。
 
@@ -127,7 +127,26 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 
 涉及 API 设计问题时，应调用 `api-design`。
 
-### 6. 数据一致性
+### 6. 可维护性
+
+检查：
+
+- 函数、类、组件是否职责清晰
+- 是否存在重复代码
+- 是否存在过长函数或过深嵌套
+- 是否存在隐式耦合
+- 命名是否清晰一致
+- 新增依赖是否必要
+- 是否混入无关重构
+- 是否留下调试代码、临时代码或 TODO
+
+**否决条件**（满足任一即审查不通过，必须修复）：
+1. 高复杂度函数（圈复杂度 >15）数量 > 5 个
+2. 代码重复率 > 5%
+
+**证据关联要求**：可维护性审查结论必须引用静态质量检查的具体数据（复杂度统计、重复率报告），不得只写"可维护性良好"等主观判断，必须有数据支撑。
+
+### 7. 数据一致性
 
 检查：
 
@@ -141,7 +160,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 
 涉及 SQL 或数据库专项问题时，应调用 `sql-database`、`mongodb` 或相关数据技能。
 
-### 7. 权限与安全边界
+### 8. 权限与安全边界
 
 检查：
 
@@ -154,7 +173,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 
 发现安全风险时，应调用 `security-best-practices` 进行专项审查。
 
-### 8. 异常处理与日志
+### 9. 异常处理与日志
 
 检查：
 
@@ -166,7 +185,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 - 外部服务失败、超时、重试和降级是否处理
 - 异常是否会导致数据半完成状态
 
-### 9. 可测试性和测试证据
+### 10. 可测试性和测试证据
 
 检查：
 
@@ -179,7 +198,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 
 需要生成 E2E 测试时，可调用 `e2e-test-gen`；需要本地 Web 验证时，可调用 `webapp-testing`。
 
-### 10. 静态质量证据
+### 11. 静态质量证据
 
 检查：
 
@@ -189,20 +208,7 @@ description: "Reviews implemented code logic against requirements, design, APIs,
 - API 字段、配置键、环境变量和数据字段是否有一致性检查记录
 - 静态检查失败项是否已修复并复跑
 
-缺少静态质量证据时，应要求补齐 `code-static-quality-check` 结果，不能直接给出“通过”。
-
-### 11. 可维护性
-
-检查：
-
-- 函数、类、组件是否职责清晰
-- 是否存在重复代码
-- 是否存在过长函数或过深嵌套
-- 是否存在隐式耦合
-- 命名是否清晰一致
-- 新增依赖是否必要
-- 是否混入无关重构
-- 是否留下调试代码、临时代码或 TODO
+缺少静态质量证据时，应要求补齐 `code-static-quality-check` 结果，不能直接给出"通过"。
 
 ### 12. AI Code Review 门禁
 
@@ -232,6 +238,13 @@ AI 初筛在人工审查之前执行，作为降低人工审查负荷的前置�
 - 模型 A 的性能取舍，模型 B 指出更优方案
 
 交叉审查结论不替代本技能的正式审查结论，仅作为补充证据记录在审查记录中。
+
+### 13. 技能间委托关系一致性审查
+
+检查：
+- A 技能委托/引用 B 技能时，B 技能中是否存在对应的规范或步骤
+- A 技能的执行流程是否正确引用了 B 技能的规范（路径/名称一致）
+- A 技能中是否有内联的、与 B 技能规范不一致的模板或步骤
 
 ## 审查结论规则
 

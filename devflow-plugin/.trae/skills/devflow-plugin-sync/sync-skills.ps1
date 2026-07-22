@@ -1,4 +1,4 @@
-# DevFlow Skills Sync Script (PowerShell)
+﻿# DevFlow Skills Sync Script (PowerShell)
 # Usage: .\sync-skills.ps1 [-Target <IDE|Work|All>] [-Action <Install|Uninstall|Sync>] [-DryRun]
 #
 # Description:
@@ -40,54 +40,16 @@ if (Test-Path $VersionJsonPath) {
     $Version = $verInfo.devflowVersion
 }
 
-# ─── DevFlow Skill Definitions ──────────────────────────────────
-# Format: @{ Name = "skill-name"; SourceDir = "relative/path/to/source/dir" }
-# SourceDir is relative to plugin root; the script copies entire directory contents.
-$DevFlowSkills = @(
-    # Orchestrator skills (top-level directories with SKILL.md)
-    @{ Name = "devflow-init";                   SourceDir = "devflow-init" }
-    @{ Name = "devflow-phase-manager";          SourceDir = "devflow-phase-manager" }
-    @{ Name = "devflow-project-config";         SourceDir = "devflow-project-config" }
-
-    # Plugin configuration (version.json for runtime version detection)
-    @{ Name = "devflow-plugin-config";          SourceDir = "version.json" }
-
-    # L1 - Master control skills (single .md files)
-    @{ Name = "project-development-workflow";   SourceDir = "skills\L1\project-development-workflow.md" }
-    @{ Name = "project-document-management";    SourceDir = "skills\L1\project-document-management.md" }
-    @{ Name = "project-role-management";        SourceDir = "skills\L1\project-role-management.md" }
-
-    # L2 - Stage execution skills (single .md files)
-    @{ Name = "version-planning-stage-execution"; SourceDir = "skills\L2\version-planning-stage-execution.md" }
-    @{ Name = "requirements-stage-execution";   SourceDir = "skills\L2\requirements-stage-execution.md" }
-    @{ Name = "design-stage-execution";         SourceDir = "skills\L2\design-stage-execution.md" }
-    @{ Name = "coding-stage-execution";         SourceDir = "skills\L2\coding-stage-execution.md" }
-    @{ Name = "testing-stage-execution";         SourceDir = "skills\L2\testing-stage-execution.md" }
-    @{ Name = "operations-stage-execution";      SourceDir = "skills\L2\operations-stage-execution.md" }
-
-    # L3 - Specialized reference skills (single .md files)
-    @{ Name = "project-coding-conventions";     SourceDir = "skills\L3\project-coding-conventions.md" }
-    @{ Name = "code-static-quality-check";      SourceDir = "skills\L3\code-static-quality-check.md" }
-    @{ Name = "code-logic-review";              SourceDir = "skills\L3\code-logic-review.md" }
-    @{ Name = "cicd-pipeline-management";      SourceDir = "skills\L3\cicd-pipeline-management.md" }
-    @{ Name = "observability-standards";        SourceDir = "skills\L3\observability-standards.md" }
-    @{ Name = "api-contract-management";       SourceDir = "skills\L3\api-contract-management.md" }
-    @{ Name = "prototype-coverage";            SourceDir = "skills\L3\prototype-coverage.md" }
-    @{ Name = "backend-coverage";              SourceDir = "skills\L3\backend-coverage.md" }
-    @{ Name = "project-document-templates";     SourceDir = "skills\L3\project-document-templates.md" }
-    @{ Name = "code-version-backup-management"; SourceDir = "skills\L3\code-version-backup-management.md" }
-
-    # L3 - v2.5.0 newly added skills
-    @{ Name = "skill-md-writing-standards";    SourceDir = "skills\L3\skill-md-writing-standards.md" }
-    @{ Name = "security-design-review";        SourceDir = "skills\L3\security-design-review.md" }
-    @{ Name = "secure-coding-practices";       SourceDir = "skills\L3\secure-coding-practices.md" }
-    @{ Name = "container-deployment";          SourceDir = "skills\L3\container-deployment.md" }
-    @{ Name = "performance-engineering";       SourceDir = "skills\L3\performance-engineering.md" }
-    @{ Name = "database-migration";            SourceDir = "skills\L3\database-migration.md" }
-
-    # v2.7.5: Plugin sync tool (self-reference for self-update capability)
-    @{ Name = "devflow-plugin-sync";           SourceDir = "sync-skills.ps1" }
-)
+# DT-01: Load skill definitions from devflow-manifest.json
+$ManifestPath = Join-Path $PluginDir "devflow-manifest.json"
+if (Test-Path $ManifestPath) {
+    $manifestData = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
+    $DevFlowSkills = $manifestData.skills | ForEach-Object { @{ Name = $_.name; SourceDir = $_.source } }
+    $ExpectedSkillCount = $manifestData.skillCount
+} else {
+    Write-Err "devflow-manifest.json not found at $ManifestPath"
+    exit 1
+}
 
 $SkillNames = $DevFlowSkills | ForEach-Object { $_.Name }
 
@@ -113,6 +75,18 @@ function Write-Err($text) {
 
 function Write-Dry($text) {
     Write-Host "  [DRY] $text" -ForegroundColor DarkGray
+}
+
+function Remove-Utf8Bom {
+    param([string]$FilePath)
+    $bytes = [System.IO.File]::ReadAllBytes($FilePath)
+    if ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF) {
+        $content = [System.IO.File]::ReadAllText($FilePath, [System.Text.UTF8Encoding]::new($true))
+        [System.IO.File]::WriteAllText($FilePath, $content, (New-Object System.Text.UTF8Encoding $false))
+        Write-Host "[BOM Fixed] $(Split-Path $FilePath -Leaf)" -ForegroundColor Yellow
+        return $true
+    }
+    return $false
 }
 
 function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [ref]$failCounter) {
@@ -215,7 +189,11 @@ if ($DryRun) {
 
 # ─── Determine Target Directories ───────────────────────────────
 
-$GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
+if ($env:DEVFLOW_SKILLS_DIR) {
+    $GlobalSkillsDir = $env:DEVFLOW_SKILLS_DIR
+} else {
+    $GlobalSkillsDir = Join-Path $env:USERPROFILE ".trae-cn\skills"
+}
 $ProjectSkillsDir = ""
 
 if ($ProjectPath) {
@@ -281,6 +259,22 @@ foreach ($t in $targets) {
         $totalFailed += $instFail
         Write-Host "`n  Installed: $instCount, Failed: $instFail" -ForegroundColor $(if ($instFail -gt 0) { "Yellow" } else { "Green" })
     }
+}
+
+# DT-03: Remove UTF-8 BOM from all synced .md files
+$bomFixedCount = 0
+foreach ($t in $targets) {
+    if (Test-Path $t.Dir) {
+        Get-ChildItem -Path $t.Dir -Recurse -Filter "*.md" | ForEach-Object {
+            if (Remove-Utf8Bom -FilePath $_.FullName) {
+                $bomFixedCount++
+            }
+        }
+    }
+}
+if ($bomFixedCount -gt 0) {
+    Write-Host ""
+    Write-Host "BOM fix: $bomFixedCount file(s) cleaned" -ForegroundColor Yellow
 }
 
 # ─── Summary ──────────────────────────────────────────────────────

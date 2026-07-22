@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     DevFlow 自动化发布脚本
 .DESCRIPTION

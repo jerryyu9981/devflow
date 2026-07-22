@@ -51,6 +51,86 @@ cat ~/.trae-cn/skills/devflow-plugin-config/version.json
 - 若 TRAE 技能目录 `version.json` 不存在（如未安装或同步），则读取项目根目录的 `version.json`（如有）
 - 若仍无法读取，标记为 `"unknown"`
 
+### 1.5.5 版本差异检测
+
+比较 TRAE 系统目录中已安装的 DevFlow 版本与项目 `.devflow/state.json` 中记录的版本，发现差异时提示用户。
+
+**读取来源**：
+
+| 版本 | 来源路径 | 字段 |
+|:----|:--------|:----|
+| `devflowVersionInTrae`（TRAE 已安装版本） | `~/.trae-cn/skills/devflow-plugin-config/version.json` | `devflowVersion` |
+| `devflowVersionInProject`（项目记录版本） | `.devflow/state.json` | `devflowVersion` |
+
+**比较逻辑**：
+
+```
+if devflowVersionInTrae == devflowVersionInProject:
+    → 版本一致，无需操作
+    → versionCheck.result = "consistent"
+    → versionCheck.action = "no_action"
+
+elif devflowVersionInTrae > devflowVersionInProject（语义版本比较）:
+    → TRAE 已安装版本更新
+    → 自动更新 .devflow/state.json.devflowVersion = devflowVersionInTrae
+    → 提示用户："TRAE 已安装 DevFlow {devflowVersionInTrae}，项目记录已自动更新"
+    → versionCheck.result = "installed_newer"
+    → versionCheck.action = "auto_updated"
+
+elif devflowVersionInTrae < devflowVersionInProject（语义版本比较）:
+    → 项目记录版本更高（异常情况）
+    → 提示用户，不自动修改
+    → versionCheck.result = "project_newer"
+    → versionCheck.action = "user_prompted"
+```
+
+**语义版本比较说明**：版本号格式为 `major.minor.patch`（如 `2.8.0`），逐段比较数字。例如 `2.8.0` > `2.7.5`，`2.7.10` > `2.7.9`。
+
+**降级处理**：
+- 若 `.devflow/state.json` 不存在（首次初始化），跳过版本检测，`versionCheck.result = "first_check"`
+- 若 TRAE 系统目录 `version.json` 不存在，跳过版本检测，`versionCheck.result = "error"`
+
+**写入 state.json**：
+
+```json
+{
+  "devflowVersion": "{比较后确定的版本号}",
+  "versionCheck": {
+    "lastCheck": "{当前时间}",
+    "installedDevflowVersion": "{devflowVersionInTrae}",
+    "recordedDevflowVersion": "{devflowVersionInProject}",
+    "result": "{比较结果}",
+    "action": "{执行动作}"
+  }
+}
+```
+
+### 1.5.5 技能数量一致性检测（DT-07）
+
+在版本检测之后执行技能数量一致性检查：
+
+```powershell
+# 从 TRAE 系统目录读取 devflow-manifest.json
+$manifestPath = "$env:USERPROFILE\.trae-cn\skills\devflow-plugin-config\devflow-manifest.json"
+if (Test-Path $manifestPath) {
+    try {
+        $manifest = Get-Content $manifestPath -Encoding UTF8 | ConvertFrom-Json
+        $installedSkills = Get-ChildItem "$env:USERPROFILE\.trae-cn\skills" -Directory |
+            Where-Object { $manifest.skills.name -contains $_.Name }
+        if ($installedSkills.Count -ne $manifest.skillCount) {
+            Write-Warn "[WARN] DevFlow skill count mismatch: installed=$($installedSkills.Count), expected=$($manifest.skillCount)"
+            Write-Warn "[WARN] Run 'sync-skills.ps1 -Action Sync -Target IDE' to reinstall"
+        }
+    } catch {
+        Write-Warn "[WARN] Manifest check skipped: $_"
+    }
+} else {
+    Write-Warn "[WARN] devflow-manifest.json not found, skill count check skipped"
+}
+```
+
+---
+
 ### 1.6 创建项目根目录 version.json
 
 ```json
@@ -132,6 +212,23 @@ else:
 
 **如果 `.devflow/config.json` 已存在**，则只更新 `projectVersion` 字段，保留其他字段不变。
 
+### 3.1 远程仓库地址交互输入
+
+> 如果 config 已存在且 remote.origin/backup 已有值，则跳过此步骤（向后兼容）。
+
+在创建/更新 config.json 后，执行交互确认：
+
+1. 提示输出：`当前配置中远程仓库地址：origin="{current_origin}", backup="{current_backup}"`
+2. 询问：`是否更新远程仓库地址？(Y/N) [默认 N]：`
+3. 如果回答 Y：
+   - 提示：`请输入远程仓库地址（origin）：`
+   - 输入后显示：`远程仓库地址为：{url}，确认？(Y/N)`
+   - Y → 写入 config.json 的 remote.origin 字段
+   - N → 重新输入或跳过
+   - 继续提示：`请输入备份仓库地址（backup，可选，留空跳过）：`
+   - 输入后按同样逻辑确认
+4. 如果回答 N → 跳过，保持现有配置
+
 ### 4. 创建 .devflow/state.json
 
 ```json
@@ -157,6 +254,7 @@ else:
 - 检测到的项目文档结构
 - 推断的当前阶段
 - 建议的下一步操作
+- 远程仓库地址配置状态（已配置/已跳过/未配置）
 - 生成的配置文件路径
 
 ## 安装 Git Hook（可选）

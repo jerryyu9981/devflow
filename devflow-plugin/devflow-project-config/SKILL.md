@@ -1,4 +1,4 @@
-﻿---
+---
 name: devflow-project-config
 description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json，管理项目级设置（分支策略、备份配置、远程仓库）。被 devflow-init 和 setup 脚本调用。"
 ---
