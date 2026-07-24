@@ -12,7 +12,7 @@
     "project":  "DevFlow",
     "projectVersion": "2.10.0",
     "remote":  {
-                   "backup":  "http://192.168.0.14/jerry.yu/devflow-backup.git",
+                   "github": "git@github.com:jerryyu9981/devflow.git",
                    "origin":  "http://192.168.0.14/jerry.yu/devflow.git"
                }
 }
