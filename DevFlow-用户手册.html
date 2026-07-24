@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevFlow 用户手册 v2.10.0</title>
+  <style>
+    @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Regular.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Bold.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+    :root { --bg: #0f172a; --bg2: #1e293b; --bg3: #334155; --ink: #e2e8f0; --muted: #94a3b8; --rule: #475569; --accent: #3b82f6; --accent2: #06b6d4; --accent-dim: rgba(59,130,246,0.15); --success: #22c55e; --warning: #f59e0b; --danger: #ef4444; --font: 'Noto Sans CJK SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif; --font-mono: 'JetBrains Mono','Fira Code','Consolas',monospace; --max: 1000px; --radius: 10px; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body { font-family: var(--font); color: var(--ink); background: var(--bg); line-height: 1.8; padding: 0; min-height: 100vh; }
+    .page-wrapper { max-width: var(--max); margin: 0 auto; padding: 0; display: flex; min-height: 100vh; }
+    .sidebar { position: fixed; top: 0; left: 0; width: 280px; height: 100vh; background: var(--bg2); border-right: 1px solid var(--rule); overflow-y: auto; z-index: 100; padding: 1rem 1.2rem; }
+    .sidebar .logo { font-size: 1.1rem; font-weight: 700; color: #fff; margin-bottom: 1.2rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--rule); }
+    .sidebar .logo .tag { font-size: 0.65rem; }
+    .sidebar a { display: block; color: var(--muted); text-decoration: none; font-size: 0.85rem; padding: 0.35rem 0.5rem; border-radius: 6px; transition: all 0.2s; line-height: 1.5; }
+    .sidebar a:hover, .sidebar a.active { color: #fff; background: var(--accent-dim); }
+    .sidebar a.h2 { font-weight: 700; color: var(--ink); margin-top: 0.5rem; }
+    .sidebar a.h3 { padding-left: 1.2rem; font-size: 0.82rem; }
+    .sidebar a.h4 { padding-left: 2rem; font-size: 0.8rem; }
+    .main { margin-left: 280px; padding: 1.5rem 2rem 4rem; width: calc(100% - 280px); }
+    .hero { text-align: center; padding: 3rem 1rem 2rem; border-bottom: 1px solid var(--rule); margin-bottom: 2.5rem; }
+    .hero h1 { font-size: 2.2rem; color: #fff; }
+    .hero .sub { color: var(--muted); font-size: 1rem; margin-top: 0.3rem; }
+    .section { margin-bottom: 3rem; }
+    .section-header { display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1.2rem; padding-bottom: 0.6rem; border-bottom: 2px solid var(--rule); }
+    .section-num { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; background: var(--accent); color: #fff; border-radius: 6px; font-size: 0.85rem; font-weight: 700; flex-shrink: 0; }
+    h2 { font-size: 1.4rem; color: #fff; }
+    h3 { font-size: 1.1rem; color: var(--accent2); margin: 1.2rem 0 0.6rem; padding-left: 0.6rem; border-left: 3px solid var(--accent2); }
+    h4 { font-size: 1rem; color: var(--ink); margin: 1rem 0 0.4rem; font-weight: 600; }
+    p { margin-bottom: 0.7rem; }
+    .card { background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.3rem; margin: 0.8rem 0 1.2rem; }
+    .card-accent { border-left: 4px solid var(--accent); }
+    .card-accent2 { border-left: 4px solid var(--accent2); }
+    .card-success { border-left: 4px solid var(--success); }
+    .card-warning { border-left: 4px solid var(--warning); background: rgba(245,158,11,0.06); }
+    .card-danger { border-left: 4px solid var(--danger); background: rgba(239,68,68,0.06); }
+    .card-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .card-title.c2 { color: var(--accent2); }
+    .card-title.c-success { color: var(--success); }
+    .card-title.c-warning { color: var(--warning); }
+    .card-title.c-danger { color: var(--danger); }
+    code { font-family: var(--font-mono); font-size: 0.88em; background: #0c1222; border: 1px solid var(--rule); border-radius: 5px; padding: 0.15em 0.45em; color: var(--accent2); }
+    pre { background: #0c1222; border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.3rem; overflow-x: auto; margin: 0.8rem 0 1.2rem; line-height: 1.5; }
+    pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 0.85rem; }
+    ul, ol { margin: 0.3rem 0 0.8rem 1.5rem; }
+    li { margin-bottom: 0.3rem; }
+    li strong { color: #fff; }
+    .steps { counter-reset: step-counter; list-style: none; margin: 0.5rem 0 1rem; }
+    .steps li { counter-increment: step-counter; position: relative; padding: 0.8rem 1rem 0.8rem 2.8rem; margin-bottom: 0.5rem; background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); }
+    .steps li::before { content: counter(step-counter); position: absolute; left: 0.8rem; top: 0.85rem; width: 24px; height: 24px; background: var(--accent); color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 700; }
+    .table-wrap { overflow-x: auto; margin: 0.8rem 0 1.2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: var(--bg3); color: #fff; padding: 0.5rem 0.8rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--rule); color: var(--ink); }
+    tr:hover td { background: rgba(59,130,246,0.05); }
+    .tag { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+    .tag-blue { background: var(--accent-dim); color: var(--accent); }
+    .tag-cyan { background: rgba(6,182,212,0.12); color: var(--accent2); }
+    .tag-green { background: rgba(34,197,94,0.15); color: var(--success); }
+    .tag-yellow { background: rgba(245,158,11,0.15); color: var(--warning); }
+    .tag-red { background: rgba(239,68,68,0.15); color: var(--danger); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+    .grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.8rem; }
+    .mini-card { background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); padding: 0.8rem 1rem; text-align: center; }
+    .mini-card .mc-title { font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+    .mini-card .mc-desc { font-size: 0.75rem; color: var(--muted); }
+    .flow-chart { display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.3rem; padding: 1rem; margin: 0.8rem 0; background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); }
+    .flow-step { padding: 0.3rem 0.7rem; background: var(--bg3); border-radius: 6px; font-size: 0.82rem; color: var(--ink); white-space: nowrap; border: 1px solid transparent; }
+    .flow-step.s0 { border-color: var(--accent); color: var(--accent); }
+    .flow-step.s1 { border-color: #8b5cf6; color: #a78bfa; }
+    .flow-step.s2 { border-color: var(--accent2); color: var(--accent2); }
+    .flow-step.s3 { border-color: var(--success); color: var(--success); }
+    .flow-step.s4 { border-color: var(--warning); color: var(--warning); }
+    .flow-step.s5 { border-color: #ec4899; color: #f472b6; }
+    .flow-arrow { color: var(--muted); font-size: 0.9rem; }
+    .flow-arrow.v { display: none; }
+    .footer { text-align: center; padding: 2rem 0 0.5rem; border-top: 1px solid var(--rule); margin-top: 2rem; color: var(--muted); font-size: 0.82rem; }
+    .toc-btn { display: none; position: fixed; top: 0.8rem; left: 0.8rem; z-index: 200; background: var(--bg2); border: 1px solid var(--rule); color: var(--ink); padding: 0.4rem 0.7rem; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: var(--font); }
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main { margin-left: 0; width: 100%; padding: 1rem; }
+      .toc-btn { display: block; }
+      .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+      .flow-chart { flex-direction: column; }
+      .flow-arrow { display: none; }
+      .flow-arrow.v { display: block; }
+    }
+  </style>
+</head>
+<body>
+
+<button class="toc-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776; 目录</button>
+
+<nav class="sidebar" id="sidebar">
+  <div class="logo">DevFlow <span class="tag tag-blue">v2.10.0</span></div>
+  <div id="tocLinks"></div>
+</nav>
+
+<div class="main">
+
+  <header class="hero">
+    <h1>DevFlow 用户手册</h1>
+    <p class="sub">可插拔软件开发工程规范框架 — 完整参考手册 v2.10.0</p>
+  </header>
+
+  <!-- 1. 概述 -->
+  <section class="section" id="s1">
+    <div class="section-header"><span class="section-num">1</span><h2>DevFlow 概述</h2></div>
+    <h3 id="s1-1">1.1 什么是 DevFlow</h3>
+    <p>DevFlow 是一套<strong>可插拔的软件开发工程规范框架</strong>（Skills-as-Code 架构），专为 AI 辅助编程场景设计。它将软件工程的核心环节整合为标准化的 6 阶段流程（Step 0~5），通过<strong>需求追溯链（RT-ID→DT-ID→TD-ID→TT-ID）</strong>和<strong>审计门禁</strong>确保每一行代码都可追溯到具体需求、每个阶段有明确的质量检查。</p>
+    <div class="card card-accent"><div class="card-title">设计哲学</div><p>DevFlow 不替代任何开发工具或框架。它是在 AI 对话层之上叠加的一层<strong>工程治理层</strong>——把 AI 从"随性聊天"变成"标准化工程流水线"。每个阶段结束时都有审计门禁，不合格就返工，质量在流程中逐步累积，而不是最后集中修补。</p></div>
+
+    <h3 id="s1-2">1.2 核心概念</h3>
+    <div class="grid-3">
+      <div class="mini-card"><div class="mc-title">6 阶段流程</div><div class="mc-desc">Step 0~5：规划→需求→设计→编码→测试→部署</div></div>
+      <div class="mini-card"><div class="mc-title">追溯链体系</div><div class="mc-desc">RT-ID → DT-ID → TD-ID → TT-ID，全链路可追溯</div></div>
+      <div class="mini-card"><div class="mc-title">审计门禁</div><div class="mc-desc">每阶段结束必须审计，P0/P1 必须闭环</div></div>
+      <div class="mini-card"><div class="mc-title">技术债务管理</div><div class="mc-desc">全局总表 + 老化升级 + 还债配额 ≥ 15%</div></div>
+      <div class="mini-card"><div class="mc-title">技能分层</div><div class="mc-desc">协调层 + 阶段执行层 + 参考规范层 = 25 个技能</div></div>
+      <div class="mini-card"><div class="mc-title">文件结构一致性</div><div class="mc-desc">编译层门禁自动验证设计规划的"新建/重命名/删除"操作</div></div>
+    </div>
+
+    <h3 id="s1-3">1.3 版本历史</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>版本</th><th>日期</th><th>关键变更</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-blue">v2.10.0</span></td><td>2026-07-24</td><td>6 笔债务偿还 + 文件结构一致性 + 风险归集门禁 + 模板 24 个 + 季度审计 + 性能基线 + 脚本精简</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.2</span></td><td>2026-07-23</td><td>配置一致性修复 + 弃用文件清理 + 模板增强</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.1</span></td><td>2026-07-22</td><td>配置架构重构 + 迁移机制 + 全阶段产出验证门禁</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.0</span></td><td>2026-07-21</td><td>还债配额 + 债务老化 + 覆盖率门禁 + E2E 验证</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.5</span></td><td>2026-07-20</td><td>债务生命周期 + 发布自动化 + release.ps1</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.4</span></td><td>2026-07-20</td><td>三道质量门禁 + 全局债务总表 + 实际运行验证三层模型</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.0</span></td><td>2026-06</td><td>6 阶段流程 + 28 个技能 + 24 个文档模板</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="s1-4">1.4 兼容平台</h3>
+    <div class="grid-4">
+      <div class="mini-card"><div class="mc-title">TRAE Work</div><div class="mc-desc">主要推荐平台</div></div>
+      <div class="mini-card"><div class="mc-title">TRAE IDE</div><div class="mc-desc">桌面端 IDE</div></div>
+      <div class="mini-card"><div class="mc-title">Claude Code</div><div class="mc-desc">Anthropic CLI</div></div>
+      <div class="mini-card"><div class="mc-title">Cursor</div><div class="mc-desc">AI 编辑器</div></div>
+    </div>
+  </section>
+
+  <!-- 2. 安装 -->
+  <section class="section" id="s2">
+    <div class="section-header"><span class="section-num">2</span><h2>安装指南</h2></div>
+    <h3 id="s2-1">2.1 前置条件</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>条件</th><th>要求</th><th>说明</th></tr></thead>
+      <tbody>
+        <tr><td>操作系统</td><td>Windows 10+ / macOS / Linux</td><td>脚本提供 .ps1/.bat（Windows）和 .sh（macOS/Linux）</td></tr>
+        <tr><td>Shell</td><td>PowerShell 5.1+ 或 Bash 4+</td><td>不支持 CMD</td></tr>
+        <tr><td>AI 平台</td><td>TRAE Work / IDE / Claude Code / Cursor</td><td>技能安装到对应平台的技能目录</td></tr>
+        <tr><td>Git</td><td>可选但推荐</td><td>用于备份和版本管理</td></tr>
+      </tbody>
+    </table></div>
+    <div class="card card-warning"><div class="card-title c-warning">PowerShell 执行策略</div><p>Windows 默认可能禁止运行脚本：<code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></p></div>
+
+    <h3 id="s2-2">2.2 获取插件</h3>
+    <p><strong>方法一：Git 克隆</strong><br><code>git clone &lt;仓库地址&gt; devflow-plugin && cd devflow-plugin</code></p>
+    <p><strong>方法二：手动获取</strong> — 从同事或压缩包获取插件文件夹。</p>
+
+    <h3 id="s2-3">2.3 Windows 安装</h3>
+    <ol class="steps">
+      <li><strong>打开 PowerShell</strong> — Win+R → powershell</li>
+      <li><strong>进入插件目录</strong> — <code>cd D:\路径\devflow-plugin</code></li>
+      <li><strong>运行安装脚本</strong> — <code>.\install.ps1</code> 或双击 <code>install.bat</code></li>
+      <li><strong>输入项目路径</strong> — 输入你的项目根目录（不是插件目录）</li>
+      <li><strong>配置项目信息</strong> — 项目名称、Git 仓库地址（可选）、备份仓库地址（可选）</li>
+      <li><strong>完成</strong> — 重启 TRAE，输入 <code>/</code> 即可看到 DevFlow 技能</li>
+    </ol>
+
+    <h3 id="s2-4">2.4 macOS/Linux 安装</h3>
+    <ol class="steps">
+      <li><code>chmod +x install.sh</code></li>
+      <li><code>./install.sh</code></li>
+      <li>后续交互与 Windows 相同</li>
+    </ol>
+
+    <h3 id="s2-5">2.5 验证安装</h3>
+    <div class="card card-success"><div class="card-title c-success">验证清单</div>
+      <ul>
+        <li><strong>配置文件</strong> — 项目根目录下有 <code>.devflow/config.json</code></li>
+        <li><strong>状态文件</strong> — <code>.devflow/state.json</code></li>
+        <li><strong>技能列表</strong> — 重启 TRAE 后在 <code>/</code> 技能列表中能看到 devflow 技能</li>
+        <li><strong>注册验证</strong> — <code>.\validate-registry.ps1</code> → <code>28 skills, 0 errors</code></li>
+        <li><strong>功能验证</strong> — 输入"初始化 DevFlow"，能正常返回初始化报告</li>
+      </ul>
+    </div>
+
+    <h3 id="s2-6">2.6 更新版本</h3>
+    <ol class="steps">
+      <li><strong>获取新版文件</strong> — Git pull 或重新解压</li>
+      <li><strong>备份配置</strong> — 备份 <code>.devflow/config.json</code> 和 <code>.devflow/state.json</code></li>
+      <li><strong>运行更新</strong> — <code>.\update.ps1 -Action Sync</code></li>
+      <li><strong>验证</strong> — 检查 <code>devflow-config.json</code> 的 <code>devflowVersion</code></li>
+    </ol>
+    <p>脚本自动检测新旧版本差异、备份旧版、执行增量更新。支持 <code>-Target IDE|Work|All</code> 参数控制安装目标。</p>
+
+    <h3 id="s2-7">2.7 卸载</h3>
+    <p>① 删除项目中 <code>.devflow/</code> 目录 ② 从全局技能目录删除 DevFlow 技能文件</p>
+  </section>
+
+  <!-- 3. 项目初始化 -->
+  <section class="section" id="s3">
+    <div class="section-header"><span class="section-num">3</span><h2>项目初始化</h2></div>
+    <h3 id="s3-1">3.1 首次初始化</h3>
+    <p>在 TRAE 中输入"<strong>初始化 DevFlow</strong>"或调用 <code>devflow-init</code> 技能。它会自动：</p>
+    <ol>
+      <li>扫描项目目录，检查已有文档和代码结构</li>
+      <li>推断当前所处阶段（新项目从 Step 0 开始，已有项目从中间切入）</li>
+      <li>创建 <code>.devflow/config.json</code> 和 <code>.devflow/state.json</code></li>
+      <li>输出初始化报告，包含项目信息和下一步建议</li>
+    </ol>
+    <div class="card card-accent"><div class="card-title">中途引入</div><p>不必从头开始。devflow-init 会自动检测现有文档推断当前阶段，从已有阶段切入。</p></div>
+
+    <h3 id="s3-2">3.2 配置文件</h3>
+    <p><code>.devflow/config.json</code>：项目全局配置。字段：<code>project</code>（项目名）、<code>projectVersion</code>（当前版本）、<code>branchStrategy</code>（分支策略）、<code>remote.origin</code>（主仓库）、<code>remote.backup</code>（备份仓库）。</p>
+
+    <h3 id="s3-3">3.3 状态文件</h3>
+    <p><code>.devflow/state.json</code>：记录运行状态。字段：<code>project</code>、<code>version</code>、<code>currentPhase</code>、<code>completedPhases</code>、<code>auditResults</code>。建议由 PM 统一管理，加入 Git 版本控制。</p>
+
+    <h3 id="s3-4">3.4 版本号单一来源</h3>
+    <p>DevFlow 的版本号以 <code>version.json</code> 为唯一权威来源。发布时自动同步到 <code>devflow-config.json</code> 的 <code>devflowVersion</code> 和 <code>.devflow/config.json</code> 的 <code>projectVersion</code>。三处必须一致，不一致视为发布失败。</p>
+  </section>
+
+  <!-- 4. 6 阶段 -->
+  <section class="section" id="s4">
+    <div class="section-header"><span class="section-num">4</span><h2>6 阶段开发流程</h2></div>
+    <div class="flow-chart">
+      <span class="flow-step s0">Step 0 规划</span><span class="flow-arrow">→</span><span class="flow-arrow v">↓</span>
+      <span class="flow-step s1">Step 1 需求</span><span class="flow-arrow">→</span><span class="flow-arrow v">↓</span>
+      <span class="flow-step s2">Step 2 设计</span><span class="flow-arrow">→</span><span class="flow-arrow v">↓</span>
+      <span class="flow-step s3">Step 3 编码</span><span class="flow-arrow">→</span><span class="flow-arrow v">↓</span>
+      <span class="flow-step s4">Step 4 测试</span><span class="flow-arrow">→</span><span class="flow-arrow v">↓</span>
+      <span class="flow-step s5">Step 5 上线</span>
+    </div>
+
+    <h3 id="s4-0">4.0 Step 0 — 版本规划</h3>
+    <p><strong>技能</strong>：<code>version-planning-stage-execution</code> | <strong>触发</strong>：输入"开始版本规划"</p>
+    <p><strong>子步骤</strong>：0.0a 跨版本债务审查 → 0.0 收集候选需求 → 0.1 技术可行性粗筛 → 0.2 版本目标与范围决策 → 0.3 创建 Backlog → 0.4 Phase 拆分 + 风险评估 → 0.5 版本规划评审</p>
+    <p><strong>产出</strong>：单版本规划文档 / Backlog / Phase 计划 / 评审记录</p>
+    <div class="card card-accent"><div class="card-title">通过标准</div><p>候选需求池已更新 + 目标可衡量 + Backlog 形成 + 优先级已确认 + Phase 已拆分 + 依赖/风险已记录 + 评审通过 + 产出物存在性验证通过</p></div>
+
+    <h3 id="s4-1">4.1 Step 1 — 需求分析</h3>
+    <p><strong>技能</strong>：<code>requirements-stage-execution</code> | <strong>触发</strong>：输入"开始需求分析"</p>
+    <p><strong>子步骤</strong>：1.0 入场检查 → 1.1 来源归档 → 1.2 角色分析 → 1.3 目标/场景/故事 → 1.4 流程/功能 → 1.5 非功能/数据/权限/UI/接口 → 1.6 约束/验收/优先级 → 1.7 追溯矩阵/基线 → 1.8 评审 → 1.9 评估审计 → 1.10 设计移交</p>
+    <p><strong>关键产出</strong>：开发需求文档 / 用户需求说明书 / UIUX 需求 / 需求追溯矩阵（RT-ID）/ 需求基线及设计移交</p>
+    <div class="card card-warning"><div class="card-title c-warning">强制规则</div><p>① 不得扩大 Step 0 范围 ② 所有需求必须有来源 ③ P0/P1 必须有验收标准 ④ 必须建立需求追溯矩阵 ⑤ 需求评审未通过不得进入 Step 2</p></div>
+
+    <h3 id="s4-2">4.2 Step 2 — 架构设计</h3>
+    <p><strong>技能</strong>：<code>design-stage-execution</code> | <strong>触发</strong>：输入"开始设计"</p>
+    <p><strong>轨道</strong>：🎯 整体（始终）+ ⚙️ 后端（始终）+ 🎨 前端（按需）+ 🔗 第三方（按需）</p>
+    <p><strong>子步骤</strong>：2.0 入场+轨道选择 → 2.1 需求-设计追溯（DT-ID）→ 2.2 系统架构 → 2.3 技术选型+ADR → 2.4~2.6 详细设计 → 2.7 专项设计 → 2.8 覆盖检查 → 2.9 API 契约对齐 → 2.10 评审 → 2.11 审计 → 2.12 移交</p>
+    <div class="card card-warning"><div class="card-title c-warning">覆盖率门禁</div><p>P0/P1 需求必须有明确设计覆盖，总覆盖率 ≥ 95%。剩余 ≤ 5% 必须标记为"已知设计缺口"。</p></div>
+
+    <h3 id="s4-3">4.3 Step 3 — 编码开发</h3>
+    <p><strong>技能</strong>：<code>coding-stage-execution</code> | <strong>触发</strong>：输入"开始编码"</p>
+    <p><strong>子步骤</strong>：3.0 入场 → 3.1 任务拆解 → 3.2 TD-ID 追溯矩阵（含 Subtask CheckList）→ 3.3a TDD 编码 → 3.4a 静态质量检查 → 3.5a 实际运行验证 → 3.6a 自测 → 3.7a 代码逻辑审查 → 3.8 修复 → 3.9 DevLogReport → 3.10 审计移交</p>
+    <div class="card card-danger"><div class="card-title c-danger">三层质量门禁（强制顺序）</div>
+      <ol>
+        <li><strong>静态质量检查</strong>（3.4）— 12 类检查（语法/Lint/类型/构建/符号/参数/返回值/导入导出/API/环境变量/数据字段/状态枚举）+ 技术债务增长率检查</li>
+        <li><strong>实际运行验证</strong>（3.5）— L1 构建 → L2 启动 → L3 冒烟，必须有实际输出片段</li>
+        <li><strong>代码逻辑审查</strong>（3.7）— 14 维审查（含命名与结构一致性），P0/P1 必须闭环</li>
+      </ol>
+    </div>
+    <div class="card card-accent2"><div class="card-title c2">TDD 铁律</div><p>测试先于生产代码：RED（写失败测试）→ GREEN（写可通过的代码）→ REFACTOR（重构）。所有 feat/fix 提交必须包含对应测试。</p></div>
+
+    <h3 id="s4-4">4.4 Step 4 — 测试验证</h3>
+    <p><strong>技能</strong>：<code>testing-stage-execution</code> | <strong>触发</strong>：输入"开始测试"</p>
+    <p><strong>子步骤</strong>：4.0 入场+自测证据抽查 → 4.1 计划+用例（TT-ID）→ 4.2 环境验证 → 4.3a API/4.3b 组件/4.3c 第三方 → 4.4a 后端集成/4.4b 前端集成 → 4.5 E2E → 4.6 回归+覆盖率 → 4.7 专项测试 → 4.8 UAT → 4.9 缺陷闭环 → 4.10 报告 → 4.11 审计移交</p>
+    <div class="card card-warning"><div class="card-title c-warning">强制测试矩阵</div><p>除非明确标记"不适用"，不得跳过：API/集成/E2E/Mock/回归/覆盖率/合规/安全/性能/可访问性/UAT。跳过项必须在报告中说明原因。</p></div>
+
+    <h3 id="s4-5">4.5 Step 5 — 部署运维</h3>
+    <p><strong>技能</strong>：<code>operations-stage-execution</code> | <strong>触发</strong>：输入"开始部署"</p>
+    <p><strong>子步骤</strong>：5.0 入场 → 5.1 发布计划+版本确认 → 5.2 环境/DB → 5.3 缓存/消息 → 5.4 部署执行 → 5.5 上线验证 → 5.6 监控/日志/告警 → 5.7 性能/安全 → 5.8 回滚预案 → 5.9 运维移交 → 5.10 发布复盘 → 5.11 全流程闭环审计</p>
+    <div class="card card-danger"><div class="card-title c-danger">发布强制规则</div><p>① 不得无回滚上线 ② 不得无监控上线 ③ 部署成功≠业务可用 ④ 不得泄露密钥 ⑤ P0/P1 上线问题必须停止发布或回滚 ⑥ 回滚后 15 分钟内完成验证 ⑦ 版本号自动更新为原子步骤，不可跳过</p></div>
+  </section>
+
+  <!-- 5. 追溯链 -->
+  <section class="section" id="s5">
+    <div class="section-header"><span class="section-num">5</span><h2>追溯链体系</h2></div>
+    <p>追溯链确保<strong>每行代码都能追溯到需求</strong>，是 DevFlow 的核心机制。</p>
+    <h3 id="s5-1">5.1 四层追溯 ID</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>ID</th><th>产生阶段</th><th>格式</th><th>含义</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-blue">RT-ID</span></td><td>Step 1</td><td><code>RT-{版本号}-{序号}</code></td><td>Requirement Traceability，唯一标识需求</td></tr>
+        <tr><td><span class="tag tag-cyan">DT-ID</span></td><td>Step 2</td><td><code>DT-{版本号}-{序号}</code></td><td>Design Traceability，标识设计项，引用 RT-ID</td></tr>
+        <tr><td><span class="tag tag-green">TD-ID</span></td><td>Step 3</td><td><code>TD-{版本号}-{序号}</code></td><td>Development Traceability，标识编码任务，引用 DT-ID</td></tr>
+        <tr><td><span class="tag tag-yellow">TT-ID</span></td><td>Step 4</td><td><code>TT-{版本号}-{序号}</code></td><td>Test Traceability，标识测试用例，关联 RT-ID+TD-ID</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="s5-2">5.2 追溯链流转</h3>
+    <div class="flow-chart" style="flex-direction:column;padding:1.5rem;">
+      <div><span class="flow-step s1">RT-001: 用户可以通过邮箱注册</span></div><span class="flow-arrow v">↓</span>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+        <span class="flow-step s2">DT-012: 注册 API 接口</span><span class="flow-step s2">DT-013: 用户表 email 字段</span>
+      </div><span class="flow-arrow v">↓</span>
+      <div style="display:flex;gap:0.5rem;flex-wrap:wrap;justify-content:center;">
+        <span class="flow-step s3">TD-008: 注册接口实现</span><span class="flow-step s3">TD-009: 数据库迁移脚本</span>
+      </div><span class="flow-arrow v">↓</span>
+      <div><span class="flow-step s4">TT-005: 注册功能测试</span></div>
+    </div>
+
+    <h3 id="s5-3">5.3 强制规则</h3>
+    <div class="card card-warning"><div class="card-title c-warning">追溯 ID 使用规范</div>
+    <ul>
+      <li>所有 P0/P1 需求的测试用例必须至少关联一个 TD-ID</li>
+      <li>追溯矩阵的"Backlog ID"列强制填写 V260-XXX 格式</li>
+      <li>P0/P1 需求必须 100% 可追溯</li>
+      <li>Git commit footer 必须引用 RT-ID</li>
+    </ul></div>
+  </section>
+
+  <!-- 6. 技能体系 -->
+  <section class="section" id="s6">
+    <div class="section-header"><span class="section-num">6</span><h2>技能体系</h2></div>
+    <p>三层架构，共 25 个核心技能（v2.10.0）：</p>
+    <div class="grid-3">
+      <div class="card card-accent"><div class="card-title">协调层（3 个）</div><p><code>devflow-init</code> 初始化<br><code>devflow-phase-manager</code> 阶段管理<br><code>devflow-project-config</code> 配置管理</p></div>
+      <div class="card card-accent2"><div class="card-title c2">阶段执行层（6 个）</div><p>Step 0~5：<code>version-planning / requirements / design / coding / testing / operations</code> 各对应一个 <code>*-stage-execution</code></p></div>
+      <div class="card card-success"><div class="card-title c-success">参考规范层（16 个）</div><p><code>project-coding-conventions / code-static-quality-check / code-logic-review / project-document-templates / observability-standards / cicd-pipeline-management / code-version-backup-management / backend-coverage / prototype-coverage / api-contract-management / security-design-review / secure-coding-practices / performance-engineering / database-migration / container-deployment / project-document-management</code></p></div>
+    </div>
+
+    <h3 id="s6-1">6.1 调用方式</h3>
+    <p><strong>手动</strong>：输入 <code>/</code> 选择技能，或直接输入"开始版本规划"等自然语言</p>
+    <p><strong>自动编排</strong>：调用 <code>project-development-workflow</code>，Orchestrator 自动调用对应阶段的技能</p>
+  </section>
+
+  <!-- 7. 配置与维护 -->
+  <section class="section" id="s7">
+    <div class="section-header"><span class="section-num">7</span><h2>配置与维护</h2></div>
+
+    <h3 id="s7-1">7.1 Git 分支策略</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>策略</th><th>配置值</th><th>适用场景</th></tr></thead>
+      <tbody>
+        <tr><td>Git Flow</td><td><code>"git-flow"</code></td><td>有计划发布周期的中大型项目，默认推荐</td></tr>
+        <tr><td>GitHub Flow</td><td><code>"github-flow"</code></td><td>持续部署的小型项目或 SaaS</td></tr>
+        <tr><td>Trunk-Based</td><td><code>"trunk-based"</code></td><td>高频发布、强 CI/CD 的成熟团队</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="s7-2">7.2 技术债务管理</h3>
+    <ul>
+      <li><strong>全局债务总表</strong> — <code>DevFlow-技术债务总表.md</code>，15 字段标准格式，跨版本追踪</li>
+      <li><strong>老化升级</strong> — P3>2版本→P2, P2>2→P1, P1>2→P0</li>
+      <li><strong>还债配额</strong> — 每版本 ≥ 15%，连续 2 版 <15% 触发专项评审</li>
+      <li><strong>优先级</strong> — 安全(P0) > 架构(P1) > 测试(P2) > 代码整洁(P3)</li>
+      <li><strong>风险归集门禁</strong> — 6 个 L2 技能含风险归集检查章节，P1+ 自动流入债务总表</li>
+      <li><strong>债务增长率门禁</strong> — 新增 TODO ≤5 / 高复杂度函数 ≤3 / 重复率 ≤2%</li>
+    </ul>
+
+    <h3 id="s7-3">7.3 备份策略</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th>类型</th><th>频率</th><th>保留</th></tr></thead>
+      <tbody>
+        <tr><td>Git Mirror</td><td>Tag 创建时</td><td>永久</td></tr>
+        <tr><td>Bundle 快照</td><td>每周</td><td>最近 4 个</td></tr>
+        <tr><td>数据库 Dump</td><td>每天</td><td>90 天</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- 8. 文档规范 -->
+  <section class="section" id="s8">
+    <div class="section-header"><span class="section-num">8</span><h2>文档规范</h2></div>
+
+    <h3 id="s8-1">8.1 命名规则</h3>
+    <p>格式：<code>{项目名}-{文档类型}-v{版本号}.md</code></p>
+    <div class="table-wrap"><table>
+      <thead><tr><th>类型</th><th>前缀</th><th>路径</th></tr></thead>
+      <tbody>
+        <tr><td>版本规划</td><td>V-</td><td>doc/version/releases/v{版本号}/</td></tr>
+        <tr><td>需求分析</td><td>R-</td><td>doc/requirements/</td></tr>
+        <tr><td>架构设计</td><td>D-</td><td>doc/design/</td></tr>
+        <tr><td>开发编码</td><td>C-</td><td>doc/development/</td></tr>
+        <tr><td>测试验证</td><td>T-</td><td>doc/testing/</td></tr>
+        <tr><td>部署运维</td><td>O-</td><td>doc/release/</td></tr>
+        <tr><td>审计</td><td>—</td><td>doc/audit/</td></tr>
+      </tbody>
+    </table></div>
+
+    <h3 id="s8-2">8.2 产出物存在性验证</h3>
+    <p>每个阶段结束前必须通过 LS/Glob 列出目标目录验证所有产出文件实际存在。空输出（声称完成但文件不存在）不得通过。验证结果记录在阶段评审/审计文档中。</p>
+
+    <h3 id="s8-3">8.3 风险归集检查章节</h3>
+    <p>所有阶段文档的"输出要求"之后必须包含标准化的风险归集检查模板。未填写此章节的版本不得标记为"已发布"。包含 4 项检查：P1+ 风险归集状态、未归集风险 ID 及原因、归集日期、技术债务总表版本。</p>
+  </section>
+
+  <!-- 9. FAQ -->
+  <section class="section" id="s9">
+    <div class="section-header"><span class="section-num">9</span><h2>常见问题</h2></div>
+
+    <h3>Q1：安装后技能列表为空？</h3>
+    <p>检查技能目录 <code>%USERPROFILE%\.trae-cn\skills\</code> 是否有 .md 文件。重启 TRAE。如果还没有，执行 <code>.\update.ps1 -Action Sync</code> 强制同步。</p>
+
+    <h3>Q2：项目做了一半才引入 DevFlow？</h3>
+    <p>运行 <code>devflow-init</code>，自动扫描并推断当前阶段，从中间切入即可，不需要从头开始。</p>
+
+    <h3>Q3：需求变更后追溯链如何更新？</h3>
+    <p>修改需求文档 → 更新 RT-ID 描述 → 标注变更影响范围 → 重新评估受影响的 DT-ID/TD-ID → 必要时回退对应阶段 → 更新所有引用</p>
+
+    <h3>Q4：能跳过某些阶段只使用部分功能吗？</h3>
+    <p>可以。DevFlow 完全可插拔。例如只用编码阶段的质量检查，调用对应技能即可，不需要走完整流程。</p>
+
+    <h3>Q5：团队协作时 state.json 会有冲突吗？</h3>
+    <p>建议由 PM 或 Tech Lead 统一管理 state.json，其他成员只读。阶段切换通过 <code>devflow-phase-manager</code> 统一执行。</p>
+
+    <h3>Q6：安装时提示 PowerShell 执行策略受限？</h3>
+    <p><code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></p>
+
+    <h3>Q7：v2.10.0 相比旧版本有什么变化？</h3>
+    <p>6 笔技术债务全部偿还，新增文件结构一致性保障、风险归集门禁落地、模板从 9 补到 24 个、季度审计机制、首次性能基线数据。向后完全兼容 v2.9.x。</p>
+
+    <h3>Q8：devflow-config.json 的 skills 数组和 layers 有什么关系？</h3>
+    <p>devflow-config.json 是唯一权威配置源。skills 数组定义了 28 个技能的完整注册信息（名称、来源、层级、安装目标），layers 按层级分组供编排引用。两者必须一致，不一致由 validate-registry.ps1 检测。</p>
+
+    <h3>Q9：如何查看当前版本的变更统计？</h3>
+    <p>每个版本发布时生成 Release Note（<code>DevFlow-Release-Note-v{版本号}.md</code>），包含变更统计和兼容性说明。Changelog 汇总在 <code>doc/release/README.md</code>。</p>
+
+    <h3>Q10：CI/CD 流水线如何集成？</h3>
+    <p>Step 5 可参考 <code>cicd-pipeline-management</code> 技能定义的标准流水线（检出→构建→质量门禁→部署→验证）。质量门禁包括单元测试覆盖率、安全扫描和性能基准对比。</p>
+  </section>
+
+  <footer class="footer">
+    <p>DevFlow v2.10.0 · 可插拔软件开发工程规范框架 · 2026-07-24</p>
+    <p>完整文档可查看 <code>doc/</code> 目录，或调用各阶段技能获取详细指引</p>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  var sidebar = document.getElementById('sidebar');
+  var container = document.getElementById('tocLinks');
+  var headings = document.querySelectorAll('h2[id], h3[id]');
+  var html = '';
+  headings.forEach(function(h) {
+    var level = h.tagName === 'H2' ? 'h2' : 'h3';
+    html += '<a class="' + level + '" href="#' + h.id + '">' + h.textContent + '</a>';
+  });
+  container.innerHTML = html;
+
+  var sections = document.querySelectorAll('.section[id]');
+  window.addEventListener('scroll', function() {
+    var scrollPos = window.scrollY + 100;
+    var activeId = '';
+    sections.forEach(function(s) {
+      if (s.offsetTop <= scrollPos) activeId = s.id;
+    });
+    container.querySelectorAll('a').forEach(function(link) {
+      link.classList.remove('active');
+      if (link.getAttribute('href') === '#' + activeId) link.classList.add('active');
+    });
+  });
+})();
+
+document.getElementById('sidebar').addEventListener('click', function() {
+  if (window.innerWidth <= 900) this.classList.remove('open');
+});
+</script>
+
+</body>
+</html>

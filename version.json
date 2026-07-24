@@ -1,0 +1,9 @@
+{
+  "name": "DevFlow",
+  "version": "2.10.0",
+  "description": "DevFlow — 软件开发工程规范插件",
+  "repository": "http://192.168.0.14/jerry.yu/devflow.git",
+  "homepage": "http://192.168.0.14/jerry.yu/devflow",
+  "license": "MIT",
+  "author": "DevFlow Team"
+}

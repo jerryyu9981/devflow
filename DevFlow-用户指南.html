@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevFlow 用户指南 v2.10.0</title>
+  <style>
+    @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Regular.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
+    @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Bold.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
+    :root {
+      --bg: #0f172a; --bg2: #1e293b; --bg3: #334155;
+      --ink: #e2e8f0; --muted: #94a3b8; --rule: #475569;
+      --accent: #3b82f6; --accent2: #06b6d4; --accent-dim: rgba(59,130,246,0.15);
+      --success: #22c55e; --warning: #f59e0b;
+      --font: 'Noto Sans CJK SC','Microsoft YaHei','PingFang SC','WenQuanYi Micro Hei',sans-serif;
+      --font-mono: 'JetBrains Mono','Fira Code','Consolas',monospace;
+      --max: 860px; --radius: 10px;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; scroll-behavior: smooth; }
+    body {
+      font-family: var(--font); color: var(--ink); background: var(--bg);
+      line-height: 1.7; padding: 0; min-height: 100vh;
+    }
+    .page { max-width: var(--max); margin: 0 auto; padding: 1.5rem 1.5rem 3rem; }
+
+    /* Hero */
+    .hero { text-align: center; padding: 2.5rem 1rem 2rem; border-bottom: 1px solid var(--rule); margin-bottom: 2rem; }
+    .hero h1 { font-size: 2rem; color: #fff; margin-bottom: 0.3rem; }
+    .hero .sub { color: var(--muted); font-size: 1rem; }
+
+    /* Quick start bar */
+    .quick-bar {
+      display: flex; gap: 0.5rem; justify-content: center; flex-wrap: wrap;
+      background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 1rem 1.5rem; margin: -1.5rem 0 2rem;
+      font-size: 0.9rem;
+    }
+    .quick-bar a { color: var(--accent2); text-decoration: none; padding: 0.2rem 0.6rem; border-radius: 6px; }
+    .quick-bar a:hover { background: var(--accent-dim); color: var(--accent); }
+
+    /* Section */
+    .section { margin-bottom: 2.5rem; }
+    .section-header {
+      display: flex; align-items: center; gap: 0.6rem; margin-bottom: 1rem;
+      padding-bottom: 0.6rem; border-bottom: 2px solid var(--rule);
+    }
+    .section-num {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 30px; height: 30px; background: var(--accent); color: #fff;
+      border-radius: 6px; font-size: 0.8rem; font-weight: 700; flex-shrink: 0;
+    }
+    h2 { font-size: 1.3rem; color: #fff; }
+    h3 { font-size: 1.05rem; color: var(--accent2); margin: 1.2rem 0 0.6rem; padding-left: 0.6rem; border-left: 3px solid var(--accent2); }
+    p { margin-bottom: 0.7rem; }
+
+    /* Card */
+    .card { background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem 1.3rem; margin: 0.8rem 0 1.2rem; }
+    .card-accent { border-left: 4px solid var(--accent); }
+    .card-success { border-left: 4px solid var(--success); }
+    .card-warning { border-left: 4px solid var(--warning); background: rgba(245,158,11,0.06); }
+    .card-title { font-size: 0.8rem; font-weight: 700; color: var(--accent); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.03em; }
+    .card-title.c2 { color: var(--accent2); }
+    .card-title.c-success { color: var(--success); }
+    .card-title.c-warning { color: var(--warning); }
+
+    /* Code */
+    code {
+      font-family: var(--font-mono); font-size: 0.88em;
+      background: #0c1222; border: 1px solid var(--rule); border-radius: 5px;
+      padding: 0.15em 0.45em; color: var(--accent2);
+    }
+    pre {
+      background: #0c1222; border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 1rem 1.3rem; overflow-x: auto; margin: 0.8rem 0 1.2rem; line-height: 1.5;
+    }
+    pre code { background: none; border: none; padding: 0; color: var(--ink); font-size: 0.85rem; }
+
+    /* Steps */
+    .steps { list-style: none; margin: 0.5rem 0 1rem; }
+    .steps li {
+      counter-increment: step-counter; position: relative;
+      padding: 0.8rem 1rem 0.8rem 2.8rem; margin-bottom: 0.5rem;
+      background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius);
+    }
+    .steps { counter-reset: step-counter; }
+    .steps li::before {
+      content: counter(step-counter); position: absolute; left: 0.8rem; top: 0.85rem;
+      width: 24px; height: 24px; background: var(--accent); color: #fff;
+      border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      font-size: 0.75rem; font-weight: 700;
+    }
+
+    /* Grid */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; }
+    .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; }
+    .mini-card {
+      background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius);
+      padding: 0.8rem 1rem; text-align: center;
+    }
+    .mini-card .mc-title { font-size: 0.85rem; font-weight: 700; color: #fff; margin-bottom: 0.2rem; }
+    .mini-card .mc-desc { font-size: 0.75rem; color: var(--muted); }
+
+    /* Table */
+    .table-wrap { overflow-x: auto; margin: 0.8rem 0 1.2rem; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    th { background: var(--bg3); color: #fff; padding: 0.5rem 0.8rem; text-align: left; font-weight: 600; font-size: 0.82rem; }
+    td { padding: 0.45rem 0.8rem; border-bottom: 1px solid var(--rule); color: var(--ink); }
+    tr:hover td { background: rgba(59,130,246,0.05); }
+
+    /* Tag */
+    .tag { display: inline-block; padding: 0.1rem 0.5rem; border-radius: 999px; font-size: 0.72rem; font-weight: 600; }
+    .tag-blue { background: var(--accent-dim); color: var(--accent); }
+    .tag-cyan { background: rgba(6,182,212,0.12); color: var(--accent2); }
+    .tag-green { background: rgba(34,197,94,0.15); color: var(--success); }
+
+    /* Footer */
+    .footer { text-align: center; padding: 2rem 0 0.5rem; border-top: 1px solid var(--rule); margin-top: 2rem; color: var(--muted); font-size: 0.82rem; }
+
+    /* Phase flow */
+    .flow-chart {
+      display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.3rem;
+      padding: 1rem; margin: 0.8rem 0; background: var(--bg2); border: 1px solid var(--rule); border-radius: var(--radius);
+    }
+    .flow-step { padding: 0.3rem 0.7rem; background: var(--bg3); border-radius: 6px; font-size: 0.82rem; color: var(--ink); white-space: nowrap; }
+    .flow-step.s0 { border: 1px solid var(--accent); color: var(--accent); }
+    .flow-step.s1 { border: 1px solid #8b5cf6; color: #a78bfa; }
+    .flow-step.s2 { border: 1px solid var(--accent2); color: var(--accent2); }
+    .flow-step.s3 { border: 1px solid var(--success); color: var(--success); }
+    .flow-step.s4 { border: 1px solid var(--warning); color: var(--warning); }
+    .flow-step.s5 { border: 1px solid #ec4899; color: #f472b6; }
+    .flow-arrow { color: var(--muted); font-size: 0.9rem; }
+
+    @media (max-width: 640px) {
+      .hero h1 { font-size: 1.5rem; }
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .flow-chart { flex-direction: column; }
+      .flow-arrow { transform: rotate(90deg); }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <header class="hero">
+    <h1>DevFlow 用户指南</h1>
+    <p class="sub">可插拔软件开发工程规范框架 · v2.10.0 · 2026-07-24</p>
+  </header>
+
+  <nav class="quick-bar">
+    <a href="#s1">什么是 DevFlow</a>
+    <a href="#s2">快速安装</a>
+    <a href="#s3">第一个项目</a>
+    <a href="#s4">6 阶段速览</a>
+    <a href="#s5">FAQ</a>
+  </nav>
+
+  <!-- ========== 1. 什么是 DevFlow ========== -->
+  <section class="section" id="s1">
+    <div class="section-header"><span class="section-num">1</span><h2>什么是 DevFlow</h2></div>
+    <p>DevFlow 是一套<strong>软件工程规范插件</strong>，专为 AI 辅助编程设计。它把软件开发分成 6 个标准阶段，每个阶段有明确的输入、输出和检查门禁，确保代码质量可控、每行代码都可追溯到需求。</p>
+
+    <div class="card card-accent">
+      <div class="card-title">一句话</div>
+      <p>把你的 AI 编程从"随性聊天"变成"标准化工程流水线"——需求→设计→编码→测试→上线，每一步都有规范、有记录、有检查。</p>
+    </div>
+
+    <h3>核心机制</h3>
+    <div class="grid-3">
+      <div class="mini-card"><div class="mc-title">6 阶段管控</div><div class="mc-desc">规划→需求→设计→编码→测试→部署，步步有门禁</div></div>
+      <div class="mini-card"><div class="mc-title">追溯链</div><div class="mc-desc">每个需求有编号(RT-ID)，设计引用需求(DT-ID)，编码引用设计(TD-ID)，形成完整链条</div></div>
+      <div class="mini-card"><div class="mc-title">审计门禁</div><div class="mc-desc">每阶段结束必须审计，不达标就返工，质量逐步累积</div></div>
+    </div>
+
+    <h3>兼容平台</h3>
+    <p>支持 TRAE Work / Claude Code / Cursor / Codex CLI。Windows/macOS/Linux 均可使用。</p>
+  </section>
+
+  <!-- ========== 2. 快速安装 ========== -->
+  <section class="section" id="s2">
+    <div class="section-header"><span class="section-num">2</span><h2>快速安装（3 步，约 2 分钟）</h2></div>
+
+    <div class="card card-warning">
+      <div class="card-title c-warning">前提</div>
+      <p>你需要：Windows 10+（或 macOS/Linux）+ PowerShell 5.1+（或 Bash 4+）+ Git（可选但推荐）。</p>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <strong>获取插件</strong><br>
+        通过 Git 克隆或解压获取 <code>devflow-plugin</code> 文件夹。
+        <pre><code>git clone &lt;仓库地址&gt; devflow-plugin
+cd devflow-plugin</code></pre>
+      </li>
+      <li>
+        <strong>运行安装脚本</strong><br>
+        Windows：<code>.\install.ps1</code>（或用管理员身份运行 <code>install.bat</code>）<br>
+        macOS/Linux：<code>chmod +x install.sh && ./install.sh</code>
+        <br>脚本会自动把技能安装到 <code>~/.trae-cn/skills/</code> 并创建项目配置。
+      </li>
+      <li>
+        <strong>重启 TRAE 即可使用</strong><br>
+        重启 TRAE IDE / Work，在对话框中输入 <code>/</code> 应该能看到 <code>devflow-init</code> 等技能。
+        如果看不到，检查技能目录是否正确。
+      </li>
+    </ol>
+
+    <div class="card card-success">
+      <div class="card-title c-success">验证安装</div>
+      <p>在 TRAE 对话框中输入"初始化 DevFlow"，若能正常返回初始化报告，说明安装成功。</p>
+    </div>
+  </section>
+
+  <!-- ========== 3. 第一个项目 ========== -->
+  <section class="section" id="s3">
+    <div class="section-header"><span class="section-num">3</span><h2>你的第一个 DevFlow 项目</h2></div>
+
+    <p>安装完成后，只需要记住一句话：<strong>遇到问题先调对应阶段的技能</strong>。DevFlow 的 6 个阶段各有一个"阶段执行技能"，直接告诉 AI 你要做什么就行。</p>
+
+    <h3>新项目启动三步曲</h3>
+
+    <div class="card card-accent">
+      <div class="card-title">Step 1：初始化</div>
+      <p>在 TRAE 对话框中输入：<code>初始化 DevFlow</code><br>
+      devflow-init 技能会自动扫描项目目录、推断当前阶段、生成配置文件和状态文件。</p>
+    </div>
+
+    <div class="card card-accent2">
+      <div class="card-title c2">Step 2：开始版本规划</div>
+      <p>输入：<code>开始版本规划</code> 或调用 <code>version-planning-stage-execution</code><br>
+      AI 会引导你完成：定版本目标 → 列需求 → 排优先级 → 拆 Phase → 评审。</p>
+    </div>
+
+    <div class="card card-success">
+      <div class="card-title c-success">Step 3：按阶段推进</div>
+      <p>版本规划通过后，AI 会自动进入需求分析阶段。依次推进即可：</p>
+      <div class="flow-chart">
+        <span class="flow-step s0">Step 0 规划</span><span class="flow-arrow">→</span>
+        <span class="flow-step s1">Step 1 需求</span><span class="flow-arrow">→</span>
+        <span class="flow-step s2">Step 2 设计</span><span class="flow-arrow">→</span>
+        <span class="flow-step s3">Step 3 编码</span><span class="flow-arrow">→</span>
+        <span class="flow-step s4">Step 4 测试</span><span class="flow-arrow">→</span>
+        <span class="flow-step s5">Step 5 上线</span>
+      </div>
+    </div>
+
+    <h3>常用技能速查</h3>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>技能名称</th><th>用途</th><th>在对话框中输入</th></tr></thead>
+        <tbody>
+          <tr><td><code>devflow-init</code></td><td>初始化项目、扫描状态</td><td>"初始化 DevFlow"</td></tr>
+          <tr><td><code>version-planning-stage-execution</code></td><td>Step 0 版本规划</td><td>"开始版本规划"</td></tr>
+          <tr><td><code>requirements-stage-execution</code></td><td>Step 1 需求分析</td><td>"开始需求分析"</td></tr>
+          <tr><td><code>design-stage-execution</code></td><td>Step 2 架构设计</td><td>"开始设计"</td></tr>
+          <tr><td><code>coding-stage-execution</code></td><td>Step 3 编码实现</td><td>"开始编码"</td></tr>
+          <tr><td><code>testing-stage-execution</code></td><td>Step 4 测试验证</td><td>"开始测试"</td></tr>
+          <tr><td><code>operations-stage-execution</code></td><td>Step 5 部署上线</td><td>"开始部署"</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card card-warning">
+      <div class="card-title c-warning">记住</div>
+      <p>你不需要记忆任何命令。在每个阶段的末尾，AI 都会告诉你下一阶段怎么做。只管按照 AI 的引导一步一步走就行。</p>
+    </div>
+  </section>
+
+  <!-- ========== 4. 6 阶段速览 ========== -->
+  <section class="section" id="s4">
+    <div class="section-header"><span class="section-num">4</span><h2>6 阶段开发流程速览</h2></div>
+
+    <div class="flow-chart">
+      <span class="flow-step s0">Step 0 版本规划</span><span class="flow-arrow">→</span>
+      <span class="flow-step s1">Step 1 需求分析</span><span class="flow-arrow">→</span>
+      <span class="flow-step s2">Step 2 架构设计</span><span class="flow-arrow">→</span>
+      <span class="flow-step s3">Step 3 编码实现</span><span class="flow-arrow">→</span>
+      <span class="flow-step s4">Step 4 测试验证</span><span class="flow-arrow">→</span>
+      <span class="flow-step s5">Step 5 部署运维</span>
+    </div>
+
+    <p>每个阶段的核心产出和门禁如下：</p>
+
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>阶段</th><th>做什么</th><th>核心产出</th><th>门禁</th></tr></thead>
+        <tbody>
+          <tr><td><span class="tag tag-blue">Step 0</span></td><td>确定版本目标、范围、优先级</td><td>规划文档、Backlog、Phase 计划</td><td>规划评审通过</td></tr>
+          <tr><td><span class="tag tag-cyan">Step 1</span></td><td>收集需求、编写用户故事、建追溯矩阵</td><td>需求文档、RT-ID 矩阵</td><td>需求评审通过</td></tr>
+          <tr><td><span class="tag tag-blue">Step 2</span></td><td>系统架构、API、数据库、UI 设计</td><td>设计文档、DT-ID 矩阵</td><td>设计评审 + 覆盖率 ≥ 95%</td></tr>
+          <tr><td><span class="tag tag-green">Step 3</span></td><td>TDD 编码、静态检查、逻辑审查</td><td>代码、DevLogReport、TD-ID</td><td>三层质量门禁全通过</td></tr>
+          <tr><td><span class="tag tag-blue">Step 4</span></td><td>API/集成/E2E/回归/覆盖率测试</td><td>测试报告、TT-ID 矩阵</td><td>需求覆盖率 100% + 零 P0/P1</td></tr>
+          <tr><td><span class="tag tag-blue">Step 5</span></td><td>发布、部署、验证、回滚预案</td><td>发布计划、上线报告、审计报告</td><td>全流程闭环审计通过</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card card-accent">
+      <div class="card-title">追溯链 ID 速记</div>
+      <div class="grid-3">
+        <div class="mini-card"><div class="mc-title">RT-ID</div><div class="mc-desc">需求追溯编号 Step 1</div></div>
+        <div class="mini-card"><div class="mc-title">DT-ID</div><div class="mc-desc">设计追溯编号 Step 2</div></div>
+        <div class="mini-card"><div class="mc-title">TD-ID</div><div class="mc-desc">开发追溯编号 Step 3</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== 5. FAQ ========== -->
+  <section class="section" id="s5">
+    <div class="section-header"><span class="section-num">5</span><h2>常见问题</h2></div>
+
+    <h3>Q1：安装后技能列表为空，怎么办？</h3>
+    <p>检查技能目录：<code>%USERPROFILE%\.trae-cn\skills\</code>（Windows）或 <code>~/.trae-cn/skills/</code>（macOS/Linux），确认是否有 .md 文件。重启 TRAE 后应该能看到。如果还没有，执行 <code>.\update.ps1 -Action Sync</code> 强制同步。</p>
+
+    <h3>Q2：项目做了一半才引入 DevFlow，需要从头开始吗？</h3>
+    <p>不需要。运行 <code>devflow-init</code> 技能，它会自动扫描项目状态并推断当前所处阶段，从当前阶段切入即可。</p>
+
+    <h3>Q3：需求变了怎么办？</h3>
+    <p>修改需求文档，更新 RT-ID 描述，走正式变更流程。AI 会自动评估影响范围并更新追溯链。</p>
+
+    <h3>Q4：能不能跳过某些阶段只用部分功能？</h3>
+    <p>可以。DevFlow 完全可插拔。例如你只想用编码阶段的质量检查（静态检查+逻辑审查），直接调用对应技能就行，不需要走完整流程。</p>
+
+    <h3>Q5：v2.10.0 相比旧版本有什么变化？</h3>
+    <p>v2.10.0 是质量保障完善版本——6 笔技术债务全部偿还，新增文件结构一致性保障、风险归集门禁落地、模板从 9 补到 24 个、季度审计机制、首次性能基线数据。向后完全兼容 v2.9.x。</p>
+
+    <h3>Q6：如何升级到新版本？</h3>
+    <p>获取新版插件文件夹，运行 <code>.\update.ps1 -Action Sync</code> 即可。脚本会自动备份旧版配置后安装新版。</p>
+
+    <h3>Q7：如何卸载？</h3>
+    <p>删除项目中的 <code>.devflow/</code> 目录，再删除全局技能目录中所有 DevFlow 相关技能文件。</p>
+  </section>
+
+  <footer class="footer">
+    <p>DevFlow v2.10.0 · 可插拔软件开发工程规范框架 · 2026-07-24</p>
+    <p>完整文档可查看项目中的 <code>doc/</code> 目录，或调用各阶段技能获取详细指引。</p>
+  </footer>
+
+</div>
+</body>
+</html>
