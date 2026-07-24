@@ -1,0 +1,18 @@
+{
+    "backup":  {
+                   "type":  "git-mirror",
+                   "schedule":  {
+                                    "dbDump":  "daily",
+                                    "bundleRetention":  4,
+                                    "bundle":  "weekly",
+                                    "dbRetention":  90
+                                }
+               },
+    "branchStrategy":  "git-flow",
+    "project":  "devflow-plugin-v2.3.1",
+    "devflowVersion":  "2.3.2",
+    "remote":  {
+                   "backup":  "",
+                   "origin":  "http://192.168.0.14/jerry.yu/devflow.git"
+               }
+}

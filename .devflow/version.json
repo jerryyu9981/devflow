@@ -1,0 +1,55 @@
+{
+  "name": "DevFlow",
+  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、26个核心技能、24个文档模板和完整的追溯链。",
+  "version": "2.8.5",
+  "minTraeVersion": "1.0.0",
+  "compatibleHosts": [
+    "TRAE",
+    "Claude Code",
+    "Cursor",
+    "Codex CLI"
+  ],
+  "layers": {
+    "L1": [
+      "project-development-workflow",
+      "project-document-management",
+      "project-role-management"
+    ],
+    "L2": [
+      "version-planning-stage-execution",
+      "requirements-stage-execution",
+      "design-stage-execution",
+      "coding-stage-execution",
+      "testing-stage-execution",
+      "operations-stage-execution"
+    ],
+    "L3": [
+      "project-coding-conventions",
+      "code-static-quality-check",
+      "code-logic-review",
+      "cicd-pipeline-management",
+      "observability-standards",
+      "project-document-templates",
+      "code-version-backup-management",
+      "skill-md-writing-standards",
+      "prototype-coverage",
+      "backend-coverage",
+      "api-contract-management",
+      "security-design-review",
+      "secure-coding-practices",
+      "container-deployment"
+    ],
+    "orchestrator": [
+      "devflow-init",
+      "devflow-phase-manager",
+      "devflow-project-config"
+    ]
+  },
+  "templates": 24,
+  "totalLines": 7800,
+  "totalBytes": 480000,
+  "license": "MIT",
+  "repository": "",
+  "homepage": "",
+  "author": "DevFlow Team"
+}
