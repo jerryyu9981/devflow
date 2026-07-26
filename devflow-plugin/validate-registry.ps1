@@ -1,53 +1,75 @@
-﻿# DevFlow Skill Registry Validation Script
-# Validates devflow-config.json skills array completeness
-# Usage: .\validate-registry.ps1
+<#
+.SYNOPSIS
+    DevFlow 技能引用注册验证脚本
+.DESCRIPTION
+    扫描所有技能文件中的引用，与 devflow-config.json 中的注册清单对比，
+    输出未注册的引用清单。零未注册引用为通过标准。
+.EXAMPLE
+    .\validate-registry.ps1
+#>
 
-param([switch]$Quiet)
+$ErrorActionPreference = "Continue"
 
-$ConfigPath = Join-Path $PSScriptRoot "devflow-config.json"
+# 配置路径
+$ScriptDir = $PSScriptRoot
+$PluginSkillsDir = Join-Path $ScriptDir "skills"
+$ConfigPath = Join-Path $ScriptDir "devflow-config.json"
 
 if (-not (Test-Path $ConfigPath)) {
-    Write-Host "[ERR] devflow-config.json not found" -ForegroundColor Red
+    Write-Host "[ERROR] devflow-config.json not found at $ConfigPath" -ForegroundColor Red
     exit 1
 }
 
+# 读取注册清单
 $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
-$errors = @()
-
-# 1. Check skillCount matches actual array length
-if ($config.skills.Count -ne $config.skillCount) {
-    $errors += "skillCount mismatch: declared=$($config.skillCount), actual=$($config.skills.Count)"
+$registeredSkills = @{}
+foreach ($s in $config.skills) {
+    $registeredSkills[$s.name] = $s.source
 }
 
-# 2. Check each skill has required fields
-foreach ($skill in $config.skills) {
-    if (-not $skill.name) { $errors += "Skill entry missing 'name'" }
-    if (-not $skill.source) { $errors += "Skill '$($skill.name)' missing 'source'" }
-    if (-not $skill.category) { $errors += "Skill '$($skill.name)' missing 'category'" }
+Write-Host "=== DevFlow 技能引用注册验证 ===" -ForegroundColor Cyan
+Write-Host "注册技能数: $($registeredSkills.Count)"
+
+$unregisteredRefs = @{}
+$totalRefs = 0
+
+# 扫描 L2 和 L3 技能文件
+$skillFiles = Get-ChildItem -Path $PluginSkillsDir -Recurse -Filter "*.md"
+foreach ($file in $skillFiles) {
+    $content = Get-Content $file.FullName -Encoding UTF8
+    $relativePath = $file.FullName.Substring($ScriptDir.Length + 1)
+    
+    foreach ($line in $content) {
+        # 匹配技能引用模式：反引号中的技能名 + .md 或 SKILL.md
+        $matches = [regex]::Matches($line, '`([a-z][a-z0-9-]+)`')
+        foreach ($m in $matches) {
+            $skillName = $m.Groups[1].Value
+            $totalRefs++
+            
+            if (-not $registeredSkills.ContainsKey($skillName)) {
+                if (-not $unregisteredRefs.ContainsKey($skillName)) {
+                    $unregisteredRefs[$skillName] = @()
+                }
+                $unregisteredRefs[$skillName] += "$relativePath`: $line"
+            }
+        }
+    }
 }
 
-# 3. Check layers consistency
-$layerNames = @()
-foreach ($layer in $config.layers.PSObject.Properties) {
-    $layerNames += $layer.Value
-}
-$allLayerNames = $layerNames | ForEach-Object { $_ } | Sort-Object -Unique
+Write-Host "`n总引用数: $totalRefs"
+Write-Host "未注册引用数: $($unregisteredRefs.Count)"
 
-$registryNames = $config.skills.name | Sort-Object -Unique
-$missingFromRegistry = Compare-Object $allLayerNames $registryNames | Where-Object { $_.SideIndicator -eq '<=' } | ForEach-Object { $_.InputObject }
-$extraInRegistry = Compare-Object $allLayerNames $registryNames | Where-Object { $_.SideIndicator -eq '=>' } | ForEach-Object { $_.InputObject }
-
-if ($missingFromRegistry) { $errors += "Skills in layers but missing from registry: $($missingFromRegistry -join ', ')" }
-if ($extraInRegistry) { $errors += "Skills in registry but missing from layers: $($extraInRegistry -join ', ')" }
-
-# Summary
-if ($errors.Count -eq 0) {
-    if (-not $Quiet) { Write-Host "[OK] Registry validation passed: $($config.skillCount) skills, 0 errors" -ForegroundColor Green }
+if ($unregisteredRefs.Count -eq 0) {
+    Write-Host "`n✅ 验证通过！所有引用均已注册。" -ForegroundColor Green
     exit 0
 } else {
-    if (-not $Quiet) {
-        Write-Host "[FAIL] Registry validation failed: $($errors.Count) error(s)" -ForegroundColor Red
-        foreach ($err in $errors) { Write-Host "  - $err" -ForegroundColor Yellow }
+    Write-Host "`n❌ 未注册引用清单:" -ForegroundColor Yellow
+    foreach ($key in ($unregisteredRefs.Keys | Sort-Object)) {
+        Write-Host "  `"$key`"" -ForegroundColor Yellow
+        foreach ($ref in $unregisteredRefs[$key]) {
+            Write-Host "    - $ref" -ForegroundColor DarkGray
+        }
     }
+    Write-Host "`n请将以上技能引用注册到 devflow-config.json 的 skills 数组中。" -ForegroundColor Yellow
     exit 1
 }

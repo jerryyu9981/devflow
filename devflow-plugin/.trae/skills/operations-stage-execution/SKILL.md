@@ -305,7 +305,7 @@ Step 5 可完成的最低条件：
 | 步骤 | 活动 |
 |------|------|
 | 5.9 运维移交 | 运维文档归档 |
-| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 lastRelease 字段（version + date）** |
+| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 lastRelease 字段（version + date）**；**调用 audit-agent --version v{version} 自动生成全流程闭环审计报告** |
 | 5.11 运维审计移交 | 全流程闭环审计，含追溯链闭环检查 |
 
 ## L3 部署运维速查

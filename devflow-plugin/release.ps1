@@ -63,6 +63,25 @@ if (Test-Path $configJsonPath) {
     Write-Warn "Step 2/5: devflow-config.json not found at $configJsonPath, skipping consistency check"
 }
 
+# --- Step 2b: 同步 project-config.json ---
+Write-Info "Step 2b/5: Syncing .devflow/project-config.json..."
+$projectConfigPath = Join-Path $PSScriptRoot "..\.devflow\project-config.json"
+if (Test-Path $projectConfigPath) {
+    try {
+        $projectConfig = Get-Content $projectConfigPath -Raw | ConvertFrom-Json
+        $projectConfig.project.version = $Version
+        $projectConfig.project.lastRelease.version = $Version
+        $projectConfig.project.lastRelease.date = (Get-Date -Format "yyyy-MM-dd")
+        $projectConfig._meta.lastUpdated = (Get-Date -Format "yyyy-MM-dd")
+        $projectConfig | ConvertTo-Json -Depth 10 | Set-Content $projectConfigPath -Encoding UTF8
+        Write-Info "Step 2b/5: project-config.json synced (version=$Version, lastRelease=$Version)"
+    } catch {
+        Write-Warn "Step 2b/5: Failed to update project-config.json: $_ (non-blocking)"
+    }
+} else {
+    Write-Warn "Step 2b/5: .devflow/project-config.json not found, skipping"
+}
+
 # --- Step 3: Git Tag 创建 ---
 Write-Info "Step 3/5: Git tag creation..."
 $tagResult = git tag -l "$Version" 2>&1

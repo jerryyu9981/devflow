@@ -3,11 +3,11 @@
     "sourceOfTruth": true,
     "description": "本文件是 DevFlow 插件的唯一权威配置源。所有技能、脚本、文档中的版本号、技能清单、元数据均以此文件为准。修改时先更新此文件，再同步至所有引用位置。",
     "schemaVersion": "1.0.0",
-    "lastUpdated": "2026-07-24"
+    "lastUpdated": "2026-07-27"
   },
   "name": "DevFlow",
-  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、28个核心技能、24个文档模板和完整的追溯链。",
-  "devflowVersion": "2.10.0",
+  "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、29个核心技能、24个文档模板和完整的追溯链。",
+  "devflowVersion": "2.11.0",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",
@@ -50,7 +50,8 @@
       "secure-coding-practices",
       "container-deployment",
       "performance-engineering",
-      "database-migration"
+      "database-migration",
+      "audit-agent"
     ],
     "orchestrator": [
       "devflow-init",
@@ -58,7 +59,7 @@
       "devflow-project-config"
     ]
   },
-  "skillCount": 28,
+  "skillCount": 29,
   "skills": [
     { "name": "devflow-init",                    "source": "devflow-init/SKILL.md",                     "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
     { "name": "devflow-phase-manager",           "source": "devflow-phase-manager/SKILL.md",            "category": "orchestrator", "required": true, "destAs": "SKILL.md" },
@@ -87,15 +88,16 @@
     { "name": "secure-coding-practices",         "source": "skills/L3/secure-coding-practices.md",      "category": "L3",           "required": true, "destAs": "SKILL.md" },
     { "name": "container-deployment",            "source": "skills/L3/container-deployment.md",         "category": "L3",           "required": true, "destAs": "SKILL.md" },
     { "name": "performance-engineering",         "source": "skills/L3/performance-engineering.md",      "category": "L3",           "required": true, "destAs": "SKILL.md" },
-    { "name": "database-migration",              "source": "skills/L3/database-migration.md",           "category": "L3",           "required": true, "destAs": "SKILL.md" }
+    { "name": "database-migration",              "source": "skills/L3/database-migration.md",           "category": "L3",           "required": true, "destAs": "SKILL.md" },
+    { "name": "audit-agent",                     "source": "skills/L3/audit-agent.md",                  "category": "L3",           "required": true, "destAs": "SKILL.md" }
   ],
   "templates": 24,
   "statistics": {
-    "totalSkills": 28,
+    "totalSkills": 29,
     "orchestratorSkills": 3,
     "L1Skills": 3,
     "L2Skills": 6,
-    "L3Skills": 16,
+    "L3Skills": 17,
     "totalFiles": 37,
     "totalLines": 7800,
     "totalBytes": 480000

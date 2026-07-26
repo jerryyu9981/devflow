@@ -244,7 +244,7 @@ Step 5 必须交付以下发布文档：
 - [ ] Tag 存在性验证 — 验证命令：`git tag -l v{版本号}` → 输出匹配
 - [ ] 远程仓库同步验证 — 验证命令：`git ls-remote origin refs/tags/v{版本号}` → 输出匹配
 - [ ] 备份仓库同步验证 — 验证命令：`git ls-remote {backup_url} refs/tags/v{版本号}` → 输出匹配
-- [ ] 版本号一致性验证 — 验证命令：对比 version.json / devflow-config.json / .devflow/project-config.json 三处版本号
+- [ ] 版本号一致性验证 — 验证命令：对比 version.json / devflow-config.json / .devflow/project-config.json（project.version + lastRelease）三处版本号
 - [ ] Release Note 已生成 — 验证命令：`Test-Path doc/release/DevFlow-Release-Note-v{版本号}.md`
 - [ ] Changelog 已更新 — 验证命令：grep README.md 中最新版本行
 - [ ] **用户指南已更新** — 验证命令：grep DevFlow-用户指南.html 中版本号已更新至当前版本
@@ -332,7 +332,7 @@ Step 5 可完成的最低条件：
 | 步骤 | 活动 |
 |------|------|
 | 5.9 运维移交 | 运维文档归档 |
-| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 lastRelease 字段（version + date）** |
+| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 project.version 和 lastRelease 字段**；**调用 audit-agent --version v{version} 自动生成全流程闭环审计报告（聚合 doc/audit/review/ 中各阶段审计报告）** |
 | 5.11 运维审计移交 | 全流程闭环审计，含追溯链闭环检查 |
 
 ## L3 部署运维速查

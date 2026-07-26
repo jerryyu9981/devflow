@@ -1,29 +1,26 @@
 {
   "project": "DevFlow",
-  "devflowVersion": "2.10.0",
-  "currentPhase": "released",
-    "completedPhases": [
+  "devflowVersion": "2.12.0",
+  "currentPhase": "step_5_operations",
+  "completedPhases": [
     "step_0_planning",
     "step_1_requirements",
-    "step_2_design",
-    "step_3_coding",
-    "step_4_testing",
-    "step_5_operations"
+    "step_2_design"
   ],
   "versionCheck": {
-    "lastCheck": "2026-07-26",
-    "installedDevflowVersion": "2.10.0",
-    "recordedDevflowVersion": "2.9.1",
-    "result": "installed_newer",
-    "action": "auto_updated"
+    "lastCheck": "2026-07-27",
+    "installedDevflowVersion": "2.11.0",
+    "recordedDevflowVersion": "2.11.0",
+    "result": "consistent",
+    "action": "no_action"
   },
   "currentDocuments": {
-    "step_0": "doc/version/releases/ (16个版本目录, v2.6.0~v2.10.2) + doc/version/global/ + v2.10.2 版本规划已完成",
-    "step_1": "doc/requirements/ (开发需求文档v2.10.2+追溯矩阵+评审记录+基线及设计移交+需求来源与干系人) + doc/audit/assessment/ (需求评估报告v2.10.2)",
-    "step_2": "doc/design/ (系统架构设计文档v2.10.2+设计评审记录) + doc/audit/comprehensive/ (需求架构对比审计报告v2.10.2)",
-    "step_3": "doc/development/ (DevLogReport+开发审计移交+TD-ID追溯矩阵 v2.10.2)",
-    "step_4": "doc/testing/ (测试报告v2.10.2) + doc/audit/verification/ (测试回溯对比审计报告v2.10.2)",
-    "step_5": "doc/release/ (Release Note+Changelog v2.10.2) + doc/audit/comprehensive/ (全流程闭环审计报告v2.10.2) + 三远程推送完成"
+    "step_0": "doc/version/releases/v2.12.0/ (4份文档) + doc/version/global/ (债务总表v2.4)",
+    "step_1": "doc/requirements/ (开发需求文档v2.12.0+追溯矩阵+评审记录+基线及设计移交+需求来源与干系人) + doc/audit/assessment/ (需求评估报告v2.12.0)",
+    "step_2": "doc/design/ (系统架构设计文档v2.12.0+Agent架构设计文档v2.12.0+设计评审记录v2.12.0+非功能设计说明v2.12.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.12.0)",
+    "step_3": "doc/development/ (DevLogReport+开发审计移交+TD-ID追溯矩阵 v2.12.0)",
+    "step_4": "doc/testing/ (测试报告v2.12.0) + doc/audit/verification/ (测试回溯对比审计报告v2.12.0)",
+    "step_5": "doc/release/ (Release Note+Changelog v2.12.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.12.0) + doc/audit/review/ (阶段审计报告 v2.12.0) + 三远程推送完成"
   },
   "auditResults": {
     "step_0": "passed",
