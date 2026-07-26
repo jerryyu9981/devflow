@@ -189,8 +189,9 @@ Step 5 部署与运维
 ### 发布交付物门禁
 
 Step 5 必须交付以下发布文档：
-1. `DevFlow-Release-Note-v{版本号}.md` — 单版本发布说明
-2. `doc/release/README.md` — Release Note 汇总页（Changelog）更新
+1. `{项目名}-Release-Note-v{版本号}.md` — 单版本发布说明
+2. `{项目名}-Release-Note-All.md` — Release Note 汇总页（Changelog）
+3. **`DevFlow-用户指南.html` 和 `DevFlow-用户手册.html`** — 项目根目录，版本号更新至最新，内容与发布版本同步
 
 未生成上述文档的版本不得标记为"已发布"。
 
@@ -243,9 +244,12 @@ Step 5 必须交付以下发布文档：
 - [ ] Tag 存在性验证 — 验证命令：`git tag -l v{版本号}` → 输出匹配
 - [ ] 远程仓库同步验证 — 验证命令：`git ls-remote origin refs/tags/v{版本号}` → 输出匹配
 - [ ] 备份仓库同步验证 — 验证命令：`git ls-remote {backup_url} refs/tags/v{版本号}` → 输出匹配
-- [ ] 版本号一致性验证 — 验证命令：对比 version.json / devflow-config.json / .devflow/config.json 三处版本号
+- [ ] 版本号一致性验证 — 验证命令：对比 version.json / devflow-config.json / .devflow/project-config.json 三处版本号
 - [ ] Release Note 已生成 — 验证命令：`Test-Path doc/release/DevFlow-Release-Note-v{版本号}.md`
 - [ ] Changelog 已更新 — 验证命令：grep README.md 中最新版本行
+- [ ] **用户指南已更新** — 验证命令：grep DevFlow-用户指南.html 中版本号已更新至当前版本
+- [ ] **用户手册已更新** — 验证命令：grep DevFlow-用户手册.html 中版本号已更新至当前版本
+- [ ] **候选需求池状态已同步** — 验证方式：检查候选需求池中已纳入/已延期条目与实际一致
 
 ### 发布后证据审计（5.11b）
 
@@ -258,10 +262,10 @@ Step 5 必须交付以下发布文档：
 | 项目 | 规则 |
 |------|------|
 | 审计时机 | 运维审计移交前必须执行 |
-| 抽查数量 | 从 Release Checklist 的 11 项中随机抽取 3 项（发布前 1 项、发布时 1 项、发布后 1 项） |
+| 抽查数量 | 从 Release Checklist 的 14 项中随机抽取 3 项（发布前 1 项、发布时 1 项、发布后 1 项） |
 | 审计方式 | 独立重新执行被抽中项的验证命令，对比输出是否与原始记录一致 |
 | 通过标准 | 3 项抽查 100% 复现通过（结果一致或差异有合理解释） |
-| 失败处置 | 任一抽查项无法复现 → 升级为 P0 问题，全部 11 项加倍复核 |
+| 失败处置 | 任一抽查项无法复现 → 升级为 P0 问题，全部 14 项加倍复核 |
 | 造假处置 | 发现编造证据（声称已执行但实际未执行）→ 发布结论降级为"不通过"，回退 Step 5 重新执行所有检查项 |
 
 **审计产出**：全流程闭环审计报告的 Release Checklist 表格中，每项追加"验证命令输出"列和"审计复验结果"列
@@ -328,7 +332,7 @@ Step 5 可完成的最低条件：
 | 步骤 | 活动 |
 |------|------|
 | 5.9 运维移交 | 运维文档归档 |
-| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致** |
+| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 lastRelease 字段（version + date）** |
 | 5.11 运维审计移交 | 全流程闭环审计，含追溯链闭环检查 |
 
 ## L3 部署运维速查

@@ -1,13 +1,13 @@
 ---
 name: devflow-project-config
-description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json，管理项目级设置（分支策略、备份配置、远程仓库）。被 devflow-init 和 setup 脚本调用。"
+description: "DevFlow 项目配置管理。生成和维护 .devflow/project-config.json，管理项目级设置（分支策略、备份配置、远程仓库）。被 devflow-init 和 setup 脚本调用。"
 ---
 
 # DevFlow 项目配置（devflow-project-config）
 
 ## 定位
 
-本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
+本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/project-config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
 
 > **版本说明**：本技能生成的 `config.json` 中的 `projectVersion` 是项目当前开发版本号，由初始化时自动读取。插件自身版本号见插件根目录 `version.json`。
 
@@ -34,33 +34,23 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 ```json
 {
-  "project": "项目名称",
-  "projectVersion": "",
-  "branchStrategy": "git-flow",
-  "remote": {
-    "origin": "git@github.com:org/project.git",
-    "backup": "git@backup-server:org/project-backup.git"
+  "_meta": {
+    "description": "项目级 DevFlow 配置...",
+    "schemaVersion": "1.1.0",
+    "lastUpdated": "2026-07-26"
   },
-  "backup": {
-    "type": "git-mirror",
-    "environments": {
-      "dev": {
-        "backup": "git@backup-server:org/project-dev-backup.git"
-      },
-      "test": {
-        "backup": "git@backup-server:org/project-test-backup.git"
-      },
-      "pro": {
-        "backup": "git@backup-server:org/project-pro-backup.git",
-        "disaster": "git@backup-server:org/project-disaster-backup.git"
-      }
-    },
-    "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
-    }
-  }
+  "project": {
+    "name": "",
+    "version": "",
+    "description": "",
+    "lastRelease": null
+  },
+  "remote": {
+    "origin": "",
+    "backup": "",
+    "github": ""
+  },
+  "branchStrategy": "git-flow"
 }
 ```
 
@@ -68,19 +58,16 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `projectVersion` | string | "" | 项目当前开发版本号，初始化时自动读取（优先取项目 `version.json` 或 Git tag） |
+| `_meta.schemaVersion` | string | "1.1.0" | 配置文件 schema 版本号 |
+| `_meta.lastUpdated` | string | "2026-07-26" | 最后更新日期 |
+| `project.name` | string | "" | 项目名称 |
+| `project.version` | string | "" | 项目当前开发版本号 |
+| `project.description` | string | "" | 项目描述 |
+| `project.lastRelease` | null/object | null | 最近一次发布信息，初始为 null；填写格式: `{"version": "v2.10.0", "date": "2026-07-20"}` |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |
-| `backup.type` | enum | "git-mirror" | 备份方式：`git-mirror` / `git-bundle` |
-| `backup.environments.dev.backup` | string | "" | 开发环境备份仓库地址 |
-| `backup.environments.test.backup` | string | "" | 测试环境备份仓库地址 |
-| `backup.environments.pro.backup` | string | "" | 生产环境备份仓库地址 |
-| `backup.environments.pro.disaster` | string | "" | 容灾备份仓库地址（异地） |
-| `backup.schedule.type` | enum | "post-push" | 备份触发方式：`post-push` / `cron` |
-| `backup.schedule.weeklyArchive` | string | "sunday-02:00" | 每周归档时间 |
-| `backup.schedule.retentionDays` | int | 90 | 备份保留天数 |
+| `remote.github` | string | "" | GitHub 仓库地址 |
 
 ### 分支策略选择向导
 
@@ -94,7 +81,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 ```
 1. 用户请求变更配置（如"切换为 GitHub Flow"）
-2. 本技能读取当前 .devflow/config.json
+2. 本技能读取当前 .devflow/project-config.json
 3. 修改对应字段
 4. 验证新配置的有效性（如 backup 地址是否为合法 Git URL）
 5. 写回 config.json
@@ -112,5 +99,5 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ## 约束
 
 - 本技能**不创建或修改 Git 仓库本身**
-- 本技能**只管理 .devflow/config.json 文件**
+- 本技能**只管理 .devflow/project-config.json 文件**
 - 配置验证失败时，保留原配置并提示错误

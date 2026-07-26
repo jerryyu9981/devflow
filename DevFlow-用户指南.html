@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevFlow 用户指南 v2.10.0</title>
+  <title>DevFlow 用户指南 v2.10.2</title>
   <style>
     @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Regular.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
     @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Bold.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
@@ -153,6 +153,8 @@
     <a href="#s3">第一个项目</a>
     <a href="#s4">6 阶段速览</a>
     <a href="#s5">FAQ</a>
+    <a href="#s6">版本历史</a>
+    <a href="#s7">资源与链接</a>
   </nav>
 
   <!-- ========== 1. 什么是 DevFlow ========== -->
@@ -174,6 +176,7 @@
 
     <h3>兼容平台</h3>
     <p>支持 TRAE Work / Claude Code / Cursor / Codex CLI。Windows/macOS/Linux 均可使用。</p>
+    <p>公网下载：<code>git clone https://github.com/jerryyu9981/devflow.git</code></p>
   </section>
 
   <!-- ========== 2. 快速安装 ========== -->
@@ -189,7 +192,7 @@
       <li>
         <strong>获取插件</strong><br>
         通过 Git 克隆或解压获取 <code>devflow-plugin</code> 文件夹。
-        <pre><code>git clone &lt;仓库地址&gt; devflow-plugin
+        <pre><code>git clone https://github.com/jerryyu9981/devflow.git
 cd devflow-plugin</code></pre>
       </li>
       <li>
@@ -329,6 +332,42 @@ cd devflow-plugin</code></pre>
 
     <h3>Q7：如何卸载？</h3>
     <p>删除项目中的 <code>.devflow/</code> 目录，再删除全局技能目录中所有 DevFlow 相关技能文件。</p>
+  </section>
+
+  <!-- ========== 6. 版本历史 ========== -->
+  <section class="section" id="s6">
+    <div class="section-header"><span class="section-num">6</span><h2>版本历史</h2></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>版本</th><th>日期</th><th>类型</th><th>关键变更</th></tr></thead>
+      <tbody>
+        <tr><td><span class="tag tag-blue">v2.10.0</span></td><td>2026-07-24</td><td>次版本</td><td>6 笔债务偿还 + 文件结构一致性 + 风险归集门禁 + 模板 24 个 + 季度审计 + 性能基线 + 脚本精简</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.2</span></td><td>2026-07-23</td><td>补丁</td><td>配置一致性修复 + 弃用文件清理 + 模板增强</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.1</span></td><td>2026-07-22</td><td>功能增强</td><td>配置架构重构 + 迁移机制 + 全阶段产出验证门禁</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.0</span></td><td>2026-07-21</td><td>功能增强</td><td>还债配额 + 债务老化 + 覆盖率门禁 + E2E 验证</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.5</span></td><td>2026-07-20</td><td>功能增强</td><td>债务生命周期 + 发布自动化 + release.ps1</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.4</span></td><td>2026-07-20</td><td>质量保障</td><td>三道质量门禁 + 全局债务总表 + 实际运行验证</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.3</span></td><td>2026-07</td><td>稳定性</td><td>Manifest 动态加载 + 目录结构优化</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.2</span></td><td>2026-07</td><td>功能增强</td><td>备份规范 + 多仓库支持</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.0</span></td><td>2026-06</td><td>重大版本</td><td>6 阶段流程 + 28 个技能 + 24 个文档模板</td></tr>
+        <tr><td><span class="tag tag-blue">v2.5.0</span></td><td>2026-05</td><td>重大版本</td><td>技能体系重构 + L1/L2/L3 分层</td></tr>
+        <tr><td><span class="tag tag-blue">v2.4.0</span></td><td>2026-04</td><td>重大版本</td><td>文档管理规范 + 追溯链体系初版</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.2</span></td><td>2026-07-02</td><td>补丁</td><td>版本号单一来源 + UTF-8 修复 + 安装向导</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.1</span></td><td>2026-07-01</td><td>功能增强</td><td>完整回滚设计体系 + 多环境备份</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.0</span></td><td>2026-06-29</td><td>功能增强</td><td>新增 3 个覆盖技能、技能总数 15→22</td></tr>
+        <tr><td><span class="tag tag-blue">v2.1.0</span></td><td>2026-06-26</td><td>功能增强</td><td>插件化架构 + orchestator 层 + 编译层模式</td></tr>
+        <tr><td><span class="tag tag-blue">v2.0.0</span></td><td>2026-06-24</td><td>重大版本</td><td>文档精简 108→49 + 追溯链闭环 + 性能评分 4/5 星</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <!-- ========== 7. 资源与链接 ========== -->
+  <section class="section" id="s7">
+    <div class="section-header"><span class="section-num">7</span><h2>资源与链接</h2></div>
+    <div class="grid-3">
+      <div class="mini-card"><div class="mc-title">GitHub 仓库</div><div class="mc-desc"><a href="https://github.com/jerryyu9981/devflow" style="color:var(--accent2);">github.com/jerryyu9981/devflow</a></div></div>
+      <div class="mini-card"><div class="mc-title">Issue 反馈</div><div class="mc-desc"><a href="https://github.com/jerryyu9981/devflow/issues" style="color:var(--accent2);">提交 Bug 或建议</a></div></div>
+      <div class="mini-card"><div class="mc-title">技术债务总表</div><div class="mc-desc">项目内路径：<code>doc/version/global/<br>DevFlow-技术债务总表.md</code></div></div>
+    </div>
   </section>
 
   <footer class="footer">

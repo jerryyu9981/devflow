@@ -17,12 +17,12 @@ $PluginDir = $PSScriptRoot
 # Resolve effective target directory
 $EffectiveDir = if ($TargetDir) { $TargetDir } else { $PluginDir }
 
-# Read version
-$VersionJsonPath = Join-Path $PluginDir "version.json"
+# Read version from devflow-config.json (single source of truth)
+$ConfigJsonPath = Join-Path $PluginDir "devflow-config.json"
 $Version = "unknown"
-if (Test-Path $VersionJsonPath) {
-    $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.devflowVersion
+if (Test-Path $ConfigJsonPath) {
+    $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+    $Version = $configInfo.devflowVersion
 }
 
 function Write-Header($text) {
@@ -73,11 +73,11 @@ if ($pluginDirName -eq ".devflow" -or $cwd -match "\.devflow[\\/]?$") {
 $DownloadScript = Join-Path $PluginDir "download-devflow.ps1"
 
 if (Test-Path $DownloadScript) {
-    # Read repository URL from version.json
+    # Read repository URL from devflow-config.json
     $RepoUrl = ""
-    if (Test-Path $VersionJsonPath) {
-        $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-        $RepoUrl = if ($verInfo.repository) { $verInfo.repository } else { "" }
+    if (Test-Path $ConfigJsonPath) {
+        $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+        $RepoUrl = if ($configInfo.repository) { $configInfo.repository } else { "" }
     }
 
     # Check if already a git repo (already downloaded)
@@ -96,16 +96,16 @@ if (Test-Path $DownloadScript) {
             Write-Warn "Download failed. Using local files only."
         } else {
             # Re-read version after download
-            if (Test-Path $VersionJsonPath) {
-                $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-                $Version = $verInfo.devflowVersion
+            if (Test-Path $ConfigJsonPath) {
+                $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+                $Version = $configInfo.devflowVersion
             }
         }
         Write-Host ""
     } else {
         # Repository not configured → Guide user to SetRepo
         Write-Header "Step 1/2: Configure Cloud Repository"
-        Write-Warn "No repository URL configured in version.json"
+        Write-Warn "No repository URL configured in devflow-config.json"
         Write-Host ""
         Write-Host "DevFlow supports downloading from a cloud Git repository." -ForegroundColor White
         Write-Host "Let's set up the repository URL now." -ForegroundColor White
@@ -114,9 +114,9 @@ if (Test-Path $DownloadScript) {
         & $DownloadScript -Action SetRepo
         if ($LASTEXITCODE -eq 0) {
             # Re-read repository after SetRepo
-            if (Test-Path $VersionJsonPath) {
-                $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-                $RepoUrl = if ($verInfo.repository) { $verInfo.repository } else { "" }
+            if (Test-Path $ConfigJsonPath) {
+                $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+                $RepoUrl = if ($configInfo.repository) { $configInfo.repository } else { "" }
             }
 
             if ($RepoUrl) {
@@ -126,9 +126,9 @@ if (Test-Path $DownloadScript) {
                 if ($LASTEXITCODE -ne 0) {
                     Write-Warn "Download failed. Using local files only."
                 } else {
-                    if (Test-Path $VersionJsonPath) {
-                        $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-                        $Version = $verInfo.devflowVersion
+                    if (Test-Path $ConfigJsonPath) {
+                        $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+                        $Version = $configInfo.devflowVersion
                     }
                 }
             }

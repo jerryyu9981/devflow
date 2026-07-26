@@ -340,7 +340,7 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 - 提交约定：type(scope): subject，footer 引用 RT-ID
 - 提交类型：feat/fix/docs/style/refactor/test/chore
 - TDD 合规：feat 和 fix 提交必须包含对应的测试文件变更；测试代码先于生产代码提交
-- 分支策略：git-flow（推荐）/ github-flow / trunk-based（由 .devflow/config.json 配置）
+- 分支策略：git-flow（推荐）/ github-flow / trunk-based（由 .devflow/project-config.json 配置）
 - Git Flow 分支：main(生产) ← release(发布准备) ← develop(日常集成) ← feature(功能)
 - 版本号：语义化 MAJOR.MINOR.PATCH（破坏性变更/新功能/Bug修复）
 

@@ -71,7 +71,7 @@
 
 ### Changed
 - `setup.ps1` / `setup.sh` 剥离项目初始化逻辑（项目名检测、`.devflow/` 创建、config.json 生成、state.json 生成），回归纯全局技能安装职责（V260-030）
-- `update.ps1` / `update.sh` 移除修改 `.devflow/config.json` 中 `projectVersion` 的越界行为（V260-031）
+- `update.ps1` / `update.sh` 移除修改 `.devflow/project-config.json` 中 `projectVersion` 的越界行为（V260-031）
 - `devflow-init/SKILL.md` 增强：新增从 `version.json` 读取 DevFlow 版本号并写入项目配置的逻辑（V260-032）
 - `devflow-init/SKILL.md` 增强：新增 `projectVersion` 自动扫描+交互补充链（Git tag → package.json → pyproject.toml → 其他配置文件 → 交互询问）（V260-033）
 - `devflow-init/SKILL.md` 增强：完善 `currentPhase` 文档扫描推断逻辑并写入 state.json（V260-034）

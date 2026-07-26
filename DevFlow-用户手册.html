@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DevFlow 用户手册 v2.10.0</title>
+  <title>DevFlow 用户手册 v2.10.2</title>
   <style>
     @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Regular.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Regular.ttf') format('truetype'); font-weight: 400; font-display: swap; }
     @font-face { font-family: 'Noto Sans CJK SC'; src: url('./_shared/fonts/NotoSansCJKsc-Bold.otf') format('opentype'), url('./_shared/fonts/NotoSansCJKsc-Bold.ttf') format('truetype'); font-weight: 700; font-display: swap; }
@@ -127,15 +127,24 @@
 
     <h3 id="s1-3">1.3 版本历史</h3>
     <div class="table-wrap"><table>
-      <thead><tr><th>版本</th><th>日期</th><th>关键变更</th></tr></thead>
+      <thead><tr><th>版本</th><th>日期</th><th>类型</th><th>关键变更</th></tr></thead>
       <tbody>
-        <tr><td><span class="tag tag-blue">v2.10.0</span></td><td>2026-07-24</td><td>6 笔债务偿还 + 文件结构一致性 + 风险归集门禁 + 模板 24 个 + 季度审计 + 性能基线 + 脚本精简</td></tr>
-        <tr><td><span class="tag tag-blue">v2.9.2</span></td><td>2026-07-23</td><td>配置一致性修复 + 弃用文件清理 + 模板增强</td></tr>
-        <tr><td><span class="tag tag-blue">v2.9.1</span></td><td>2026-07-22</td><td>配置架构重构 + 迁移机制 + 全阶段产出验证门禁</td></tr>
-        <tr><td><span class="tag tag-blue">v2.9.0</span></td><td>2026-07-21</td><td>还债配额 + 债务老化 + 覆盖率门禁 + E2E 验证</td></tr>
-        <tr><td><span class="tag tag-blue">v2.8.5</span></td><td>2026-07-20</td><td>债务生命周期 + 发布自动化 + release.ps1</td></tr>
-        <tr><td><span class="tag tag-blue">v2.8.4</span></td><td>2026-07-20</td><td>三道质量门禁 + 全局债务总表 + 实际运行验证三层模型</td></tr>
-        <tr><td><span class="tag tag-blue">v2.8.0</span></td><td>2026-06</td><td>6 阶段流程 + 28 个技能 + 24 个文档模板</td></tr>
+        <tr><td><span class="tag tag-blue">v2.10.0</span></td><td>2026-07-24</td><td>次版本</td><td>6 笔债务偿还 + 文件结构一致性 + 风险归集门禁 + 模板 24 个 + 季度审计 + 性能基线 + 脚本精简</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.2</span></td><td>2026-07-23</td><td>补丁</td><td>配置一致性修复 + 弃用文件清理 + 模板增强</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.1</span></td><td>2026-07-22</td><td>功能增强</td><td>配置架构重构 + 迁移机制 + 全阶段产出验证门禁</td></tr>
+        <tr><td><span class="tag tag-blue">v2.9.0</span></td><td>2026-07-21</td><td>功能增强</td><td>还债配额 + 债务老化 + 覆盖率门禁 + E2E 验证</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.5</span></td><td>2026-07-20</td><td>功能增强</td><td>债务生命周期 + 发布自动化 + release.ps1</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.4</span></td><td>2026-07-20</td><td>质量保障</td><td>三道质量门禁 + 全局债务总表 + 实际运行验证三层模型</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.3</span></td><td>2026-07</td><td>稳定性</td><td>Manifest 动态加载 + 目录结构优化</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.2</span></td><td>2026-07</td><td>功能增强</td><td>备份规范 + 多仓库支持</td></tr>
+        <tr><td><span class="tag tag-blue">v2.8.0</span></td><td>2026-06</td><td>重大版本</td><td>6 阶段流程 + 28 个技能 + 24 个文档模板</td></tr>
+        <tr><td><span class="tag tag-blue">v2.5.0</span></td><td>2026-05</td><td>重大版本</td><td>技能体系重构 + L1/L2/L3 分层</td></tr>
+        <tr><td><span class="tag tag-blue">v2.4.0</span></td><td>2026-04</td><td>重大版本</td><td>文档管理规范 + 追溯链体系</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.2</span></td><td>2026-07-02</td><td>补丁</td><td>版本号单一来源 + UTF-8 修复 + 安装向导</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.1</span></td><td>2026-07-01</td><td>功能增强</td><td>完整回滚设计体系 + 多环境备份</td></tr>
+        <tr><td><span class="tag tag-blue">v2.3.0</span></td><td>2026-06-29</td><td>功能增强</td><td>新增 3 个覆盖技能、技能总数 15→22</td></tr>
+        <tr><td><span class="tag tag-blue">v2.1.0</span></td><td>2026-06-26</td><td>功能增强</td><td>插件化架构 + orchestator 层 + 编译层模式</td></tr>
+        <tr><td><span class="tag tag-blue">v2.0.0</span></td><td>2026-06-24</td><td>重大版本</td><td>文档精简 108→49 + 追溯链闭环 + 性能评分 4/5 星</td></tr>
       </tbody>
     </table></div>
 
@@ -146,6 +155,7 @@
       <div class="mini-card"><div class="mc-title">Claude Code</div><div class="mc-desc">Anthropic CLI</div></div>
       <div class="mini-card"><div class="mc-title">Cursor</div><div class="mc-desc">AI 编辑器</div></div>
     </div>
+    <p>公网下载：<code>git clone https://github.com/jerryyu9981/devflow.git</code></p>
   </section>
 
   <!-- 2. 安装 -->
@@ -164,7 +174,7 @@
     <div class="card card-warning"><div class="card-title c-warning">PowerShell 执行策略</div><p>Windows 默认可能禁止运行脚本：<code>Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass</code></p></div>
 
     <h3 id="s2-2">2.2 获取插件</h3>
-    <p><strong>方法一：Git 克隆</strong><br><code>git clone &lt;仓库地址&gt; devflow-plugin && cd devflow-plugin</code></p>
+    <p><strong>方法一：Git 克隆</strong><br><code>git clone https://github.com/jerryyu9981/devflow.git && cd devflow-plugin</code></p>
     <p><strong>方法二：手动获取</strong> — 从同事或压缩包获取插件文件夹。</p>
 
     <h3 id="s2-3">2.3 Windows 安装</h3>
@@ -432,6 +442,16 @@
     <p>Step 5 可参考 <code>cicd-pipeline-management</code> 技能定义的标准流水线（检出→构建→质量门禁→部署→验证）。质量门禁包括单元测试覆盖率、安全扫描和性能基准对比。</p>
   </section>
 
+  <!-- ========== 10. 资源与链接 ========== -->
+  <section class="section" id="s10">
+    <div class="section-header"><span class="section-num">10</span><h2>资源与链接</h2></div>
+    <div class="grid-3">
+      <div class="mini-card"><div class="mc-title">GitHub 仓库</div><div class="mc-desc"><a href="https://github.com/jerryyu9981/devflow" style="color:var(--accent2);">github.com/jerryyu9981/devflow</a></div></div>
+      <div class="mini-card"><div class="mc-title">Issue 反馈</div><div class="mc-desc"><a href="https://github.com/jerryyu9981/devflow/issues" style="color:var(--accent2);">提交 Bug 或建议</a></div></div>
+      <div class="mini-card"><div class="mc-title">技术债务总表</div><div class="mc-desc">项目内路径：<code>doc/version/global/<br>DevFlow-技术债务总表.md</code></div></div>
+    </div>
+  </section>
+
   <footer class="footer">
     <p>DevFlow v2.10.0 · 可插拔软件开发工程规范框架 · 2026-07-24</p>
     <p>完整文档可查看 <code>doc/</code> 目录，或调用各阶段技能获取详细指引</p>
@@ -470,5 +490,4 @@ document.getElementById('sidebar').addEventListener('click', function() {
 });
 </script>
 
-</body>
-</html>
+</body></html>

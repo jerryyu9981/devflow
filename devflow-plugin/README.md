@@ -36,7 +36,7 @@ unzip devflow.zip -d .devflow/
 
 安装脚本会自动：
 1. 检测项目名称
-2. 创建 `.devflow/config.json`（分支策略、备份配置）
+2. 创建 `.devflow/project-config.json`（分支策略、备份配置）
 3. 创建 `.devflow/state.json`（阶段状态）
 4. 将 DevFlow 技能安装到 TRAE（如果检测到 TRAE 环境）
 5. 可选：安装 Git post-push hook（自动备份）

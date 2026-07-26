@@ -41,11 +41,11 @@ remove_utf8_bom() {
 # Resolve repository URL: env var > config.json > fallback empty
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 REPO_URL="${DEVFLOW_REPO_URL:-}"
-if [ -z "$REPO_URL" ] && [ -f ".devflow/config.json" ]; then
-    REPO_URL=$(python3 -c "import json; print(json.load(open('.devflow/config.json')).get('remote',{}).get('origin',''))" 2>/dev/null || true)
+if [ -z "$REPO_URL" ] && [ -f ".devflow/project-config.json" ]; then
+    REPO_URL=$(python3 -c "import json; print(json.load(open('.devflow/project-config.json')).get('remote',{}).get('origin',''))" 2>/dev/null || true)
 fi
 if [ -z "$REPO_URL" ]; then
-    warn "No repository URL configured. Set DEVFLOW_REPO_URL or add remote.origin in .devflow/config.json"
+    warn "No repository URL configured. Set DEVFLOW_REPO_URL or add remote.origin in .devflow/project-config.json"
     warn "Falling back to local file-based update."
 fi
 
@@ -55,10 +55,10 @@ echo "Current DevFlow version: $CURRENT_VERSION"
 
 # 2. Determine latest version
 if [ -z "$VERSION" ]; then
-    # Try local version.json first
-    LOCAL_VERSION_JSON="${SCRIPT_DIR}/version.json"
-    if [ -f "$LOCAL_VERSION_JSON" ]; then
-        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_VERSION_JSON'))['devflowVersion'])" 2>/dev/null || true)
+    # Try local devflow-config.json first
+    LOCAL_CONFIG_JSON="${SCRIPT_DIR}/devflow-config.json"
+    if [ -f "$LOCAL_CONFIG_JSON" ]; then
+        VERSION=$(python3 -c "import json; print(json.load(open('$LOCAL_CONFIG_JSON'))['devflowVersion'])" 2>/dev/null || true)
     fi
     # If repo configured and local failed, try remote
     if [ -n "$REPO_URL" ] && [ -z "$VERSION" ]; then
@@ -94,15 +94,21 @@ if [ ! -d "$TRA_SKILLS_DIR" ]; then
     mkdir -p "$TRA_SKILLS_DIR"
 fi
 
-# DT-01: Load skill map from devflow-manifest.json (Bash, no jq)
+# DT-01: Load skill map — prefer devflow-config.json, fallback to devflow-manifest.json (legacy)
+local config_file="${SCRIPT_DIR}/devflow-config.json"
 local manifest_file="${SCRIPT_DIR}/devflow-manifest.json"
-ExpectedSkillCount=$(grep -o '"skillCount": *[0-9]*' "$manifest_file" | grep -o '[0-9]*')
+local data_file="$config_file"
+if [ ! -f "$config_file" ] && [ -f "$manifest_file" ]; then
+    data_file="$manifest_file"
+    echo "[WARN] Using legacy devflow-manifest.json — consider upgrading to devflow-config.json" >&2
+fi
+ExpectedSkillCount=$(grep -o '"skillCount": *[0-9]*' "$data_file" | grep -o '[0-9]*')
 declare -A SKILL_MAP
 while IFS='|' read -r name source; do
     [ -n "$name" ] && SKILL_MAP["$name"]="$source"
 done < <(python3 -c "
 import json, sys
-m = json.load(open('$manifest_file'))
+m = json.load(open('$data_file'))
 for s in m['skills']:
     print(s['name'] + '|' + s['source'])
 " 2>/dev/null)

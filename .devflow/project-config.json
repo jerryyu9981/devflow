@@ -1,54 +1,22 @@
 {
   "_meta": {
-    "description": "项目级 DevFlow 配置文件。每个项目独立维护，包含项目元数据、远程仓库、命名规范、工作流配置和环境配置。框架配置请参考 devflow-config.json。",
-    "schemaVersion": "1.0.0",
-    "lastUpdated": "2026-07-22"
+    "description": "项目级 DevFlow 配置文件。每个项目独立维护，包含项目元数据、远程仓库和发布记录。框架配置请参考 devflow-config.json。",
+    "schemaVersion": "1.1.0",
+    "lastUpdated": "2026-07-26"
   },
   "project": {
     "name": "DevFlow",
-    "code": "DEVFLOW",
-    "version": "2.9.1",
-    "description": "DevFlow 软件开发工程规范框架"
+    "version": "v2.10.0",
+    "description": "DevFlow 软件开发工程规范框架",
+    "lastRelease": {
+      "version": "v2.10.2",
+      "date": "2026-07-26"
+    }
   },
   "remote": {
     "origin": "http://192.168.0.14/jerry.yu/devflow.git",
-    "backup": "http://192.168.0.14/jerry.yu/devflow-backup.git"
+    "backup": "http://192.168.0.14/jerry.yu/devflow-backup.git",
+    "github": "git@github.com:jerryyu9981/devflow.git"
   },
-  "backup": {
-    "type": "git-mirror",
-    "schedule": {
-      "dbDump": "daily",
-      "bundleRetention": 4,
-      "bundle": "weekly",
-      "dbRetention": 90
-    }
-  },
-  "branchStrategy": "git-flow",
-  "naming": {
-    "projectPrefix": "DevFlow",
-    "docVersionFormat": "v{major}.{minor}.{patch}"
-  },
-  "workflow": {
-    "startingStep": 0,
-    "enableAutoPhase": true
-  },
-  "environments": {
-    "dev": {
-      "name": "开发环境",
-      "description": "本地开发环境"
-    },
-    "test": {
-      "name": "测试环境",
-      "description": "测试验证环境"
-    },
-    "prod": {
-      "name": "生产环境",
-      "description": "正式发布环境"
-    }
-  },
-  "migration": {
-    "migratedFrom": "config.json",
-    "migratedAt": "2026-07-22",
-    "originalVersion": "2.9.0"
-  }
+  "branchStrategy": "git-flow"
 }

@@ -43,24 +43,24 @@ if ($Version -notmatch '^v\d+\.\d+\.\d+$') {
 }
 Write-Info "Step 1/5: Version number format validation... PASS"
 
-# --- Step 2: version.json 一致性校验 ---
-Write-Info "Step 2/5: version.json consistency validation..."
-$versionJsonPath = Join-Path $PSScriptRoot "version.json"
-if (Test-Path $versionJsonPath) {
+# --- Step 2: devflow-config.json 一致性校验 ---
+Write-Info "Step 2/5: devflow-config.json consistency validation..."
+$configJsonPath = Join-Path $PSScriptRoot "devflow-config.json"
+if (Test-Path $configJsonPath) {
     try {
-        $versionJson = Get-Content $versionJsonPath -Raw | ConvertFrom-Json
-        $jsonVersion = "v$($versionJson.version)"
+        $configJson = Get-Content $configJsonPath -Raw | ConvertFrom-Json
+        $jsonVersion = "v$($configJson.devflowVersion)"
         if ($jsonVersion -ne $Version) {
-            Write-Error "Version mismatch: version.json says '$jsonVersion', target is '$Version'"
+            Write-Error "Version mismatch: devflow-config.json says '$jsonVersion', target is '$Version'"
             exit 1
         }
-        Write-Info "Step 2/5: version.json consistency validation... PASS (matched: $jsonVersion)"
+        Write-Info "Step 2/5: devflow-config.json consistency validation... PASS (matched: $jsonVersion)"
     } catch {
-        Write-Error "Failed to read version.json: $_"
+        Write-Error "Failed to read devflow-config.json: $_"
         exit 1
     }
 } else {
-    Write-Warn "Step 2/5: version.json not found at $versionJsonPath, skipping consistency check"
+    Write-Warn "Step 2/5: devflow-config.json not found at $configJsonPath, skipping consistency check"
 }
 
 # --- Step 3: Git Tag 创建 ---
@@ -87,16 +87,28 @@ if ($LASTEXITCODE -ne 0) {
 $originPush | ForEach-Object { Write-Info $_ }
 Write-Info "Step 4/5: Push tag to origin... PASS"
 
-# --- Step 5: Push tag to backup ---
-Write-Info "Step 5/5: Push tag to backup..."
+# --- Step 4b: Push tag to backup ---
+Write-Info "Step 4b/7: Push tag to backup..."
 $backupPush = git push backup "$Version" 2>&1
 if ($LASTEXITCODE -ne 0) {
-    Write-Warn "Failed to push tag $Version to backup (non-blocking)"
+    Write-Warn "Step 4b/7: Failed to push tag $Version to backup (non-blocking)"
     $backupPush | ForEach-Object { Write-Warn $_ }
     Write-Warn "Backup push skipped - manual sync required"
 } else {
     $backupPush | ForEach-Object { Write-Info $_ }
-    Write-Info "Step 5/5: Push tag to backup... PASS"
+    Write-Info "Step 4b/7: Push tag to backup... PASS"
+}
+
+# --- Step 4c: Push tag to github (if configured) ---
+Write-Info "Step 4c/7: Push tag to github..."
+$githubPush = git push github "$Version" 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Warn "Step 4c/7: Failed to push tag $Version to github (non-blocking)"
+    $githubPush | ForEach-Object { Write-Warn $_ }
+    Write-Warn "GitHub push skipped - manual sync required"
+} else {
+    $githubPush | ForEach-Object { Write-Info $_ }
+    Write-Info "Step 4c/7: Push tag to github... PASS"
 }
 
 # --- 发布后验证 ---
@@ -108,12 +120,18 @@ if (-not $tagExists) {
     exit 1
 }
 
-# 远程 Tag 验证
-$remoteTag = git ls-remote origin "refs/tags/$Version" 2>&1
-if (-not $remoteTag) {
+# 远程 Tag 验证（origin）
+$remoteTagOrigin = git ls-remote origin "refs/tags/$Version" 2>&1
+if (-not $remoteTagOrigin) {
     Write-Warn "Post-validation: tag $Version not found on origin (may be transient)"
 } else {
     Write-Info "Post-validation: tag $Version confirmed on origin"
+}
+
+# 远程 Tag 验证（github，可选）
+$remoteTagGithub = git ls-remote github "refs/tags/$Version" 2>&1
+if ($remoteTagGithub) {
+    Write-Info "Post-validation: tag $Version confirmed on github"
 }
 
 # --- 完成 ---

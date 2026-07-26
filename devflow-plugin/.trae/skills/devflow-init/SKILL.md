@@ -12,7 +12,7 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 > **版本来源规则**：DevFlow 插件版本号从 `~/.trae-cn/skills/devflow-config/devflow-config.json` 读取，该文件由 Install/Update 脚本同步，是 DevFlow 的唯一权威配置源（Single Source of Truth）。项目根目录的 `version.json` 仅作为"该项目使用的 DevFlow 版本"的记录，不是权威来源。
 
 1. **检测项目状态**：通过检查项目目录中的已有文档，推断项目当前处于 DevFlow 哪个阶段
-2. **生成初始配置**：创建 `.devflow/config.json` 和 `.devflow/state.json`
+2. **生成初始配置**：创建 `.devflow/project-config.json` 和 `.devflow/state.json`
 3. **引导进入正确阶段**：告诉用户当前应该执行 Step 0-5 中的哪一个
 
 ## 触发条件
@@ -155,11 +155,11 @@ if ($skillConfig) {
 
 ### 1.7 检测项目版本号
 
-按照优先级链自动检测项目自身版本号，写入 `.devflow/config.json` 的 `projectVersion` 字段：
+按照优先级链自动检测项目自身版本号，写入 `.devflow/project-config.json` 的 `projectVersion` 字段：
 
 ```
 检测优先级链：
-① .devflow/config.json 已有非空 projectVersion     → 保留，不修改
+① .devflow/project-config.json 已有非空 projectVersion     → 保留，不修改
 ② git describe --tags --abbrev=0                   → 取 tag 值（去掉前缀 v）
 ③ package.json 的 version 字段                      → 取该值
 ④ pyproject.toml 的 version 字段                    → 取该值
@@ -189,30 +189,22 @@ else:
 - `currentPhase = step_4_testing` → `completedPhases = [step_0_planning, step_1_requirements, step_2_design, step_3_coding]`
 - 当前阶段本身不包含在 `completedPhases` 中
 
-### 3. 创建 .devflow/config.json
+### 3. 创建 .devflow/project-config.json
 
 ```json
 {
-  "project": "{项目名称}",
-  "projectVersion": "{1.7 检测到的版本号}",
-  "branchStrategy": "git-flow",
+  "project": {
+    "name": "",
+    "version": "",
+    "description": "",
+    "lastRelease": null
+  },
   "remote": {
     "origin": "",
-    "backup": ""
+    "backup": "",
+    "github": ""
   },
-  "backup": {
-    "type": "git-mirror",
-    "environments": {
-      "dev": { "backup": "" },
-      "test": { "backup": "" },
-      "pro": { "backup": "", "disaster": "" }
-    },
-    "schedule": {
-      "type": "post-push",
-      "weeklyArchive": "sunday-02:00",
-      "retentionDays": 90
-    }
-  }
+  "branchStrategy": "git-flow"
 }
 ```
 
@@ -221,7 +213,7 @@ else:
 2. 如果项目有 Git 仓库，读取 `git remote get-url origin` 中的仓库名
 3. 否则使用当前目录名
 
-**如果 `.devflow/config.json` 已存在**，则只更新 `projectVersion` 字段，保留其他字段不变。
+**如果 `.devflow/project-config.json` 已存在**，则只更新 `projectVersion` 字段，保留其他字段不变。
 
 ### 3.1 远程仓库地址交互输入
 

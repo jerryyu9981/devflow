@@ -32,22 +32,27 @@ $ErrorActionPreference = "Continue"
 # ─── Plugin Source Directory ─────────────────────────────────────
 $PluginDir = $PSScriptRoot
 
-# Read version
+# Read version from devflow-config.json (single source of truth)
 $Version = "unknown"
-$VersionJsonPath = Join-Path $PluginDir "version.json"
-if (Test-Path $VersionJsonPath) {
-    $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.devflowVersion
+$ConfigJsonPath = Join-Path $PluginDir "devflow-config.json"
+if (Test-Path $ConfigJsonPath) {
+    $configInfo = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+    $Version = $configInfo.devflowVersion
 }
 
-# DT-01: Load skill definitions from devflow-manifest.json
+# DT-01: Load skill definitions — prefer devflow-config.json, fallback to devflow-manifest.json (legacy)
 $ManifestPath = Join-Path $PluginDir "devflow-manifest.json"
-if (Test-Path $ManifestPath) {
+if (Test-Path $ConfigJsonPath) {
+    $configData = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
+    $DevFlowSkills = $configData.skills | ForEach-Object { @{ Name = $_.name; SourceDir = $_.source } }
+    $ExpectedSkillCount = $configData.skillCount
+} elseif (Test-Path $ManifestPath) {
     $manifestData = Get-Content $ManifestPath -Encoding UTF8 | ConvertFrom-Json
     $DevFlowSkills = $manifestData.skills | ForEach-Object { @{ Name = $_.name; SourceDir = $_.source } }
     $ExpectedSkillCount = $manifestData.skillCount
+    Write-Warn "Using legacy devflow-manifest.json — consider upgrading to devflow-config.json (v2.10.1+)"
 } else {
-    Write-Err "devflow-manifest.json not found at $ManifestPath"
+    Write-Err "devflow-config.json not found at $ConfigJsonPath"
     exit 1
 }
 

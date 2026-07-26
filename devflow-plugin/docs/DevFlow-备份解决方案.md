@@ -23,7 +23,7 @@ DevFlow 的备份体系由策略层、配置层和操作层三层构成，各层
 │  • 上传技能 SKILL.md 文件中，运行时按需加载                       │
 ├─────────────────────────────────────────────────────────────────┤
 │                       配 置 层                                  │
-│  .devflow/config.json                                           │
+│  .devflow/project-config.json                                           │
 │  定义：备份到哪里、用什么地址、多环境差异                           │
 │  • remote.backup：主备份远程地址                                  │
 │  • backup.environments：多环境分离配置                            │
@@ -63,7 +63,7 @@ DevFlow 的备份体系由策略层、配置层和操作层三层构成，各层
 | 文件 | 层级 | 职责 |
 |------|:----:|------|
 | `skills/L3/code-version-backup-management.md` | 策略层 | 版本控制、备份策略、分支管理 |
-| `.devflow/config.json` | 配置层 | 远程地址、调度策略、多环境配置 |
+| `.devflow/project-config.json` | 配置层 | 远程地址、调度策略、多环境配置 |
 | `docs/备份操作规范.md` | 操作层 | 命令执行、凭据管理、验证恢复 |
 | `skills/L3/cicd-pipeline-management.md` | 框架层 | CI/CD backup-mirror job |
 | `skills/L2/operations-stage-execution.md` | 主控层 | 运维矩阵、备份验证门禁 |
@@ -91,7 +91,7 @@ node_modules/  vendor/  dist/  build/  target/  logs/
 
 ### 2.3 分支策略（可配置）
 
-`.devflow/config.json` 中的 `branchStrategy` 字段决定备份范围：
+`.devflow/project-config.json` 中的 `branchStrategy` 字段决定备份范围：
 
 | 模式 | 备份的分支 | 推荐场景 |
 |------|-----------|---------|
@@ -112,7 +112,7 @@ v{MAJOR}.{MINOR}.{PATCH}
 
 ---
 
-## 三、配置层（.devflow/config.json）
+## 三、配置层（.devflow/project-config.json）
 
 ### 3.1 基础配置模板
 
@@ -658,7 +658,7 @@ DevFlow 备份体系强制执行以下 6 条规则：
 | `code-version-backup-management`（策略层） | 定义备份类型、留存、分支策略 | 本方案是策略层的操作实现 |
 | `cicd-pipeline-management`（框架层） | backup-mirror job 的 Secrets 配置步骤 | 本方案第六章提供操作细节 |
 | `operations-stage-execution`（主控层） | 备份验证作为上线验证的前置条件 | 运维矩阵中引用本方案第五章 |
-| `.devflow/config.json`（配置层） | `remote.backup` + `backup.environments` 配置 | 本方案第三章提供配置模板 |
+| `.devflow/project-config.json`（配置层） | `remote.backup` + `backup.environments` 配置 | 本方案第三章提供配置模板 |
 | `devflow-project-config`（配置管理） | 项目初始化时生成 backup 配置 | 读取本方案第三章集成 |
 | `devflow-init`（初始化） | setup 脚本安装 post-push hook | 本方案 4.2.1 提供 hook 脚本 |
 
@@ -691,7 +691,7 @@ DevFlow 备份体系强制执行以下 6 条规则：
 
 - [ ] 在托管平台创建备份仓库（命名遵循 `{项目}-{环境}-backup` 规则）
 - [ ] 生成备份专用 SSH Key 并添加到备份仓库的 Deploy Key
-- [ ] 在 `.devflow/config.json` 中配置 `remote.backup` 和 `backup.environments`
+- [ ] 在 `.devflow/project-config.json` 中配置 `remote.backup` 和 `backup.environments`
 - [ ] 添加 Git remote：`git remote add backup {backup_url}`
 - [ ] 安装 post-push hook：`cp .devflow/hooks/post-push .git/hooks/post-push && chmod +x .git/hooks/post-push`
 - [ ] 创建备份目录：`.devflow/backup/`、`.devflow/logs/`
@@ -1107,4 +1107,4 @@ canary-rollback:
 
 ---
 
-*本方案整合了 DevFlow 现有策略层（code-version-backup-management）、配置层（.devflow/config.json）、框架层（cicd-pipeline-management）以及操作层（备份操作规范）的全部能力，形成完整的备份解决方案。*
+*本方案整合了 DevFlow 现有策略层（code-version-backup-management）、配置层（.devflow/project-config.json）、框架层（cicd-pipeline-management）以及操作层（备份操作规范）的全部能力，形成完整的备份解决方案。*

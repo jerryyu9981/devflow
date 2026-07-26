@@ -24,8 +24,8 @@ $ErrorActionPreference = "Continue"
 # Git Credential Manager is recommended over embedding credentials in URLs
 $RepoUrl = $env:DEVFLOW_REPO_URL
 if (-not $RepoUrl) {
-    # Read from .devflow/config.json if available
-    $ConfigPath = ".devflow\config.json"
+    # Read from .devflow/project-config.json if available
+    $ConfigPath = ".devflow\project-config.json"
     if (Test-Path $ConfigPath) {
         $config = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
         if ($config.remote.origin) {
@@ -33,7 +33,7 @@ if (-not $RepoUrl) {
         }
     }
     if (-not $RepoUrl) {
-        Write-Host "[WARN] No repository URL configured. Set DEVFLOW_REPO_URL env var or add remote.origin in .devflow/config.json" -ForegroundColor Yellow
+        Write-Host "[WARN] No repository URL configured. Set DEVFLOW_REPO_URL env var or add remote.origin in .devflow/project-config.json" -ForegroundColor Yellow
         Write-Host "       Falling back to manual file-based update." -ForegroundColor Yellow
         $RepoUrl = ""
     }
@@ -210,12 +210,12 @@ Write-Host "Current DevFlow version: $CurrentVersion"
 if ($Action -eq "Update") {
     $LatestVersion = $Version
     if (-not $LatestVersion) {
-        # Read from local version.json (same directory as this script)
+        # Read from local devflow-config.json (same directory as this script)
         $ScriptDir = $PSScriptRoot
-        $LocalVersionJson = Join-Path $ScriptDir "version.json"
-        if (Test-Path $LocalVersionJson) {
-            $localVer = Get-Content $LocalVersionJson -Encoding UTF8 | ConvertFrom-Json
-            $LatestVersion = $localVer.devflowVersion
+        $LocalConfigJson = Join-Path $ScriptDir "devflow-config.json"
+        if (Test-Path $LocalConfigJson) {
+            $localCfg = Get-Content $LocalConfigJson -Encoding UTF8 | ConvertFrom-Json
+            $LatestVersion = $localCfg.devflowVersion
         }
         # If repo URL is configured, also try remote check
         if ($RepoUrl -and (-not $LatestVersion)) {

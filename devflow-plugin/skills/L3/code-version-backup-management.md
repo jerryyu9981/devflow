@@ -17,7 +17,7 @@ description: "代码版本控制与备份管理规范。管理 Git 工作流、�
 
 ### 1.1 配置方式
 
-仓库路径、分支策略和远程仓库由 `{project_root}/.devflow/config.json` 定义，本技能读取该配置执行，不硬编码路径。
+仓库路径、分支策略和远程仓库由 `{project_root}/.devflow/project-config.json` 定义，本技能读取该配置执行，不硬编码路径。
 
 ```json
 {
@@ -43,7 +43,7 @@ description: "代码版本控制与备份管理规范。管理 Git 工作流、�
 
 ### 2.1 配置选择
 
-在 `.devflow/config.json` 中设置 `branchStrategy` 字段，支持三种模式：`trunk-based` / `github-flow` / `git-flow`。
+在 `.devflow/project-config.json` 中设置 `branchStrategy` 字段，支持三种模式：`trunk-based` / `github-flow` / `git-flow`。
 
 ### 2.2 Trunk-Based（小型项目/单人开发）
 
@@ -136,6 +136,41 @@ MAJOR.MINOR.PATCH
 
 ## 五、备份策略
 
+### 5.0 三远程标准化架构
+
+所有 DevFlow 管理的项目应统一采用三远程仓库架构：
+
+| 远程名称 | URL 模板 | 用途 | 认证方式 |
+|:--------:|----------|------|:--------:|
+| `origin` | `http://{内网服务器}/jerry.yu/{project}.git` | 内网主仓库（开发协作、CI/CD 触发） | HTTP(S) + 用户名密码 |
+| `backup` | `http://{内网服务器}/jerry.yu/{project}-backup.git` | 内网备份仓库（容灾） | HTTP(S) + 用户名密码 |
+| `github` | `git@github.com:{username}/{project}.git` | 外网 GitHub 镜像（发布归档、开源下载） | SSH Key |
+
+**标准化推送命令模板**：
+
+```bash
+# 推送代码分支
+git push origin master
+git push backup master
+git push github master
+
+# 推送版本标签
+git push origin v{version}
+git push backup v{version}
+git push github v{version}
+```
+
+**Tag 同步验证命令**：
+
+```bash
+git ls-remote origin refs/tags/v{version}
+git ls-remote backup refs/tags/v{version}
+git ls-remote github refs/tags/v{version}
+# 三个远程必须返回相同 commit hash，否则视为发布不完整
+```
+
+> `{project}` 作为参数占位符，替换为实际项目名。所有 tag 创建后必须推送至全部三个远程，任一远程遗漏视为发布不完整。Tag 同步验证的结果应记录在 Release Checklist 中。
+
 ### 5.1 Git 原生增量备份（替代文件级全量拷贝）
 
 | 类型 | 方式 | 频率 | 留存 |
@@ -165,7 +200,7 @@ fi
 ```
 
 **前置条件**：
-1. 备份远程仓库已在 `.devflow/config.json` 的 `remote.backup` 字段中配置
+1. 备份远程仓库已在 `.devflow/project-config.json` 的 `remote.backup` 字段中配置
 2. 已通过 `git remote add backup <backup-url>` 添加备份远程仓库
 3. Hook 文件具有可执行权限
 

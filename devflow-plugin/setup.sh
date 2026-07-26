@@ -4,14 +4,14 @@
 
 set -e
 
-# Read version from version.json (same directory as this script)
+# Read version from devflow-config.json (single source of truth)
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-VERSION_JSON="${SCRIPT_DIR}/version.json"
-if [ -f "$VERSION_JSON" ]; then
-    DEVFLOW_VERSION=$(python3 -c "import json; print(json.load(open('$VERSION_JSON'))['devflowVersion'])" 2>/dev/null || echo "unknown")
+CONFIG_FILE="${SCRIPT_DIR}/devflow-config.json"
+if [ -f "$CONFIG_FILE" ]; then
+    DEVFLOW_VERSION=$(python3 -c "import json; print(json.load(open('$CONFIG_FILE'))['devflowVersion'])" 2>/dev/null || echo "unknown")
 else
     DEVFLOW_VERSION="unknown"
-    echo "[WARN] version.json not found, version will be 'unknown'"
+    echo "[WARN] devflow-config.json not found, version will be 'unknown'"
 fi
 INSTALL_HOOK=false
 
@@ -68,15 +68,15 @@ if [ "$HOST_TYPE" = "TRAE" ]; then
         echo -e "${CYAN}[INFO] Created skills directory: $TRA_SKILLS_DIR${NC}"
     fi
 
-    # DT-01: Load skill map from devflow-manifest.json (Bash, no jq)
-    local manifest_file="${SCRIPT_DIR}/devflow-manifest.json"
-    ExpectedSkillCount=$(grep -o '"skillCount": *[0-9]*' "$manifest_file" | grep -o '[0-9]*')
+    # DT-01: Load skill map from devflow-config.json (single source of truth)
+    local config_file="${SCRIPT_DIR}/devflow-config.json"
+    ExpectedSkillCount=$(grep -o '"skillCount": *[0-9]*' "$config_file" | grep -o '[0-9]*')
     declare -A SKILL_MAP
     while IFS='|' read -r name source; do
         [ -n "$name" ] && SKILL_MAP["$name"]="$source"
     done < <(python3 -c "
 import json, sys
-m = json.load(open('$manifest_file'))
+m = json.load(open('$config_file'))
 for s in m['skills']:
     print(s['name'] + '|' + s['source'])
 " 2>/dev/null)

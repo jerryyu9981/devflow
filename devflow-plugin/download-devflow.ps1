@@ -14,7 +14,7 @@
 # Modes:
 #   - Clone  : First-time git clone from cloud repo
 #   - Update : (Default) git pull latest code
-#   - SetRepo: Interactive repo URL setting, writes to version.json
+#   - SetRepo: Interactive repo URL setting, writes to devflow-config.json
 
 param(
     [ValidateSet("Clone", "Update", "SetRepo")]
@@ -33,21 +33,21 @@ if (-not $ScriptDir) {
     $ScriptDir = (Get-Location).Path
 }
 
-# ─── Read version.json ───────────────────────────────────────────
-$VersionJsonPath = Join-Path $ScriptDir "version.json"
+# ─── Read devflow-config.json ─────────────────────────────────────
+$ConfigJsonPath = Join-Path $ScriptDir "devflow-config.json"
 
-function Read-VersionJson {
-    if (Test-Path $VersionJsonPath) {
-        $content = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
+function Read-ConfigJson {
+    if (Test-Path $ConfigJsonPath) {
+        $content = Get-Content $ConfigJsonPath -Encoding UTF8 | ConvertFrom-Json
         return $content
     }
     return $null
 }
 
-function Write-VersionJson($jsonObj) {
+function Write-ConfigJson($jsonObj) {
     $jsonStr = $jsonObj | ConvertTo-Json -Depth 10
     # ConvertTo-Json doesn't preserve formatting, so we write with proper indentation
-    $jsonStr | Set-Content $VersionJsonPath -Encoding UTF8
+    $jsonStr | Set-Content $ConfigJsonPath -Encoding UTF8
 }
 
 # ─── Helper Functions ────────────────────────────────────────────
@@ -88,10 +88,10 @@ function Test-GitAvailable {
 function Invoke-SetRepoMode {
     Write-Header "SetRepo Mode: Set DevFlow Repository URL"
 
-    # Read current version.json
-    $config = Read-VersionJson
+    # Read current devflow-config.json
+    $config = Read-ConfigJson
     if (-not $config) {
-        Write-Err "version.json not found at $VersionJsonPath"
+        Write-Err "devflow-config.json not found at $ConfigJsonPath"
         return $false
     }
 
@@ -125,12 +125,12 @@ function Invoke-SetRepoMode {
     $newHomepage = $newRepo.TrimEnd('/')
     $newBugs = "$newHomepage/issues"
 
-    # Update version.json
+    # Update devflow-config.json
     $config | Add-Member -MemberType NoteProperty -Name "repository" -Value $newRepo -Force
     $config | Add-Member -MemberType NoteProperty -Name "homepage" -Value $newHomepage -Force
     $config | Add-Member -MemberType NoteProperty -Name "bugs" -Value $newBugs -Force
 
-    Write-VersionJson $config
+    Write-ConfigJson $config
 
     Write-Success "Repository URL updated: $newRepo"
     Write-Success "Homepage URL updated:   $newHomepage"
@@ -146,12 +146,12 @@ function Invoke-SetRepoMode {
 function Invoke-CloneMode {
     Write-Header "Clone Mode: Download DevFlow from Cloud Repository"
 
-    # Read repo URL from version.json
-    $config = Read-VersionJson
+    # Read repo URL from devflow-config.json
+    $config = Read-ConfigJson
     $repoUrl = if ($config -and $config.repository) { $config.repository } else { "" }
 
     if (-not $repoUrl) {
-        Write-Err "Repository URL not set in version.json"
+        Write-Err "Repository URL not set in devflow-config.json"
         Write-Host "  Run '.\download-devflow.ps1 -Action SetRepo' first to set the repository URL" -ForegroundColor Yellow
         return $false
     }
@@ -185,8 +185,8 @@ function Invoke-CloneMode {
         return $false
     }
 
-    # Check if target directory is empty (or has only version.json)
-    $existingItems = Get-ChildItem -Path $TargetDir -Force | Where-Object { $_.Name -ne "download-devflow.ps1" -and $_.Name -ne "version.json" }
+    # Check if target directory is empty (or has only devflow-config.json)
+    $existingItems = Get-ChildItem -Path $TargetDir -Force | Where-Object { $_.Name -ne "download-devflow.ps1" -and $_.Name -ne "devflow-config.json" }
     if ($existingItems) {
         Write-Warn "Target directory is not empty: $TargetDir"
         $confirm = Read-Host "Clone into this directory? It may overwrite existing files (y/N)"
@@ -362,7 +362,7 @@ function Invoke-UpdateMode {
         }
 
         # Show current version
-        $config = Read-VersionJson
+        $config = Read-ConfigJson
         if ($config -and $config.devflowVersion) {
             Write-Host "Current DevFlow version: v$($config.devflowVersion)" -ForegroundColor Green
         }
