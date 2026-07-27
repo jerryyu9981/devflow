@@ -130,6 +130,39 @@ if ($LASTEXITCODE -ne 0) {
     Write-Info "Step 4c/7: Push tag to github... PASS"
 }
 
+# --- Step 4d: Push master branch to origin ---
+Write-Info "Step 4d/7: Push master branch to origin..."
+$originMaster = git push origin master 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Warn "Step 4d/7: Failed to push master to origin (non-blocking)"
+    $originMaster | ForEach-Object { Write-Warn $_ }
+} else {
+    $originMaster | ForEach-Object { Write-Info $_ }
+    Write-Info "Step 4d/7: Push master to origin... PASS"
+}
+
+# --- Step 4e: Push master branch to backup ---
+Write-Info "Step 4e/7: Push master branch to backup..."
+$backupMaster = git push backup master 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Warn "Step 4e/7: Failed to push master to backup (non-blocking)"
+    $backupMaster | ForEach-Object { Write-Warn $_ }
+} else {
+    $backupMaster | ForEach-Object { Write-Info $_ }
+    Write-Info "Step 4e/7: Push master to backup... PASS"
+}
+
+# --- Step 4f: Push master branch to github ---
+Write-Info "Step 4f/7: Push master branch to github..."
+$githubMaster = git push github master 2>&1
+if ($LASTEXITCODE -ne 0) {
+    Write-Warn "Step 4f/7: Failed to push master to github (non-blocking)"
+    $githubMaster | ForEach-Object { Write-Warn $_ }
+} else {
+    $githubMaster | ForEach-Object { Write-Info $_ }
+    Write-Info "Step 4f/7: Push master to github... PASS"
+}
+
 # --- 发布后验证 ---
 Write-Info "Running post-release validation..."
 # Tag 存在性验证

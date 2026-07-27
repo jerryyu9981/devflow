@@ -6,10 +6,10 @@
   },
   "project": {
     "name": "DevFlow",
-    "version": "v2.12.0",
+    "version": "v2.13.0",
     "description": "DevFlow 软件开发工程规范框架",
     "lastRelease": {
-      "version": "v2.12.0",
+      "version": "v2.13.0",
       "date": "2026-07-27"
     }
   },
