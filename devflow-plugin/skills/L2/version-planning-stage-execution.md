@@ -101,6 +101,22 @@ Step 0 版本规划 / 需求前置
 | 全局技术债务总表 | `doc/version/global/DevFlow-技术债务总表.md` — 0.0a 跨版本债务审查后的全量债务总表（含老化升级结果），各阶段修改后均须列入阶段产出 |
 | 技术债务清单 | 当前版本识别的技术债条目、分类、P0-P3 严重级别、偿还计划或挂起理由（可作为单版本规划文档强制章节，独立输出时使用本命名） |
 
+## 输出要求
+
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 全局 | `doc/version/global/DevFlow-版本规划总纲.md` |
+| 2 | 全局 | `doc/version/global/DevFlow-版本迭代路线图.md` |
+| 3 | 全局 | `doc/version/global/DevFlow-候选需求池.md` |
+| 4 | 全局 | `doc/version/global/DevFlow-版本范围变更总记录.md` |
+| 5 | 全局 | `doc/version/global/DevFlow-版本发布策略总则.md` |
+| 6 | 全局 | `doc/version/global/DevFlow-技术债务总表.md` |
+| 7 | 版本 | `doc/version/releases/v{版本号}/DevFlow-单版本规划文档-v{版本号}.md` |
+| 8 | 版本 | `doc/version/releases/v{版本号}/DevFlow-本版本Backlog-v{版本号}.md` |
+| 9 | 版本 | `doc/version/releases/v{版本号}/DevFlow-Phase迭代计划-v{版本号}.md` |
+| 10 | 版本 | `doc/version/releases/v{版本号}/DevFlow-版本规划评审记录-v{版本号}.md` |
+| 11 | 审计 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
+
 ## 输出到需求阶段
 
 Step 0 完成后，必须向 Step 1 提供：
@@ -261,6 +277,7 @@ Step 0 版本规划按以下 6 个子步骤顺序执行。每个子步骤有明�
 |------|------|
 | **输入** | 0.0~0.4 的全部产出 |
 | **活动** | 评审版本目标、范围、优先级、风险、资源；版本规划评审记录归档；**调用 audit-agent --stage 0 --phase 1+2 验证版本规划文档的追溯完整性和产出物存在性，输出阶段审计报告到 doc/audit/review/** |
+| **0.5b 变更一致性自检** | **① 检查所有版本规划文档文件头版本号与修订历史底部版本号一致 ② 确认所有新文件的路径与命名规范匹配 ③ 确认 Backlog 条目数与需求池中已纳入数一致。自检失败 → 修正后才能进入 Step 1** |
 | **产出** | 版本规划评审记录 |
 | **通过标准** | 明确批准或退回结论；批准后通知 devflow-phase-manager 更新 state.json 进入 Step 1 |
 

@@ -1,0 +1,112 @@
+#!/bin/bash
+# ================================================================
+# DevFlow Auto-Backup Hook
+# ================================================================
+# Source file: .devflow/hooks/post-push
+# Installed to: .git/hooks/pre-push
+#
+# Git has no native 'post-push' hook. This script uses the standard
+# 'pre-push' hook and schedules a background mirror to the backup
+# remote after the main push completes.
+#
+# Features:
+#   - Automatic mirror to backup remote after push
+#   - Logging to .devflow/logs/backup-hook.log
+#   - Error handling with exit code capture
+#   - Commit SHA verification (local vs remote)
+#   - Three-remote support (origin/backup/github)
+#
+# Install:
+#   cp .devflow/hooks/post-push .git/hooks/pre-push
+#   chmod +x .git/hooks/pre-push   (Unix only; Git for Windows auto-detects)
+#
+# Bypass:
+#   git push --no-verify  (skips this hook entirely)
+# ================================================================
+
+LOG_DIR=".devflow/logs"
+LOG_FILE="$LOG_DIR/backup-hook.log"
+TIMESTAMP=$(date '+%Y-%m-%d %H:%M:%S')
+
+# Ensure log directory exists
+mkdir -p "$LOG_DIR" 2>/dev/null
+
+# --- Phase 1: Log push event ---
+echo "========================================" >> "$LOG_FILE"
+echo "[$TIMESTAMP] [PUSH-EVENT] Push detected." >> "$LOG_FILE"
+
+# Read push details from stdin (pre-push hook receives ref info)
+while read local_ref local_sha remote_ref remote_sha; do
+    echo "[$TIMESTAMP] [REF] $local_ref ($local_sha) -> $remote_ref ($remote_sha)" >> "$LOG_FILE"
+done
+
+# --- Phase 2: Verify backup remote ---
+if ! git remote 2>/dev/null | grep -q '^backup$'; then
+    echo "[$TIMESTAMP] [WARN] 'backup' remote not configured. Skipping auto-backup." >> "$LOG_FILE"
+    echo "========================================" >> "$LOG_FILE"
+    exit 0
+fi
+
+# Record pre-push HEAD SHA for verification
+HEAD_SHA=$(git rev-parse HEAD 2>/dev/null)
+echo "[$TIMESTAMP] [PRE-PUSH] HEAD SHA: $HEAD_SHA" >> "$LOG_FILE"
+
+# --- Phase 3: Schedule background mirror ---
+# The background process waits for the main push to complete,
+# then mirrors to backup and optionally to github.
+(
+    # Wait for main push to finish (5s buffer for typical pushes)
+    sleep 5
+
+    MIRROR_TS=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$MIRROR_TS] [BACKUP-START] Mirroring to backup remote..." >> "$LOG_FILE"
+
+    # --- Mirror to backup remote ---
+    MIRROR_OUTPUT=$(git push --mirror backup 2>&1)
+    MIRROR_EXIT=$?
+
+    if [ $MIRROR_EXIT -eq 0 ]; then
+        OK_TS=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$OK_TS] [BACKUP-OK] Mirror to backup succeeded." >> "$LOG_FILE"
+
+        # Commit SHA verification: compare local HEAD with backup remote HEAD
+        BACKUP_SHA=$(git ls-remote backup HEAD 2>/dev/null | awk '{print $1}')
+        if [ -n "$BACKUP_SHA" ] && [ "$HEAD_SHA" = "$BACKUP_SHA" ]; then
+            echo "[$OK_TS] [SHA-VERIFY] PASS - backup HEAD matches local HEAD ($BACKUP_SHA)" >> "$LOG_FILE"
+        else
+            echo "[$OK_TS] [SHA-VERIFY] WARN - local: $HEAD_SHA, backup: ${BACKUP_SHA:-N/A}" >> "$LOG_FILE"
+        fi
+    else
+        ERR_TS=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$ERR_TS] [BACKUP-FAIL] Mirror to backup FAILED (exit: $MIRROR_EXIT)" >> "$LOG_FILE"
+        echo "[$ERR_TS] [BACKUP-ERROR] $MIRROR_OUTPUT" >> "$LOG_FILE"
+    fi
+
+    # --- Optional: Mirror to github remote ---
+    if git remote 2>/dev/null | grep -q '^github$'; then
+        GH_TS=$(date '+%Y-%m-%d %H:%M:%S')
+        echo "[$GH_TS] [GITHUB-START] Mirroring to github remote..." >> "$LOG_FILE"
+
+        GH_OUTPUT=$(git push --mirror github 2>&1)
+        GH_EXIT=$?
+
+        if [ $GH_EXIT -eq 0 ]; then
+            GH_OK_TS=$(date '+%Y-%m-%d %H:%M:%S')
+            echo "[$GH_OK_TS] [GITHUB-OK] Mirror to github succeeded." >> "$LOG_FILE"
+        else
+            GH_ERR_TS=$(date '+%Y-%m-%d %H:%M:%S')
+            echo "[$GH_ERR_TS] [GITHUB-FAIL] Mirror to github FAILED (exit: $GH_EXIT)" >> "$LOG_FILE"
+            echo "[$GH_ERR_TS] [GITHUB-ERROR] $GH_OUTPUT" >> "$LOG_FILE"
+        fi
+    fi
+
+    FINISH_TS=$(date '+%Y-%m-%d %H:%M:%S')
+    echo "[$FINISH_TS] [DONE] Backup process finished." >> "$LOG_FILE"
+    echo "========================================" >> "$LOG_FILE"
+) &
+
+# Detach background process so it survives hook exit
+disown 2>/dev/null
+
+# Allow main push to proceed
+exit 0

@@ -1,13 +1,15 @@
 ---
 name: devflow-project-config
-description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json，管理项目级设置（分支策略、备份配置、远程仓库）。被 devflow-init 和 setup 脚本调用。"
+description: "DevFlow 项目配置管理。生成和维护 .devflow/project-config.json，管理项目级设置（分支策略、备份配置、远程仓库）。被 devflow-init 和 setup 脚本调用。"
 ---
 
 # DevFlow 项目配置（devflow-project-config）
 
 ## 定位
 
-本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
+本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/project-config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
+
+> **版本说明**：本技能生成的 `config.json` 中的 `projectVersion` 是项目当前开发版本号，由初始化时自动读取。插件自身版本号见 `devflow-plugin/devflow-config.json` 的 `devflowVersion` 字段（唯一事实源）。
 
 ## 触发条件
 
@@ -16,28 +18,39 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 - 用户需要配置备份远程仓库
 - 用户需要更新 DevFlow 版本
 
+### 初始化仓库地址设置
+
+初始化交互流程中必须包含以下步骤：
+
+1. 展示仓库地址输入界面
+2. 提示用户输入 Git 远程仓库地址（origin 和 backup）
+3. 输入可留空，但必须显示强警告："未设置仓库地址将无法自动备份，建议在首次 commit 前设置"
+4. 用户必须主动确认留空或填写后方可进入下一步
+5. 确认后写入 config.json 的 remote.origin / remote.backup 字段
+
 ## 配置项说明
 
 ### config.json 完整结构
 
 ```json
 {
-  "project": "项目名称",
-  "devflowVersion": "{从 version.json 动态读取}",
-  "branchStrategy": "git-flow",
-  "remote": {
-    "origin": "git@github.com:org/project.git",
-    "backup": "git@backup-server:org/project-backup.git"
+  "_meta": {
+    "description": "项目级 DevFlow 配置...",
+    "schemaVersion": "1.1.0",
+    "lastUpdated": "2026-07-26"
   },
-  "backup": {
-    "type": "git-mirror",
-    "schedule": {
-      "bundle": "weekly",
-      "bundleRetention": 4,
-      "dbDump": "daily",
-      "dbRetention": 90
-    }
-  }
+  "project": {
+    "name": "",
+    "version": "",
+    "description": "",
+    "lastRelease": null
+  },
+  "remote": {
+    "origin": "",
+    "backup": "",
+    "github": ""
+  },
+  "branchStrategy": "git-flow"
 }
 ```
 
@@ -45,16 +58,16 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 | 字段 | 类型 | 默认值 | 说明 |
 |------|------|--------|------|
-| `project` | string | 自动检测 | 项目名称，用于文档命名 |
-| `devflowVersion` | string | 从 `version.json` 读取 | 当前使用的 DevFlow 版本，**严禁硬编码，唯一来源为插件根目录 `version.json`** |
+| `_meta.schemaVersion` | string | "1.1.0" | 配置文件 schema 版本号 |
+| `_meta.lastUpdated` | string | "2026-07-26" | 最后更新日期 |
+| `project.name` | string | "" | 项目名称 |
+| `project.version` | string | "" | 项目当前开发版本号 |
+| `project.description` | string | "" | 项目描述 |
+| `project.lastRelease` | null/object | null | 最近一次发布信息，初始为 null；填写格式: `{"version": "v2.10.0", "date": "2026-07-20"}` |
 | `branchStrategy` | enum | "git-flow" | 分支策略：`trunk-based` / `github-flow` / `git-flow` |
 | `remote.origin` | string | "" | 主 Git 仓库地址 |
 | `remote.backup` | string | "" | 备份 Git 仓库地址 |
-| `backup.type` | enum | "git-mirror" | 备份方式：`git-mirror` / `git-bundle` |
-| `backup.schedule.bundle` | enum | "weekly" | bundle 快照频率：`daily` / `weekly` / `monthly` |
-| `backup.schedule.bundleRetention` | int | 4 | bundle 保留数量（周） |
-| `backup.schedule.dbDump` | enum | "daily" | 数据库备份频率 |
-| `backup.schedule.dbRetention` | int | 90 | 数据库备份保留天数 |
+| `remote.github` | string | "" | GitHub 仓库地址 |
 
 ### 分支策略选择向导
 
@@ -68,7 +81,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 
 ```
 1. 用户请求变更配置（如"切换为 GitHub Flow"）
-2. 本技能读取当前 .devflow/config.json
+2. 本技能读取当前 .devflow/project-config.json
 3. 修改对应字段
 4. 验证新配置的有效性（如 backup 地址是否为合法 Git URL）
 5. 写回 config.json
@@ -86,12 +99,5 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/config.json�
 ## 约束
 
 - 本技能**不创建或修改 Git 仓库本身**
-- 本技能**只管理 .devflow/config.json 文件**
+- 本技能**只管理 .devflow/project-config.json 文件**
 - 配置验证失败时，保留原配置并提示错误
-- **版本号单一来源**：`devflowVersion` 字段的唯一权威来源是插件根目录的 `version.json`，任何技能文件、脚本中均不得硬编码具体版本号。`setup.ps1` / `install.ps1` 负责在安装时从 `version.json` 读取并注入 `config.json`
-
-## 变更记录
-
-| 日期 | 变更内容 | 变更人 |
-|---|---|---|
-| 2026-07-02 | 添加变更记录章节 | jerry.yu |

@@ -9,7 +9,7 @@ description: "DevFlow 项目配置管理。生成和维护 .devflow/project-conf
 
 本技能管理项目的 DevFlow 配置。所有项目级设置都存储在 `.devflow/project-config.json` 中，技能文件本身**不硬编码任何路径或项目名**。
 
-> **版本说明**：本技能生成的 `config.json` 中的 `projectVersion` 是项目当前开发版本号，由初始化时自动读取。插件自身版本号见插件根目录 `version.json`。
+> **版本说明**：本技能生成的 `config.json` 中的 `projectVersion` 是项目当前开发版本号，由初始化时自动读取。插件自身版本号见 `devflow-plugin/devflow-config.json` 的 `devflowVersion` 字段（唯一事实源）。
 
 ## 触发条件
 

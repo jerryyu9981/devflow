@@ -161,6 +161,7 @@ Step 3 开发编码采用四轨并行模型。整体轨道负责公共管理，�
 |------|------|
 | 3.8 问题修复与复审 | 按端记录缺陷，按端回退修复后重走对应质量通道；**技术债务审计（扫描新增 TODO/废弃标记/架构偏离，按 P0-P3 分类记录到 DevLogReport）** |
 | 3.9 DevLogReport 更新 | 汇总开发日志 |
+| **3.9b 变更一致性自检** | **在移交前强制执行自检：① 运行 validate-naming.ps1 确认命名合规 ② 检查文件头版本号与修订历史底部版本号一致 ③ 确认所有新创建文件的路径与命名规范匹配。自检失败 → 修正后才能进入 3.10** |
 | 3.10 开发审计移交 | 开发设计对比覆盖率 ≥ 95%（与 Step 2 审计对齐）；**调用 audit-agent --stage 3 --phase 1+2+3 验证 DT→TD 追溯链、Step 3 产出物存在性和检查点一致性，并复查 3 个编码检查点，输出阶段审计报告到 doc/audit/review/** |
 
 ### 失败回退路径
@@ -259,6 +260,24 @@ Step 3 开发编码采用四轨并行模型。整体轨道负责公共管理，�
 15. **产出物存在性验证**：阶段完成前必须通过 LS/Glob 列出目标目录，确认所有产出文件（代码、文档、配置等）实际存在，空输出（声称完成但文件不存在）不得通过。
 
 ## 编码技能速查
+
+## 输出要求
+
+编码阶段完成后，至少应具备：
+
+**强制产出（清单核对基准）**：
+
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 强制 MD | `doc/development/DevFlow-*DevLogReport*-v{版本号}.md` |
+| 2 | 强制 MD | `doc/development/DevFlow-*TD-ID追溯矩阵*-v{版本号}.md` |
+| 3 | 强制 MD | `doc/development/DevFlow-*开发审计移交材料*-v{版本号}.md` |
+| 4 | 强制 代码 | `devflow-plugin/` + 涉及文件代码变更（以 TD-ID 矩阵中"涉及文件"列为准）|
+| 5 | 强制 配置 | `.devflow/*` 配置文件更新 |
+| 6 | 强制 脚本 | `devflow-plugin/*.ps1` 脚本文件 |
+| 7 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
+
+（详细开发规范矩阵的强制产出项以技能速查表后的开发规范矩阵为准）
 
 流程/门禁→workflow | 文档→doc-management | 规划→writing-plans/executing-plans/tdd | 静态检查→code-static-quality-check | 逻辑审查→code-logic-review | 版本/提交→code-version-backup-management/git-commit | 命名→universal-naming-conventions | API→api-design | React→react-skills/react-best-practices | 前端→frontend-design | Vue→vue-skills | Node→nodejs-backend | Python→python-backend | Agent→llm-integration/agent-framework-* | 数据库→sql-database/mongodb | Redis→redis/redis-development | 消息→rabbitmq/kafka | 安全→security-best-practices | UI/UX可访问→web-design-guidelines/accessibility | 性能→frontend-performance/browser-devtools | Web验证→webapp-testing | Docker→docker
 | 多步骤开发任务规划 | `writing-plans` |

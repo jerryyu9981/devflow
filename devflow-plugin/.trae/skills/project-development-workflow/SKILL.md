@@ -32,7 +32,7 @@ description: "Implements Step 0 version planning plus 5-step development workflo
 | 场景 | L1 做的事 | L2 做的事 | L3 做的事 |
 |:-----|:----------|:----------|:----------|
 | 检查代码质量 | 定义"Step 3 必须经过代码质量门禁才进入 Step 4" | 3.4 步定义"执行静态质量检查"，产出"质量检查记录" | `code-static-quality-check` 提供 12 类检查项的具体阈值和工具命令 |
-| 发布版本 | 定义"Step 5 必须经过发布入场检查才上线" | 5.1 步定义"版本号自动更新"，产出"更新后的 version.json" | `code-version-backup-management` 提供 tag/backup/回滚的具体命令 |
+| 发布版本 | 定义"Step 5 必须经过发布入场检查才上线" | 5.1 步定义"版本号自动更新"，产出"更新后的 devflow-config.json" | `code-version-backup-management` 提供 tag/backup/回滚的具体命令 |
 | UI 设计审查 | 定义"Step 2 设计评审覆盖率≥95%" | 2.8a 步定义"后端覆盖检查"，2.8b 定义"前端覆盖检查" | `prototype-coverage` 提供七步检查流程表格 |
 | 安全审计 | 定义"Step 2 安全设计必须纳入审计" | 2.6a 步定义"安全设计评审"，产出"安全审查记录" | `security-design-review` 提供威胁建模方法和数据分类标准 |
 

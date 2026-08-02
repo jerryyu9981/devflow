@@ -97,7 +97,7 @@
 <button class="toc-btn" onclick="document.getElementById('sidebar').classList.toggle('open')">&#9776; 目录</button>
 
 <nav class="sidebar" id="sidebar">
-  <div class="logo">DevFlow <span class="tag tag-blue">v2.10.0</span></div>
+  <div class="logo">DevFlow <span class="tag tag-blue">v2.14.0</span></div>
   <div id="tocLinks"></div>
 </nav>
 
@@ -105,7 +105,7 @@
 
   <header class="hero">
     <h1>DevFlow 用户手册</h1>
-    <p class="sub">可插拔软件开发工程规范框架 — 完整参考手册 v2.10.0</p>
+    <p class="sub">可插拔软件开发工程规范框架 — 完整参考手册 v2.15.0</p>
   </header>
 
   <!-- 1. 概述 -->
@@ -156,6 +156,16 @@
       <div class="mini-card"><div class="mc-title">Cursor</div><div class="mc-desc">AI 编辑器</div></div>
     </div>
     <p>公网下载：<code>git clone https://github.com/jerryyu9981/devflow.git</code></p>
+
+    <h3 id="s1-5">1.5 四条约束链</h3>
+    <p>DevFlow 的核心不是工具，而是<strong>四条约束链</strong>——它们共同构成了让 AI 自主遵循工程规范的治理机制。AI 会忘记做过什么、会跳过步骤、会声称完成了但实际没有，这四条链让每一段代码都有据可查、有门可守、有债可追。</p>
+    <div class="grid-4">
+      <div class="mini-card"><div class="mc-title">🔗 门禁链</div><div class="mc-desc">每个阶段的进出都有门禁要求，不可或缺。门禁不过不进不出。</div></div>
+       <div class="mini-card"><div class="mc-title">🔍 追溯链</div><div class="mc-desc">RT-ID→DT-ID→TD-ID→TT-ID 四层递进。每行代码都能追溯到需求，每个测试都关联设计。</div></div>
+       <div class="mini-card"><div class="mc-title">📋 债务链</div><div class="mc-desc">在各个阶段对技术债务的全生命周期进行维护，确保开发过程不遗漏。</div></div>
+      <div class="mini-card"><div class="mc-title">✅ 审计链</div><div class="mc-desc">audit-agent 独立审计师重新执行验证命令，对比"声称"与"实际"输出。发现造假→全量作废重审。</div></div>
+    </div>
+    <div class="card card-accent"><div class="card-title">工程治理 vs 工具</div><p>DevFlow 不替代 IDE、不替代编译器、不替代 CI/CD。它是在 AI 对话层之上叠加的一层<strong>工程治理层</strong>——让 AI 自主遵循规范，而不是靠人盯着每一步。</p></div>
   </section>
 
   <!-- 2. 安装 -->
@@ -453,7 +463,7 @@
   </section>
 
   <footer class="footer">
-    <p>DevFlow v2.10.0 · 可插拔软件开发工程规范框架 · 2026-07-24</p>
+    <p>DevFlow v2.15.0 · 可插拔软件开发工程规范框架 · 2026-08-02</p>
     <p>完整文档可查看 <code>doc/</code> 目录，或调用各阶段技能获取详细指引</p>
   </footer>
 

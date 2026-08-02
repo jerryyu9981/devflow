@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>DevFlow — AI工程规范</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Helvetica Neue', sans-serif;
+    background: #0f0c29;
+    color: #fff;
+    -webkit-font-smoothing: antialiased;
+    padding: 0 0 40px 0;
+  }
+
+  /* ── Cover ── */
+  .cover {
+    background: linear-gradient(180deg, #0f0c29 0%, #1a1a4e 60%, #24243e 100%);
+    padding: 60px 28px 50px;
+    text-align: center;
+    position: relative;
+  }
+  .cover::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 500px 300px at 50% 0%, rgba(99,102,241,.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .cover h1 {
+    font-size: 42px;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    position: relative; z-index: 1;
+  }
+  .cover h1 span { color: #818cf8; }
+  .cover .sub {
+    font-size: 15px;
+    color: #a5b4fc;
+    margin-top: 12px;
+    line-height: 1.6;
+    position: relative; z-index: 1;
+  }
+  .cover .version {
+    display: inline-block;
+    font-size: 11px;
+    color: #c7d2fe;
+    background: rgba(129,140,248,.15);
+    border: 1px solid rgba(129,140,248,.25);
+    border-radius: 20px;
+    padding: 3px 14px;
+    margin-bottom: 18px;
+    position: relative; z-index: 1;
+  }
+
+  /* ── Card ── */
+  .card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 16px;
+    padding: 22px 20px;
+    margin: 14px 18px;
+    backdrop-filter: blur(4px);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #a5b4fc;
+    letter-spacing: 0.02em;
+  }
+  .card p, .card li {
+    font-size: 14px;
+    color: #d1d5db;
+    line-height: 1.7;
+  }
+
+  /* ── 4 chains grid ── */
+  .grid2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 18px;
+  }
+  .mini-card {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 14px;
+    padding: 16px 14px;
+    text-align: center;
+  }
+  .mini-card .emoji { font-size: 24px; display: block; margin-bottom: 6px; }
+  .mini-card h4 {
+    font-size: 12px;
+    color: #a5b4fc;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .mini-card p {
+    font-size: 11px;
+    color: #9ca3af;
+    line-height: 1.5;
+  }
+
+  /* ── Stat row ── */
+  .stats {
+    display: flex;
+    justify-content: space-around;
+    margin: 14px 18px;
+    background: rgba(255,255,255,.06);
+    border-radius: 16px;
+    padding: 18px 12px;
+    border: 1px solid rgba(255,255,255,.08);
+  }
+  .stat-item { text-align: center; }
+  .stat-num {
+    font-size: 24px;
+    font-weight: 800;
+    color: #818cf8;
+  }
+  .stat-label {
+    font-size: 11px;
+    color: #9ca3af;
+    margin-top: 2px;
+  }
+
+  /* ── List ── */
+  .list-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .list-item:last-child { margin-bottom: 0; }
+  .list-icon { font-size: 16px; min-width: 20px; }
+  .list-text { font-size: 13px; color: #d1d5db; line-height: 1.6; }
+  .list-text strong { color: #e5e7eb; }
+
+  /* ── Quote ── */
+  .quote {
+    background: rgba(129,140,248,.1);
+    border-left: 3px solid #818cf8;
+    border-radius: 0 12px 12px 0;
+    padding: 16px 18px;
+    margin: 14px 18px;
+    font-size: 13px;
+    color: #c7d2fe;
+    line-height: 1.7;
+    font-style: italic;
+  }
+
+  /* ── Footer ── */
+  .footer-note {
+    text-align: center;
+    font-size: 11px;
+    color: #6b7280;
+    margin-top: 20px;
+    padding: 0 28px;
+    line-height: 1.6;
+  }
+
+  .tag {
+    display: inline-block;
+    background: rgba(129,140,248,.12);
+    color: #a5b4fc;
+    font-size: 11px;
+    border-radius: 12px;
+    padding: 2px 10px;
+    margin: 2px 3px;
+  }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: rgba(255,255,255,.06);
+    margin: 20px 18px;
+  }
+
+  /* ── Steps timeline ── */
+  .step-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+    align-items: flex-start;
+  }
+  .step-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #818cf8;
+    background: rgba(129,140,248,.12);
+    border-radius: 8px;
+    padding: 2px 8px;
+    min-width: 28px;
+    text-align: center;
+  }
+  .step-desc {
+    font-size: 13px;
+    color: #d1d5db;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+
+<!-- ════ COVER ════ -->
+<div class="cover">
+  <div class="version">v2.13.0</div>
+  <h1>Dev<span>Flow</span></h1>
+  <div class="sub">让 AI 编程从"写代码"<br>走向"做工程"</div>
+</div>
+
+<!-- ════ What ════ -->
+<div class="card">
+  <div class="card-title">是什么</div>
+  <p>一套让 AI 智能体自主遵循的工程规范。不是插件，不是工具链——是 AI 的"操作手册"。</p>
+  <p style="margin-top:8px;">AI 会忘记做过什么，会跳过步骤，会声称完成了但实际没有。<br>DevFlow 用 <strong>四条约束链</strong> 让每一段代码都有据可查、有门可守、有债可追。</p>
+</div>
+
+<!-- ════ 4 CHAINS ════ -->
+<div class="grid2">
+  <div class="mini-card">
+    <span class="emoji">🔗</span>
+    <h4>门禁链</h4>
+    <p>审计报告不存在，<br>阶段就不能切换。<br>不可跳过，不可覆盖。</p>
+  </div>
+  <div class="mini-card">
+    <span class="emoji">🔍</span>
+    <h4>追溯链</h4>
+    <p>需求→设计→代码<br>→测试→发布<br>全流程贯通可查。</p>
+  </div>
+  <div class="mini-card">
+    <span class="emoji">📋</span>
+    <h4>债务链</h4>
+    <p>每版本 15% 容量还债，<br>29 笔债务全部闭环，<br>当前 0 待偿还。</p>
+  </div>
+  <div class="mini-card">
+    <span class="emoji">✅</span>
+    <h4>审计链</h4>
+    <p>独立审计师重新执行，<br>对比"声称"<br>与"实际"。不骗人。</p>
+  </div>
+</div>
+
+<!-- ════ STATS ════ -->
+<div class="stats">
+  <div class="stat-item">
+    <div class="stat-num">29</div>
+    <div class="stat-label">专业技能</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">6</div>
+    <div class="stat-label">工程阶段</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">4</div>
+    <div class="stat-label">约束链</div>
+  </div>
+  <div class="stat-item">
+    <div class="stat-num">14</div>
+    <div class="stat-label">版本迭代</div>
+  </div>
+</div>
+
+<!-- ════ How it works ════ -->
+<div class="card">
+  <div class="card-title">一次标准迭代</div>
+  <div class="step-row">
+    <div class="step-num">01</div>
+    <div class="step-desc"><strong>复盘</strong> → 发现 6 个改进点</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">02</div>
+    <div class="step-desc"><strong>规划</strong> → 6 项纳入 Backlog</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">03</div>
+    <div class="step-desc"><strong>需求→设计</strong> → 追溯链建好</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">04</div>
+    <div class="step-desc"><strong>编码</strong> → 7 个实现全部落地</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">05</div>
+    <div class="step-desc"><strong>测试→发布</strong> → 15/15 全部通过</div>
+  </div>
+  <div class="step-row">
+    <div class="step-num">06</div>
+    <div class="step-desc"><strong>审计闭环</strong> → 39 份文件 100% 存在</div>
+  </div>
+</div>
+
+<div class="quote">
+  "审计门禁不只是存在——<br>是每一次阶段切换前必须验证审计报告文件存在。不可被任何规则覆盖。"
+</div>
+
+<!-- ════ Why ════ -->
+<div class="card">
+  <div class="card-title">解决什么痛点</div>
+  <div class="list-item">
+    <span class="list-icon">🤖</span>
+    <span class="list-text"><strong>AI 撒谎</strong> —— 声称完成但实际没做 → 审计链发现</span>
+  </div>
+  <div class="list-item">
+    <span class="list-icon">🔁</span>
+    <span class="list-text"><strong>AI 失忆</strong> —— 多轮对话后忘记上下文 → state.json 恢复</span>
+  </div>
+  <div class="list-item">
+    <span class="list-icon">📈</span>
+    <span class="list-text"><strong>债务堆积</strong> —— 没时间还债 → 每版本 15% 硬配额</span>
+  </div>
+  <div class="list-item">
+    <span class="list-icon">📭</span>
+    <span class="list-text"><strong>发布无据</strong> —— 改了什么都查不到 → 全流程追溯</span>
+  </div>
+  <div class="list-item">
+    <span class="list-icon">🚫</span>
+    <span class="list-text"><strong>跳步开发</strong> —— 跳过设计直接编码 → 门禁链阻断</span>
+  </div>
+</div>
+
+<!-- ════ Tags ════ -->
+<hr>
+<div style="text-align:center;">
+  <span class="tag">三层架构</span>
+  <span class="tag">六阶段门禁</span>
+  <span class="tag">独立审计师</span>
+  <span class="tag">自我演进</span>
+  <span class="tag">技术债务管理</span>
+  <span class="tag">三远程备份</span>
+  <span class="tag">产出物清单</span>
+  <span class="tag">变更自检</span>
+</div>
+<hr>
+
+<!-- ════ FOOTER ════ -->
+<div class="footer-note">
+  DevFlow 用自身管理自身开发。<br>
+  20 天 14 个版本，28/29 笔债务已偿还。<br>
+  在 TRAE IDE 中运行 devflow-init 即可开始。
+</div>
+
+</body>
+</html>

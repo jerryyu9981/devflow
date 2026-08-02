@@ -144,7 +144,7 @@
 
   <header class="hero">
     <h1>DevFlow 用户指南</h1>
-    <p class="sub">可插拔软件开发工程规范框架 · v2.10.0 · 2026-07-24</p>
+    <p class="sub">可插拔软件开发工程规范框架 · v2.15.0 · 2026-08-02</p>
   </header>
 
   <nav class="quick-bar">
@@ -160,11 +160,25 @@
   <!-- ========== 1. 什么是 DevFlow ========== -->
   <section class="section" id="s1">
     <div class="section-header"><span class="section-num">1</span><h2>什么是 DevFlow</h2></div>
-    <p>DevFlow 是一套<strong>软件工程规范插件</strong>，专为 AI 辅助编程设计。它把软件开发分成 6 个标准阶段，每个阶段有明确的输入、输出和检查门禁，确保代码质量可控、每行代码都可追溯到需求。</p>
+    <p>DevFlow 是一套<strong>软件工程规范插件</strong>（Skills-as-Code 架构），专为 AI 辅助编程设计。它把软件开发分成 6 个标准阶段，每个阶段有明确的输入、输出和检查门禁，确保代码质量可控、每行代码都可追溯到需求。</p>
 
     <div class="card card-accent">
       <div class="card-title">一句话</div>
       <p>把你的 AI 编程从"随性聊天"变成"标准化工程流水线"——需求→设计→编码→测试→上线，每一步都有规范、有记录、有检查。</p>
+    </div>
+
+    <h3>四条约束链</h3>
+    <p>DevFlow 的核心不是工具，而是<strong>四条约束链</strong>。AI 会忘记做过什么、会跳过步骤、会声称完成了但实际没有——这四条链让每一段代码都有据可查、有门可守、有债可追。</p>
+    <div class="grid-4">
+      <div class="mini-card"><div class="mc-title">🔗 门禁链</div><div class="mc-desc">每个阶段的进出都有门禁要求，不可或缺。门禁不过不进不出。</div></div>
+       <div class="mini-card"><div class="mc-title">🔍 追溯链</div><div class="mc-desc">需求(RT-ID)→设计(DT-ID)→代码(TD-ID)→测试(TT-ID)→发布，全流程贯通可查。</div></div>
+       <div class="mini-card"><div class="mc-title">📋 债务链</div><div class="mc-desc">在各个阶段对技术债务的全生命周期进行维护，确保开发过程不遗漏。</div></div>
+      <div class="mini-card"><div class="mc-title">✅ 审计链</div><div class="mc-desc">独立审计师重新执行验证命令，对比"声称"与"实际"输出。不骗人。</div></div>
+    </div>
+
+    <div class="card card-warning">
+      <div class="card-title c-warning">核心差异</div>
+      <p>DevFlow 不替代任何工具或框架。它是在 AI 对话层之上叠加的一层<strong>工程治理层</strong>——让 AI 自主遵循规范，而不是靠人盯着。</p>
     </div>
 
     <h3>核心机制</h3>
@@ -371,7 +385,7 @@ cd devflow-plugin</code></pre>
   </section>
 
   <footer class="footer">
-    <p>DevFlow v2.10.0 · 可插拔软件开发工程规范框架 · 2026-07-24</p>
+    <p>DevFlow v2.15.0 · 可插拔软件开发工程规范框架 · 2026-08-02</p>
     <p>完整文档可查看项目中的 <code>doc/</code> 目录，或调用各阶段技能获取详细指引。</p>
   </footer>
 

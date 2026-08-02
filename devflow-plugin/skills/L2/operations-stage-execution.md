@@ -104,7 +104,7 @@ Step 5 部署与运维
 7. **发现 P0/P1 上线问题必须停止发布或回滚**。
 8. **Step 5 未完成运维审计不得关闭全流程**。
 9. **回滚后必须验证**：回滚完成后 15 分钟内必须完成健康检查+冒烟验证，未验证通过视为回滚失败，必须升级至 P0 处理。
-10. **版本号自动更新为原子步骤**：5.1 阶段必须检测 version.json 版本号与待发布版本的一致性。不一致时必须自动更新 version.json 并提交 commit，不允许手动跳过。跳过版本号更新视为发布失败。
+10. **版本号自动更新为原子步骤**：5.1 阶段必须检测 devflow-config.json 的 devflowVersion 与待发布版本的一致性。不一致时必须自动更新 devflow-config.json 的 devflowVersion 并提交 commit，不允许手动跳过。跳过版本号更新视为发布失败。
 11. **产出物真实性验证门禁**：所有声称已创建的产出文档/代码，在阶段结束前必须通过文件系统验证实际存在。验证方法：使用 LS/Glob 列出目标目录中的文件，逐一核对产出清单。验证不通过不得进入下一阶段。验证结果须记录在阶段评审/审计文档中。
 
 ## 部署运维技能速查
@@ -130,16 +130,31 @@ Step 5 部署与运维
 
 部署运维阶段完成后，至少应具备：
 
-- {项目名}-发布计划-v{版本号}.md（含：入场检查/发布版本记录）
-- {项目名}-部署执行报告-v{版本号}.md（含：部署文档/环境配置/部署记录/构建制品/CICD记录）
-- {项目名}-数据运维说明-v{版本号}.md（含：数据库迁移计划/缓存与消息运维；涉及数据变更时）
-- {项目名}-回滚方案-v{版本号}.md（含：回滚预案/回滚演练记录）
-- {项目名}-上线检查报告-v{版本号}.md（含：上线验证/监控日志/告警配置/安全检查/性能检查）
-- {项目名}-运维手册-v{版本号}.md（含：运维移交清单）
-- {项目名}-发布复盘报告-v{版本号}.md
-- {项目名}-运维审计报告-v{版本号}.md（固定存放于 doc\audit\comprehensive）
-- {项目名}-全流程闭环审计报告-v{版本号}.md（固定存放于 doc\audit\comprehensive）
-- {项目名}-问题跟踪记录-v{版本号}.md（含：变更请求；跨阶段跟踪；**风险归集检查**）
+**强制产出（清单核对基准）**：
+
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 强制 MD | `doc/release/DevFlow-Release-Note-v{版本号}.md` |
+| 2 | 强制 MD | `doc/release/DevFlow-Release-Note-All.md` |
+| 3 | 强制 MD | `doc/release/DevFlow-*发布入场检查记录*-v{版本号}.md` |
+| 4 | 强制 MD | `doc/release/DevFlow-*发布计划*-v{版本号}.md` |
+| 5 | 强制 MD | `doc/release/DevFlow-*部署执行报告*-v{版本号}.md` |
+| 6 | 强制 MD | `doc/release/DevFlow-*回滚方案*-v{版本号}.md` |
+| 7 | 强制 MD | `doc/release/DevFlow-*上线检查报告*-v{版本号}.md` |
+| 8 | 强制 MD | `doc/release/DevFlow-*运维手册*-v{版本号}.md` |
+| 9 | 强制 MD | `doc/release/DevFlow-*发布复盘报告*-v{版本号}.md` |
+| 10 | 强制 MD | `doc/release/DevFlow-*问题跟踪记录*-v{版本号}.md` |
+| 11 | 强制 产物 | `DevFlow-用户指南.html`（项目根目录）|
+| 12 | 强制 产物 | `DevFlow-用户手册.html`（项目根目录）|
+| 13 | 强制 配置 | `.devflow/project-config.json` 版本号更新 |
+| 14 | 强制 配置 | `devflow-plugin/devflow-config.json` devflowVersion 版本号更新 |
+| 15 | 强制 脚本 | `devflow-plugin/release.ps1` 执行记录 |
+| 16 | 强制 MD | `doc/release/DevFlow-*运维审计报告*-v{版本号}.md` |
+| 17 | 强制 MD | `doc/audit/comprehensive/DevFlow-*全流程闭环审计报告*-v{版本号}.md` |
+| 18 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
+| 19 | 按需 MD | `doc/release/DevFlow-*数据运维说明*-v{版本号}.md` |
+
+> 产出物存在性验证：本阶段所有产出文档必须经过存在性验证，验证结果作为阶段移交的必备材料之一。
 
 文档命名、路径和版本规则遵循 `project-document-management`。
 文档内容结构和章节模板参考 `project-document-templates` 技能。
@@ -224,12 +239,12 @@ Step 5 必须交付以下发布文档：
 >
 > 示例（正确）：
 > ```
-> [✅] 版本号确认 — `cat version.json | ConvertFrom-Json | Select -Expand version` → 输出 "2.10.0"
+> [✅] 版本号确认 — 读取 `devflow-config.json` 的 `devflowVersion` → 输出 "2.10.0"
 > [⛔] Git Tag 已创建并推送 — `git tag -l v2.10.0` → 提示 "git 命令不存在"，阻塞，需安装 Git 后重试
 > ```
 
 发布前：
-- [ ] 版本号确认 — 验证命令：`cat version.json | jq .version` / 预期：与规划文档一致
+- [ ] 版本号确认 — 验证命令：读取 `devflow-config.json` 的 `devflowVersion` / 预期：与规划文档一致
 - [ ] Backlog 完成度确认 — 验证方式：逐项核对 BL-ID 状态
 - [ ] 测试报告确认 — 验证方式：读取测试报告 §结论
 - [ ] 审计报告确认 — 验证方式：读取全流程闭环审计报告 §审计结论
@@ -245,7 +260,7 @@ Step 5 必须交付以下发布文档：
 - [ ] Tag 存在性验证 — 验证命令：`git tag -l v{版本号}` → 输出匹配
 - [ ] 远程仓库同步验证 — 验证命令：`git ls-remote origin refs/tags/v{版本号}` → 输出匹配
 - [ ] 备份仓库同步验证 — 验证命令：`git ls-remote {backup_url} refs/tags/v{版本号}` → 输出匹配
-- [ ] 版本号一致性验证 — 验证命令：对比 version.json / devflow-config.json / .devflow/project-config.json（project.version + lastRelease）三处版本号
+- [ ] 版本号一致性验证 — 验证命令：对比 devflow-config.json（devflowVersion）/ .devflow/project-config.json（project.version + lastRelease）/ .devflow/state.json（devflowVersion）三处版本号
 - [ ] Release Note 已生成 — 验证命令：`Test-Path doc/release/DevFlow-Release-Note-v{版本号}.md`
 - [ ] Changelog 已更新 — 验证命令：grep README.md 中最新版本行
 - [ ] **用户指南已更新** — 验证命令：grep DevFlow-用户指南.html 中版本号已更新至当前版本
@@ -309,7 +324,7 @@ Step 5 可完成的最低条件：
 ### 5.1~5.4 部署准备与执行
 | 步骤 | 活动 | 产出 |
 |------|------|------|
-| 5.1 发布计划 + 版本/制品确认 + **版本号自动更新** | 制品版本核对；**检查 version.json 版本号与待发布版本是否一致；不一致时自动更新并提交 version.json**；**确认 tag 已推送到 backup 远程仓库** | 发布计划 + **更新后的 version.json commit**；**备份验证记录** |
+| 5.1 发布计划 + 版本/制品确认 + **版本号自动更新** | 制品版本核对；**检查 devflow-config.json 的 devflowVersion 与待发布版本是否一致；不一致时自动更新并提交 devflow-config.json**；**确认 tag 已推送到 backup 远程仓库** | 发布计划 + **更新后的 devflow-config.json commit**；**备份验证记录** |
 | 5.2 环境配置核验 + 数据库迁移 | 环境核对、DB 迁移脚本检查 | 环境核验记录 |
 | 5.3 缓存/消息运维 | 缓存预热、消息队列状态检查 | 缓存运维记录 |
 | 5.4 部署执行 | 按部署方案执行 | 部署执行记录 |
@@ -333,7 +348,8 @@ Step 5 可完成的最低条件：
 | 步骤 | 活动 |
 |------|------|
 | 5.9 运维移交 | 运维文档归档 |
-| 5.10 发布复盘 | 复盘记录；**确认 version.json 版本号与 Git tag 一致**；**更新 .devflow/project-config.json 的 project.version 和 lastRelease 字段**；**调用 audit-agent --version v{version} 自动生成全流程闭环审计报告（聚合 doc/audit/review/ 中各阶段审计报告）** |
+| 5.10 发布复盘 | 复盘记录；**确认 devflow-config.json 的 devflowVersion 与 Git tag 一致**；**更新 .devflow/project-config.json 的 project.version 和 lastRelease 字段**；**调用 audit-agent --version v{version} 自动生成全流程闭环审计报告（聚合 doc/audit/review/ 中各阶段审计报告）** |
+| **5.10b 变更一致性自检** | **① 验证 devflow-config.json（devflowVersion）/ project-config.json / state.json 三处版本号一致 ② 验证 Release Note 和 Changelog 均已包含当前版本号 ③ 验证路线图已同步当前版本。自检失败 → 修正后才能进入 5.11** |
 | 5.11 运维审计移交 | 全流程闭环审计，含追溯链闭环检查 |
 
 ## L3 部署运维速查

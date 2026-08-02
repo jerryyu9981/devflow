@@ -62,7 +62,7 @@ if [ -z "$VERSION" ]; then
     fi
     # If repo configured and local failed, try remote
     if [ -n "$REPO_URL" ] && [ -z "$VERSION" ]; then
-        VERSION=$(curl -sf "${REPO_URL}/raw/main/version.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['devflowVersion'])" 2>/dev/null || true)
+        VERSION=$(curl -sf "${REPO_URL}/raw/main/devflow-plugin/devflow-config.json" 2>/dev/null | python3 -c "import json,sys; print(json.load(sys.stdin)['devflowVersion'])" 2>/dev/null || true)
     fi
     if [ -z "$VERSION" ]; then
         err "Cannot determine target version. Please specify --version."

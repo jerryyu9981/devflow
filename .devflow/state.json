@@ -1,6 +1,6 @@
 {
   "project": "DevFlow",
-  "devflowVersion": "2.13.0",
+  "devflowVersion": "2.15.0",
   "currentPhase": "step_5_operations",
   "completedPhases": [
     "step_0_planning",
@@ -11,19 +11,19 @@
     "step_5_operations"
   ],
   "versionCheck": {
-    "lastCheck": "2026-07-27",
+    "lastCheck": "2026-07-28",
     "installedDevflowVersion": "2.11.0",
-    "recordedDevflowVersion": "2.13.0",
+    "recordedDevflowVersion": "2.14.0",
     "result": "project_newer",
     "action": "user_prompted"
   },
   "currentDocuments": {
-    "step_0": "doc/version/releases/v2.13.0/ (4份规划文档)",
-    "step_1": "doc/requirements/ (开发需求文档v2.13.0+追溯矩阵+评审记录+基线及设计移交+需求来源与干系人) + doc/audit/assessment/ (需求评估报告v2.13.0)",
-    "step_2": "doc/design/ (系统架构设计文档v2.13.0+设计评审记录v2.13.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.13.0)",
-    "step_3": "doc/development/ (DevLogReport v2.13.0)",
-    "step_4": "doc/testing/ (测试报告v2.13.0) + doc/audit/verification/ (测试回溯对比审计报告v2.13.0)",
-    "step_5": "doc/release/ (Release Note+Changelog v2.13.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.13.0) + doc/audit/review/ (5份阶段审计报告 v2.13.0)"
+    "step_0": "doc/version/releases/v2.14.0/ (4份规划文档)",
+    "step_1": "doc/requirements/ (开发需求文档v2.14.0+追溯矩阵+评审记录+基线及设计移交+来源与干系人) + doc/audit/assessment/ (需求评估报告v2.14.0)",
+    "step_2": "doc/design/ (系统架构设计文档v2.14.0+设计评审记录v2.14.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.14.0)",
+    "step_3": "doc/development/ (DevLogReport v2.14.0 + TD-ID矩阵 v2.14.0 + 开发审计移交 v2.14.0)",
+    "step_4": "doc/testing/ (测试计划v2.14.0+测试报告v2.14.0+测试用例v2.14.0) + doc/audit/verification/ (测试回溯对比审计报告v2.14.0) + doc/testing/evidence/",
+    "step_5": "doc/release/ (Release-Note v2.14.0 + 运维审计报告v2.14.0 + 发布入场检查) + doc/audit/comprehensive/ (全流程闭环审计报告v2.14.0) + doc/audit/review/ (5份阶段审计报告 v2.14.0)"
   },
   "auditResults": {
     "step_0": "passed",

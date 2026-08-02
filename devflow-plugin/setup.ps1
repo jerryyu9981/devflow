@@ -117,7 +117,7 @@ if ($HostType -eq "TRAE") {
 
         if (Test-Path $src) {
             New-Item -ItemType Directory -Path $dstDir -Force | Out-Null
-            # v2.7.5 fix: preserve original filename for non-.md files (e.g. version.json, sync-skills.ps1)
+            # v2.7.5 fix: preserve original filename for non-.md files (e.g. devflow-config.json, sync-skills.ps1)
             $ext = [System.IO.Path]::GetExtension($src)
             if ($ext -eq '.md') {
                 $dstFile = Join-Path $dstDir "SKILL.md"

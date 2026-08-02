@@ -38,7 +38,7 @@ audit-agent（独立审计师）
 │   └─ 子步骤产出物完整性验证 ← 按子步骤清单逐一检查产出物存在性
 │
 ├─ 能力 3：关键检查点复查     ← AI 独立重新执行验证命令
-│   ├─ 版本号一致性（cat version.json vs Git tag）
+│   ├─ 版本号一致性（读取 devflow-config.json 的 devflowVersion vs Git tag）
 │   ├─ 测试覆盖率（重新扫描或读取报告数据）
 │   ├─ 构建验证（重新执行构建命令）
 │   ├─ 远程同步（git ls-remote 各远程 Tag）
@@ -89,22 +89,28 @@ audit-agent --version v{版本号}
 │   └── 交叉比对 → 一致性报告
 │
 ├── 能力 2：产出物盘点 + 子步骤完整性
+│   ├── 读取6阶段标准产出物清单（doc/audit/checklist/DevFlow-产出物清单-Stage{N}-v{版本}.md）
+│   ├── 替换清单中的 {VERSION} 占位符为当前版本号（从 state.json 的 devflowVersion 读取）
 │   ├── LS 各阶段产出目录
 │   ├── 读取阶段技能文档 → 提取子步骤产出物清单
-│   └── 子步骤 → LS 结果逐一对比
+│   ├── 按标准清单逐项核对：比对各阶段实际产出物与清单要求的文件
+│   ├── 非清单内文件不计入通过率
+│   └── 输出"清单核对通过率 = pass/total * 100%"
 │
-├── 能力 3：关键检查点复查 + 仓库备份验证
-│   ├── 版本号一致：cat version.json vs git tag -l
+├── 能力 3：关键检查点复查 + 仓库备份验证    ← **逐条执行并记录**
+│   ├── 版本号一致：读取 devflow-config.json 的 devflowVersion vs git tag -l
 │   ├── 构建验证：重新执行构建/编译命令
 │   ├── 远程同步：git ls-remote origin/backup/github
 │   ├── 仓库备份：三远程 Tag hash 一致性验证
-│   └── 随机抽查：3 项 Release Checklist 验证命令
+│   ├── 随机抽查：3 项 Release Checklist 验证命令
+│   └── **逐条执行并记录：按各阶段检查点复查抽样表，逐条复制验证命令到终端执行，记录实际输出，对比声称结果**
 │
 └── 能力 4：报告生成 + 风险归集
     ├── 合并能力 1~3 结果
     ├── 证据真实性判定 → 一致/不一致/部分一致
     ├── Read 技术债务总表 → 检查 P1+ 归集
-    └── Write 审计报告到 doc/audit/comprehensive/
+    ├── 阶段审计时（--stage N）：Write 阶段审计报告到 doc/audit/review/
+    └── 全流程审计时（--version）：聚合所有阶段报告 Write 到 doc/audit/comprehensive/
 ```
 
 ---
@@ -120,7 +126,7 @@ audit-agent --version v2.11.0
 ```text
 audit-agent --stage 0 --phase 1+2     # Step 0 追溯 + 产物
 audit-agent --stage 1 --phase 1+2     # Step 1 追溯 + 产物
-audit-agent --stage 2 --phase 1+2+3   # Step 2 追溯 + 产物 + 1检查点
+audit-agent --stage 2 --phase 1+2+3   # Step 2 追溯 + 产物 + 检查点
 audit-agent --stage 3 --phase 1+2+3   # Step 3 追溯(DT→TD) + 产物 + 检查点
 audit-agent --stage 4 --phase 1+2+3   # Step 4 追溯 + 产物 + 1检查点
 audit-agent --stage 5 --phase 2+3     # Step 5 产物 + 3检查点
@@ -302,15 +308,15 @@ Stage 5 ── LS(doc/release/)
 ### 检查点 3.1 — 版本号一致性
 
 ```text
-[TOOL] Read(version.json) → extract version field
+[TOOL] Read(devflow-plugin/devflow-config.json) → extract devflowVersion field
 [TOOL] RunCommand(git tag -l v{version})
-[LOGIC] 对比 version.json 中的版本号 vs Git tag
+[LOGIC] 对比 devflow-config.json 的 devflowVersion vs Git tag
   ✅ 一致 → 版本号确认通过
   ❌ 不一致 → 标记
 
-[声称结果] 取自全流程闭环审计报告 or version.json
-[重新执行] cat version.json + git tag -l v{version}
-[对比] version.json的版本号 = Git tag 版本号？
+[声称结果] 取自全流程闭环审计报告 or devflow-config.json
+[重新执行] 读取 devflow-config.json 的 devflowVersion + git tag -l v{version}
+[对比] devflow-config.json 的 devflowVersion = Git tag 版本号？
 ```
 
 ### 检查点 3.2 — 构建验证
@@ -370,28 +376,28 @@ Stage 5 ── LS(doc/release/)
 
 | 阶段 | # | 检查点 | 验证命令 | 声称来源 | 优先级 |
 |:----:|:-:|:-------|:---------|:---------|:------:|
-| **Stage 0** | 1 | 版本规划 4 份文档存在性 | LS(doc/version/releases/{version}/) | 当前阶段产出清单 | P0 |
+| **Stage 0** | 1 | 版本规划 4 份文档存在性 | LS(doc/version/releases/v{VERSION}/) | 当前阶段产出清单 | P0 |
 | **Stage 0** | 2 | BL-ID 与 Backlog 一致性 | Read(追溯矩阵) vs Read(Backlog) | 版本规划评审记录 | P0 |
-| **Stage 0** | 3 | 版本号格式合规 | Read(version.json) → 正则校验 v{major}.{minor}.{patch} | version.json | P1 |
+| **Stage 0** | 3 | 版本号格式合规 | Read(devflow-config.json) → 正则校验 devflowVersion 字段 v{major}.{minor}.{patch} | devflow-config.json | P1 |
 | **Stage 1** | 1 | RT-ID 覆盖率（P0/P1 全覆盖） | Read(需求追溯矩阵) 逐项核对 | 需求评估报告 | P0 |
 | **Stage 1** | 2 | P0/P1 验收标准完整性 | Grep(开发需求文档, pattern: 验收标准) | 开发需求文档 | P0 |
 | **Stage 1** | 3 | 需求评估报告存在性 | LS(doc/audit/assessment/) | 需求评审记录 | P0 |
 | **Stage 2** | 1 | DT-ID 覆盖率（由 Phase 1 覆盖） | Read(设计评审记录) 追溯矩阵 | 需求架构对比审计报告 | P0 |
 | **Stage 2** | 2 | 系统架构+Agent 架构文档存在性 | LS(doc/design/) | 阶段产出清单 | P0 |
 | **Stage 2** | 3 | 设计评审记录存在性 | LS(doc/design/) | 阶段产出清单 | P0 |
-| **Stage 3** | 1 | 版本号一致性 | cat version.json + git tag -l v{version} | DevLogReport | P0 |
+| **Stage 3** | 1 | 版本号一致性 | 读取 devflow-config.json 的 devflowVersion + git tag -l v{VERSION} | DevLogReport | P0 |
 | **Stage 3** | 2 | 构建验证 | RunCommand(构建命令) → 退出码 = 0 | DevLogReport | P0 |
 | **Stage 3** | 3 | DevLogReport 存在性 | LS(doc/development/) | 开发审计移交材料 | P0 |
 | **Stage 4** | 1 | 测试覆盖率核查（偏差 ≤ 5%） | Read(测试报告) 提取覆盖数据 | 测试报告 | P0 |
 | **Stage 4** | 2 | 测试报告存在性 | LS(doc/testing/) | 测试阶段产出 | P0 |
 | **Stage 4** | 3 | 缺陷闭环状态（P0/P1 全关闭） | Read(测试报告) 缺陷章节 | 测试报告 | P0 |
-| **Stage 5** | 1 | 三远程备份一致性 | git ls-remote origin/backup/github | Release Checklist | P0 |
-| **Stage 5** | 2 | version→tag→lastRelease 三联校验 | Read(version.json) + git tag + Read(project-config.json) | 发布复盘记录 | P0 |
-| **Stage 5** | 3 | Release Note 存在性 | LS(doc/release/) | 阶段产出清单 | P0 |
-| **Stage 5** | 4 | Changelog 存在性 | LS(doc/) 或 Read 确认 | 阶段产出清单 | P0 |
+| **Stage 5** | 1 | 三远程备份一致性 | git ls-remote origin/backup/github refs/tags/v{VERSION} | Release Checklist | P0 |
+| **Stage 5** | 2 | version→tag→lastRelease 三联校验 | Read(devflow-config.json devflowVersion) + git tag -l v{VERSION} + Read(project-config.json .project.lastRelease.version) | 发布复盘记录 | P0 |
+| **Stage 5** | 3 | Release Note 存在性 | LS(doc/release/DevFlow-Release-Note-v{VERSION}.md) | 阶段产出清单 | P0 |
+| **Stage 5** | 4 | Changelog 存在性 | Grep(doc/release/README.md, pattern: v{VERSION}) | 阶段产出清单 | P0 |
 | **Stage 5** | 5 | 3 项随机 Release Checklist 验证 | RunCommand(随机 3 项验证命令) | 全流程闭环审计报告 | P0 |
-| **Stage 5** | 6 | 全流程闭环审计报告存在性 | LS(doc/audit/comprehensive/) | 阶段产出清单 | P0 |
-| **Stage 5** | 7 | 运维审计报告存在性 | LS(doc/audit/comprehensive/) | 阶段产出清单 | P1 |
+| **Stage 5** | 6 | 全流程闭环审计报告存在性 | LS(doc/audit/comprehensive/DevFlow-全流程闭环审计报告-v{VERSION}.md) | 阶段产出清单 | P0 |
+| **Stage 5** | 7 | 运维审计报告存在性 | LS(doc/release/DevFlow-运维审计报告-v{VERSION}.md) | 阶段产出清单 | P1 |
 
 ---
 
@@ -438,9 +444,27 @@ Stage 5 ── LS(doc/release/)
 （能力 3 输出）
 | 检查点 | 验证命令 | 声称结果 | 实际结果 | 一致性 |
 |:------:|:---------|:--------:|:--------:|:------:|
-| 版本号确认 | cat version.json | v{version} | {actual} | ✅/❌ |
+| 版本号确认 | 读取 devflow-config.json 的 devflowVersion | v{version} | {actual} | ✅/❌ |
 | 构建验证 | {command} | 成功 | {actual} | ✅/❌ |
 | 远程备份 | git ls-remote | 3/3 | {actual} | ✅/❌ |
+
+## 各阶段检查点逐条执行记录
+（从各阶段能力 3 检查点复查抽样表逐条执行并记录）
+| 阶段 | # | 检查点 | 验证命令 | 实际输出 | 一致性 |
+|:----:|:-:|:-------|:---------|:---------|:------:|
+| Stage 0 | 1 | 版本规划文档存在性 | LS(doc/version/releases/v{VERSION}/) | {ls_output} | ✅/❌ |
+| Stage 0 | 2 | BL-ID 与 Backlog 一致性 | Read(追溯矩阵) vs Read(Backlog) | {grep_output} | ✅/❌ |
+| Stage 1 | 1 | RT-ID 覆盖率 | Read(需求追溯矩阵) | {rt_count} | ✅/❌ |
+| Stage 1 | 2 | 验收标准完整性 | Grep(开发需求文档, 验收标准) | {count} 项 | ✅/❌ |
+| Stage 2 | 1 | DT-ID 覆盖率 | Read(设计评审记录) | {dt_count} | ✅/❌ |
+| Stage 2 | 2 | 设计文档存在性 | LS(doc/design/) | {files} | ✅/❌ |
+| Stage 3 | 1 | 版本号一致性 | 读取 devflow-config.json 的 devflowVersion + git tag -l v{VERSION} | {version_tag} | ✅/❌ |
+| Stage 3 | 2 | DevLogReport 存在性 | LS(doc/development/) | {files} | ✅/❌ |
+| Stage 4 | 1 | 测试报告存在性 | LS(doc/testing/) | {files} | ✅/❌ |
+| Stage 4 | 2 | 测试回溯审计报告存在性 | LS(doc/audit/verification/) | {files} | ✅/❌ |
+| Stage 5 | 1 | 三远程备份一致性 | git ls-remote origin/backup/github refs/tags/v{VERSION} | {hashes} | ✅/❌ |
+| Stage 5 | 2 | 三联校验 | Read(devflow-config.json devflowVersion)+git tag+Read(project-config.json) | {triple} | ✅/❌ |
+| Stage 5 | 3 | 全流程审计报告存在性 | LS(doc/audit/comprehensive/) | {files} | ✅/❌ |
 
 ## 仓库备份验证
   origin:   ✅ {hash}
@@ -480,10 +504,46 @@ Stage 5 ── LS(doc/release/)
 
 ### 步骤 3 — 写入审计报告
 
+**阶段审计输出**（指定 `--stage N` 时）：
+
+```text
+[TOOL] Write(doc/audit/review/DevFlow-阶段审计报告-Stage{VERSION}.md)
+[CONTENT] 仅含当前阶段的审计结果
+[LOG] 报告头部标注："本报告为阶段独立审计报告，仅覆盖单个阶段的追溯链/产出物/检查点"
+
+[FORMAT]
+# DevFlow 阶段审计报告 — Stage {N} - v{version}
+
+## 审计范围
+- 版本号：{version}
+- 审计阶段：Stage {N}（{阶段名}）
+- 审计日期：{date}
+- 审计能力：Phase {phase_list}（追溯链/产出物盘点/检查点复查）
+
+## 追溯链验证
+该阶段相关追溯链检定结果
+
+## 产出物盘点
+该阶段产出物存在性 + 子步骤完整性结果
+
+## 关键检查点复查
+该阶段检查点复查结果
+
+## 风险标记
+⚠️ 标记本次审计发现的待关闭问题，供人工干预
+- P0 阻塞项：{list}
+- P1 高风险项：{list}
+
+## 阶段审计结论
+✅ 允许进入下一阶段 / ❌ 阻塞，需先解决标记问题
+```
+
+**全流程审计输出**（指定 `--version` 时）：
+
 ```text
 [TOOL] Write(doc/audit/comprehensive/DevFlow-全流程闭环审计报告-{version}.md)
-[CONTENT] 完整审计报告 Markdown
-[LOG] 报告头部标注："本报告由 audit-agent AI 生成，关键数据已自动填入"
+[CONTENT] 聚合 doc/audit/review/ 中所有阶段审计报告内容
+[LOG] 报告头部标注："本报告由 audit-agent AI 生成，汇集各阶段独立审计报告"
 ```
 
 ### 步骤 4 — 季度审计
@@ -524,7 +584,8 @@ audit-agent --quarterly {year}-Q{quarter}
 | **步骤日志** | 每个步骤开始时输出 `  [STEP] Step X: ...` |
 | **中间结果** | 每个步骤完成后输出关键发现 |
 | **错误日志** | 失败时输出 `[ERROR] ...` + 原因 |
-| **最终输出** | 完整审计报告写入 `doc/audit/comprehensive/` |
+| **阶段审计输出** | 写入 `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{version}.md` |
+| **最终输出** | 全流程审计报告写入 `doc/audit/comprehensive/` |
 
 ---
 

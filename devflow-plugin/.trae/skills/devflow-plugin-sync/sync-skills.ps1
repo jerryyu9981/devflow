@@ -32,12 +32,12 @@ $ErrorActionPreference = "Continue"
 # ─── Plugin Source Directory ─────────────────────────────────────
 $PluginDir = $PSScriptRoot
 
-# Read version
+# Read version from devflow-config.json (single source of truth)
 $Version = "unknown"
-$VersionJsonPath = Join-Path $PluginDir "version.json"
-if (Test-Path $VersionJsonPath) {
-    $verInfo = Get-Content $VersionJsonPath -Encoding UTF8 | ConvertFrom-Json
-    $Version = $verInfo.devflowVersion
+$ConfigPath = Join-Path $PluginDir "devflow-config.json"
+if (Test-Path $ConfigPath) {
+    $configInfo = Get-Content $ConfigPath -Encoding UTF8 | ConvertFrom-Json
+    $Version = $configInfo.devflowVersion
 }
 
 # DT-01: Load skill definitions from devflow-manifest.json
@@ -102,7 +102,7 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
 
     # If source is a single file:
     # - .md files (L1/L2/L3 skills) → wrap into SKILL.md
-    # - Other files (e.g. version.json) → keep original filename
+    # - Other files (e.g. devflow-config.json) → keep original filename
     $isSingleFile = $false
     $singleFileSrc = ""
     $preserveFileName = $false

@@ -1,13 +1,14 @@
 {
   "_meta": {
     "sourceOfTruth": true,
-    "description": "本文件是 DevFlow 插件的唯一权威配置源。所有技能、脚本、文档中的版本号、技能清单、元数据均以此文件为准。修改时先更新此文件，再同步至所有引用位置。",
-    "schemaVersion": "1.0.0",
-    "lastUpdated": "2026-07-27"
+    "versionField": "devflowVersion",
+    "description": "本文件是 DevFlow 插件的唯一权威配置源，devflowVersion 字段是版本号的唯一事实源（Single Source of Truth）。所有技能、脚本、文档中的版本号均以此字段为准。version.json 已彻底弃用并删除，不再作为版本来源。",
+    "schemaVersion": "1.1.0",
+    "lastUpdated": "2026-08-02"
   },
   "name": "DevFlow",
   "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、29个核心技能、24个文档模板和完整的追溯链。",
-  "devflowVersion": "2.11.0",
+  "devflowVersion": "2.15.0",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",
@@ -104,9 +105,8 @@
   },
   "migration": {
     "deprecatedFiles": [
-      "version.json",
       "devflow-manifest.json"
     ],
-    "migrationGuide": "从 v2.9.0 及以下版本升级时，install.ps1 / update.ps1 会自动检测旧配置文件并迁移数据至 devflow-config.json。旧文件将备份至 .devflow/backup/ 目录。"
+    "migrationGuide": "从 v2.9.0 及以下版本升级时，install.ps1 / update.ps1 会自动检测旧配置文件并迁移数据至 devflow-config.json。旧文件将备份至 .devflow/backup/ 目录。version.json 自 v2.15.0 起彻底弃用并删除，版本号统一由 devflow-config.json 的 devflowVersion 字段管理。"
   }
 }

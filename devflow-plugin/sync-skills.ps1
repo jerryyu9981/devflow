@@ -107,7 +107,7 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
 
     # If source is a single file:
     # - .md files (L1/L2/L3 skills) → wrap into SKILL.md
-    # - Other files (e.g. version.json) → keep original filename
+    # - Other files (e.g. devflow-config.json) → keep original filename
     $isSingleFile = $false
     $singleFileSrc = ""
     $preserveFileName = $false

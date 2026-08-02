@@ -9,7 +9,7 @@ description: "DevFlow 初始化 orchestrator。检测项目当前状态，推断
 
 本技能是 DevFlow 框架的入口 orchestrator。它不执行具体编码、设计或测试工作，而是：
 
-> **版本来源规则**：DevFlow 插件版本号从 `~/.trae-cn/skills/devflow-config/devflow-config.json` 读取，该文件由 Install/Update 脚本同步，是 DevFlow 的唯一权威配置源（Single Source of Truth）。项目根目录的 `version.json` 仅作为"该项目使用的 DevFlow 版本"的记录，不是权威来源。
+> **版本来源规则**：DevFlow 插件版本号以 `devflow-plugin/devflow-config.json` 的 `devflowVersion` 字段为唯一事实源（Single Source of Truth）。该文件由 Install/Update 脚本同步至 TRAE 系统目录（`~/.trae-cn/skills/devflow-config/devflow-config.json`）。`version.json` 已自 v2.15.0 起彻底弃用并删除，不再作为版本来源。
 
 1. **检测项目状态**：通过检查项目目录中的已有文档，推断项目当前处于 DevFlow 哪个阶段
 2. **生成初始配置**：创建 `.devflow/project-config.json` 和 `.devflow/state.json`
@@ -48,7 +48,7 @@ cat ~/.trae-cn/skills/devflow-config/devflow-config.json
 ```
 
 **降级规则**：
-- 若 TRAE 技能目录 `devflow-config.json` 不存在（如未安装或同步），则读取项目根目录的 `version.json`（如有）
+- 若 TRAE 技能目录 `devflow-config.json` 不存在（如未安装或同步），则读取项目内 `devflow-plugin/devflow-config.json` 的 `devflowVersion` 字段
 - 若仍无法读取，标记为 `"unknown"`
 
 ### 1.5.5 版本差异检测
@@ -142,46 +142,9 @@ if ($skillConfig) {
 
 ---
 
-### 1.6 创建项目根目录 version.json
+### 1.6 版本号事实源确认（version.json 已弃用）
 
-```json
-{
-  "name": "DevFlow",
-  "devflowVersion": "{1.5 获取到的版本号}"
-}
-```
-
-写入项目根目录（`.devflow/` 同级），记录"本项目使用的 DevFlow 版本"。此文件在后续 Update 时由 devflow-init 覆盖更新。
-
-### 1.6.1 version.json 字段补全
-
-在 1.6 创建 version.json 之后执行字段补全：
-
-```text
-[1] 检查 version.json 的 repository 和 homepage 字段是否为空
-[2] 若为空 → 从 .devflow/project-config.json remote.origin 读取仓库地址
-[3] repository.url = remote.origin 的值
-[4] repository.type = "git"
-[5] homepage = remote.origin（去掉 .git 后缀）
-[6] 将更新后的 repository 和 homepage 字段写入 version.json
-```
-
-**补全示例**：
-- `config.json` 中 `remote.origin = "http://192.168.0.14/jerry.yu/devflow.git"`
-- 补全后 `version.json` 新增字段：
-  ```json
-  {
-    "name": "DevFlow",
-    "devflowVersion": "2.8.5",
-    "repository": {
-      "type": "git",
-      "url": "http://192.168.0.14/jerry.yu/devflow.git"
-    },
-    "homepage": "http://192.168.0.14/jerry.yu/devflow"
-  }
-  ```
-
-> 如果 `.devflow/project-config.json` 不存在或 `remote.origin` 为空，则跳过补全并记录跳过原因。
+> **v2.15.0 变更**：`version.json` 已彻底弃用并删除。版本号唯一事实源为 `devflow-plugin/devflow-config.json` 的 `devflowVersion` 字段。初始化时不再创建 `version.json`，不再执行 version.json 字段补全逻辑。项目使用的 DevFlow 版本通过 `.devflow/state.json` 的 `devflowVersion` 字段记录（由 1.5 版本检测步骤写入），该字段是 `devflow-config.json` 的同步副本，非独立事实源。
 
 ### 1.7 检测项目版本号
 

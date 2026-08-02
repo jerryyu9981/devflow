@@ -78,20 +78,20 @@ description: "DevFlow 阶段状态机。管理项目当前所处的开发阶段�
 
 ```
 Step N 触发
-  ├── 全流程模式：Step N 完成 → 完成标准检查 → 审计门禁 → 更新 completedPhases → 确认 source 对接下一阶段 → 进入 Step N+1
+  ├── 全流程模式：Step N 完成 → 完成标准检查 → 审计门禁 → **审计报告文件存在性验证（硬门禁）** → 更新 completedPhases → 确认 source 对接下一阶段 → 进入 Step N+1
   └── 独立模式：Stage N 完成 → 独立审计 → 更新 standaloneEntries → 产出归档（不更新 completedPhases）
 ```
 
 ### 各阶段的切换门禁
 
-| 从 → 到 | 门禁条件 | source 验证 | 状态更新 |
-|---------|---------|------------|---------|
-| Step 0 → Step 1 | 版本规划评审通过 | — | `completedPhases` 追加 `step_0_planning` |
-| Step 1 → Step 2 | 需求评审通过 + 需求评估审计通过 | RT-ID 追溯矩阵完整性检查 | `auditResults` 更新 |
-| Step 2 → Step 3 | 设计评审通过 + 需求架构对比审计覆盖率 ≥ 95% | DT-ID 全覆盖检查 | `auditResults` 更新 |
-| Step 3 → Step 4 | 静态质量检查通过 + 代码逻辑审查通过 + 开发审计通过 | TD-ID 格式规范 + 覆盖率 ≥ 95% | `auditResults` 更新 |
-| Step 4 → Step 5 | 14 类测试矩阵通过 + 测试回溯审计通过 | TD-ID→TT-ID 映射覆盖 + 缺陷闭环 | `auditResults` 更新 |
-| Step 5 → 结束 | 运维审计通过 + 全流程闭环审计通过 | 部署验证项关联 TT-ID + 追溯链闭环 | `step_5_closed = true` |
+| 从 → 到 | 门禁条件 | 审计报告硬门禁 | source 验证 | 状态更新 |
+|---------|---------|-------------|------------|---------|
+| Step 0 → Step 1 | 版本规划评审通过 | `doc/audit/review/DevFlow-阶段审计报告-Stage0-v{版本}.md` 必须存在 | — | `completedPhases` 追加 `step_0_planning` |
+| Step 1 → Step 2 | 需求评审通过 + 需求评估审计通过 | `doc/audit/review/DevFlow-阶段审计报告-Stage1-v{版本}.md` 必须存在 | RT-ID 追溯矩阵完整性检查 | `auditResults` 更新 |
+| Step 2 → Step 3 | 设计评审通过 + 需求架构对比审计覆盖率 ≥ 95% | `doc/audit/review/DevFlow-阶段审计报告-Stage2-v{版本}.md` 必须存在 | DT-ID 全覆盖检查 | `auditResults` 更新 |
+| Step 3 → Step 4 | 静态质量检查通过 + 代码逻辑审查通过 + 开发审计通过 | `doc/audit/review/DevFlow-阶段审计报告-Stage3-v{版本}.md` 必须存在 | TD-ID 格式规范 + 覆盖率 ≥ 95% | `auditResults` 更新 |
+| Step 4 → Step 5 | 14 类测试矩阵通过 + 测试回溯审计通过 | `doc/audit/review/DevFlow-阶段审计报告-Stage4-v{版本}.md` 必须存在 | TD-ID→TT-ID 映射覆盖 + 缺陷闭环 | `auditResults` 更新 |
+| Step 5 → 结束 | 运维审计通过 + 全流程闭环审计通过 | `doc/audit/review/DevFlow-阶段审计报告-Stage5-v{版本}.md` + `doc/audit/comprehensive/DevFlow-全流程闭环审计报告-v{版本}.md` 必须存在 | 部署验证项关联 TT-ID + 追溯链闭环 | `step_5_closed = true` |
 
 ### 回退规则
 
@@ -153,3 +153,74 @@ Step N 触发
 - 本技能**不执行任何阶段的具体工作**
 - 本技能**只管理状态转换的门禁**
 - 状态文件必须是有效的 JSON，损坏时自动从 devflow-init 重新初始化
+
+## 审计报告硬门禁执行规则
+
+这是本技能的**唯一强制执行规则**，高于所有 L2 技能中的文字描述：
+
+> **阶段切换前，必须先验证阶段审计报告文件在 `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本}.md` 路径实际存在。**
+
+### 执行方式
+
+每次需要更新 `state.json` 的 `currentPhase` 或 `completedPhases` 字段时，执行以下逻辑：
+
+```
+[FUNCTION] verify_audit_report_stage_N()
+[1] READ state.json → 获取 currentPhase 和 devflowVersion
+[2] 构建审计报告路径：doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{devflowVersion}.md
+    （N = 从哪个阶段切换出来，即旧 currentPhase 的编号）
+[3] TOOL LS(该路径) 或 Test-Path 检查文件是否存在
+[4] IF 文件存在 → 允许切换，继续更新 state.json
+[5] IF 文件不存在 → 拒绝更新 state.json
+    [5a] 输出错误："[AUDIT GATE BLOCKED] 阶段审计报告 Stage{N}-v{version} 不存在。
+         请先调用 audit-agent --stage {N} --phase 1+2+3 生成阶段审计报告。"
+    [5b] 保持 currentPhase 不变
+    [5c] 不修改 completedPhases
+```
+
+### 覆盖规则
+
+本规则不可被任何 L2 技能的"文本描述"覆盖。如果 L2 技能的切换断言中写"不需要审计报告"，仍以上述硬门禁为准。
+
+---
+
+## 变更自检执行规则
+
+这是本技能的**第二条强制执行规则**，与审计报告硬门禁并列：
+
+> **每次使用 Write、SearchReplace 修改文件后，必须立即 Read 该文件确认修改结果正确。**
+
+### 适用场景
+
+| 场景 | 适用 |
+|:-----|:----:|
+| Write 创建新文件后 | ✅ 必须 Read 验证内容正确 |
+| SearchReplace 修改现有文件后 | ✅ 必须 Read 确认替换成功且无副效应 |
+| 批量修改（Task 子进程）| ✅ 子进程完成时汇报验证结果 |
+| Read/RunCommand/LS 等只读操作 | ❌ 不触发 |
+
+### 执行方式
+
+```
+[FUNCTION] self_check_after_modify()
+[1] 记录刚刚修改的文件路径
+[2] TOOL Read(该文件路径，至少读取修改区域前后各 3 行)
+[3] 比对 Read 结果与预期修改目标：
+    - 新增内容：确认存在且位置正确
+    - 替换内容：确认旧内容已移除，新内容已到位
+    - 删除内容：确认已移除
+[4] IF 验证通过 → 继续执行
+[5] IF 验证失败 → 回退并重试：
+    [5a] 输出："[SELF-CHECK FAILED] {文件} 修改结果不正确"
+    [5b] Read 最新文件内容
+    [5c] 重新执行 Write/SearchReplace
+    [5d] Read 确认
+[6] 所有验证通过的修改，在阶段报告中记录："自检 {N} 次，全部通过"
+```
+
+### 与审计硬门禁的关系
+
+| 规则 | 覆盖范围 | 强制时机 | 失败后果 |
+|:-----|:---------|:---------|:---------|
+| 审计报告硬门禁 | 阶段切换 | 每次更新 state.json 前 | 拒绝更新 currentPhase |
+| 变更自检执行规则 | 每次文件修改 | 每次 Write/SearchReplace 后 | 回退重试，不阻塞 stage 切换 |

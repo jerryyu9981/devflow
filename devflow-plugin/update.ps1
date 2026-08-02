@@ -111,7 +111,7 @@ function Copy-SkillToTarget($skillName, $sourceDir, $targetDir, [ref]$counter, [
 
     # If source is a single file:
     # - .md files (L1/L2/L3 skills) → wrap into SKILL.md
-    # - Other files (e.g. version.json) → keep original filename
+    # - Other files (e.g. devflow-config.json) → keep original filename
     $isSingleFile = $false
     $singleFileSrc = ""
     $preserveFileName = $false
@@ -220,11 +220,11 @@ if ($Action -eq "Update") {
         # If repo URL is configured, also try remote check
         if ($RepoUrl -and (-not $LatestVersion)) {
             try {
-                $response = Invoke-WebRequest -Uri "$RepoUrl/raw/main/version.json" -UseBasicParsing -TimeoutSec 10
+                $response = Invoke-WebRequest -Uri "$RepoUrl/raw/main/devflow-plugin/devflow-config.json" -UseBasicParsing -TimeoutSec 10
                 $latest = $response.Content | ConvertFrom-Json
                 $LatestVersion = $latest.devflowVersion
             } catch {
-                Write-Warn "Could not fetch remote version.json: $_"
+                Write-Warn "Could not fetch remote devflow-config.json: $_"
             }
         }
         if (-not $LatestVersion) {

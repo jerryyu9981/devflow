@@ -43,6 +43,20 @@ if ($Version -notmatch '^v\d+\.\d+\.\d+$') {
 }
 Write-Info "Step 1/5: Version number format validation... PASS"
 
+# --- Step 1b: 版本号一致性门禁（validate-version-header.ps1）---
+Write-Info "Step 1b/5: Running validate-version-header.ps1 version consistency gate..."
+$validateScript = Join-Path $PSScriptRoot "validate-version-header.ps1"
+if (Test-Path $validateScript) {
+    & $validateScript
+    if ($LASTEXITCODE -ne 0) {
+        Write-Error "Step 1b/5: validate-version-header.ps1 failed (exit code: $LASTEXITCODE). Version consistency check not passed."
+        exit 1
+    }
+    Write-Info "Step 1b/5: validate-version-header.ps1... PASS"
+} else {
+    Write-Warn "Step 1b/5: validate-version-header.ps1 not found at $validateScript, skipping version consistency gate"
+}
+
 # --- Step 2: devflow-config.json 一致性校验 ---
 Write-Info "Step 2/5: devflow-config.json consistency validation..."
 $configJsonPath = Join-Path $PSScriptRoot "devflow-config.json"
@@ -80,6 +94,22 @@ if (Test-Path $projectConfigPath) {
     }
 } else {
     Write-Warn "Step 2b/5: .devflow/project-config.json not found, skipping"
+}
+
+# --- Step 2c: 同步 state.json（devflow-config.json → state.json）---
+Write-Info "Step 2c/5: Syncing .devflow/state.json..."
+$statePath = Join-Path $PSScriptRoot "..\.devflow\state.json"
+if (Test-Path $statePath) {
+    try {
+        $state = Get-Content $statePath -Raw | ConvertFrom-Json
+        $state.devflowVersion = $configJson.devflowVersion
+        $state | ConvertTo-Json -Depth 10 | Set-Content $statePath -Encoding UTF8
+        Write-Info "Step 2c/5: state.json synced (devflowVersion=$($configJson.devflowVersion))"
+    } catch {
+        Write-Warn "Step 2c/5: Failed to update state.json: $_ (non-blocking)"
+    }
+} else {
+    Write-Warn "Step 2c/5: .devflow/state.json not found, skipping"
 }
 
 # --- Step 3: Git Tag 创建 ---
