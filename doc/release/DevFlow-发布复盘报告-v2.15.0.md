@@ -48,7 +48,7 @@
 
 | 自检项 | 要求 | 实际 | 结论 |
 |:-------|:-----|:-----|:----:|
-| ① 三处版本号一致 | version.json / project-config.json / state.json 一致 | devflow-config=2.15.0、project-config=v2.15.0、state=2.15.0 | ✅（version.json 已弃用删除，以 devflow-config.json 为唯一事实源）|
+| ① 三处版本号一致 | devflow-config.json（唯一事实源）/ project-config.json / state.json 一致 | devflow-config=2.15.0、project-config=v2.15.0、state=2.15.0 | ✅（version.json 已弃用删除，devflow-config.json 为唯一事实源）|
 | ② Release Note 和 Changelog 含当前版本 | 均包含 v2.15.0 | Release-Note-v2.15.0.md ✅ + Release-Note-All.md ✅ + doc/release/README.md ✅ | ✅ |
 | ③ 路线图已同步当前版本 | 路线图含 v2.15.0 已发布 | DevFlow-版本迭代路线图.md v2.15.0 = ✅ 已发布 | ✅ |
 
