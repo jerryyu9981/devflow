@@ -126,11 +126,13 @@
 | doc/release/DevFlow-发布复盘报告-v2.15.0.md | 🔄 待产出 |
 | doc/release/DevFlow-问题跟踪记录-v2.15.0.md | 🔄 待产出 |
 | doc/release/DevFlow-Release-Note-v2.15.0.md | 🔄 待产出 |
+| DevFlow-用户指南.html（项目根目录，版本号更新至 v2.15.0）| ✅ v2.15.0 |
+| DevFlow-用户手册.html（项目根目录，版本号更新至 v2.15.0）| ✅ v2.15.0 |
 | doc/audit/comprehensive/DevFlow-运维审计报告-v2.15.0.md | 🔄 待产出 |
 | doc/audit/comprehensive/DevFlow-全流程闭环审计报告-v2.15.0.md | 🔄 待产出 |
 | doc/audit/review/DevFlow-阶段审计报告-Stage5-v2.15.0.md | 🔄 待产出 |
 
-**Step 5 产出**：2/12 已完成，10/12 待产出（本步骤进行中）
+**Step 5 产出**：4/14 已完成，10/14 待产出（本步骤进行中）
 
 ### 盘点结论
 

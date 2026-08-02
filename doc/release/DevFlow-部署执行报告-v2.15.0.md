@@ -125,6 +125,8 @@
 | release.ps1 版本门禁 | TT-215-007 | release.ps1 Step 1b | ✅ |
 | release.ps1 state 同步 | TT-215-008 | release.ps1 Step 2c | ✅ |
 | Tag 创建 | TT-215-016 | git tag -l v2.15.0 | ✅ |
+| 用户指南版本号 | — | grep DevFlow-用户指南.html v2.15.0 | ✅ sub/footer 均 v2.15.0 |
+| 用户手册版本号 | — | grep DevFlow-用户手册.html v2.15.0 | ✅ logo/sub/footer 均 v2.15.0 |
 | 远程同步 | — | git push（认证阻塞）| ⛔ 待用户完成 |
 
 ---
