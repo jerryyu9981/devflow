@@ -170,6 +170,9 @@ T3 和 T4 按项目类型分模式执行：
 | **L1-硬断言** | 关键交互（创建/编辑/删除/提交） | 必须 `wait_for + assert`，超时即失败，不允许任何回退分支 | 按钮点击后对话框必须出现 |
 | **L2-条件断言** | 可选功能（搜索/筛选/分页） | 元素存在则验证，不存在则 `pytest.skip`（**非 else 通过**） | 搜索框存在则测试搜索功能 |
 | **L3-存在性断言** | 页面加载/基础渲染 | 核心元素必须可见，辅助元素可选 | 表格/卡片/空状态至少一个可见 |
+| **L4-网络层断言（v2.16.0+）** | **T3a/T3b/E2E 全部用例通用** | **① 无代码类 HTTP≥500（H 类环境提示除外）② 无 requestfailed ③ 无代码类 console.error（I 类弃用警告除外）。用例结束前必须执行 `assert_network_clean()`** | **用例末尾 `assert_network_clean()` 通过** |
+
+> **L4 网络层断言强制规则（v2.16.0+）**："页面可达 ≠ 请求成功 ≠ 功能正确"。所有 T3a 巡检、T3b 深度用例与 4.5 E2E 用例**必须**订阅网络层事件并在用例末尾执行 `assert_network_clean()`，详见"E2E 网络层事件订阅标准动作"章节。仅做 L1/L2/L3 断言而未验证网络层健康的用例，视为未完成。
 
 **禁止模式清单**（3 种模式在 T2 和 T3b 测试中严格禁止，代码审查时必须检查）：
 
@@ -201,6 +204,21 @@ except Exception:
 # 禁止：断言条件过于宽松，任何元素都满足
 assert page.locator("div").first.is_visible()  # 页面总有 div
 ```
+
+禁止模式 4 — 页面可达即通过（v2.16.0+）：
+
+```python
+# 禁止：仅验证页面打开，未验证请求是否成功
+page.goto(url)
+page.wait_for_load_state("networkidle")
+assert page.locator(".el-table").is_visible()
+# 页面打开了，但页面内接口可能返回 500，断言仍通过 —— 必须补充网络层断言
+
+# 正确做法：用例末尾执行 assert_network_clean()，无代码类 HTTP≥500 / requestfailed / console error
+assert_network_clean()
+```
+
+> **"页面可达 ≠ 请求成功 ≠ 功能正确"**（v2.16.0+）：页面打开成功但请求返回 500 时，断言必须失败。
 
 **推荐断言模式**：
 
@@ -298,24 +316,43 @@ T3 分为 T3a 自动化巡检和 T3b 深度用例两档，确保"不报错"不�
 ```
 
 1. **清单盘点**：从前端路由配置或 sitemap 自动提取全部路由，生成页面清单（路由路径 × 优先级 P0/P1/P2 × 是否需登录 × 动态参数）。
-2. **自动化巡检**：使用 Playwright 自动导航全部路由，逐页采集 6 类信号（详见下文巡检信号表）。
-3. **问题分类**：将采集信号按 7 类标准模式分类（详见下文问题分类表）。
-4. **根因定位**：对每个分类后的问题执行根因定位（6 种手段，详见下文根因定位表）。
+2. **自动化巡检**：使用 Playwright 自动导航全部路由，逐页采集 8 类信号（详见下文巡检信号表）。**偶发缺陷多轮巡检策略（v2.16.0+）**：若首轮巡检 0 个代码类缺陷但存在"500 类风险页面"（含模型/数据异步加载页），必须执行至少 3 轮快速巡检（限定风险页子集），每轮独立输出错误计数并跨轮对比；任一轮出现代码类 HTTP≥500 即登记缺陷。单轮耗时控制在现有全量巡检 1.5 倍以内。
+3. **问题分类**：将采集信号按 9 类标准模式分类（详见下文问题分类表），HTTP≥500 先按判定优先级流程区分 H 类环境提示与 B 类代码缺陷。
+4. **根因定位**：对每个分类后的问题执行根因定位（7 种手段，详见下文根因定位表）。
 5. **修复回归**：P0/P1 问题回退 Step 3 修复 → 更新 DevLogReport → 重新执行相关测试；P2 问题记录到问题跟踪记录。修复回归直接复用 DevFlow 现有的缺陷闭环流程。
-6. **报告更新**：更新测试报告（T3a 巡检结果矩阵）、测试执行证据（逐页巡检问题表）、测试回溯审计报告（T1→T2→T3→T4 层间追溯矩阵）。
+6. **报告更新**：更新测试报告（T3a 巡检结果矩阵）、测试执行证据（逐页巡检问题表，含状态码分布/网络失败/console 分类/环境类清单，详见巡检输出物标准）、测试回溯审计报告（T1→T2→T3→T4 层间追溯矩阵）。
+
+**巡检输出物标准（v2.16.0+）**：逐页巡检问题表（测试执行证据）必须包含以下字段：
+
+| 字段 | 内容 |
+|:-----|:-----|
+| 页面路由 | 巡检页面路径 |
+| HTTP 状态码分布 | 该页所有请求的状态码计数（200/4xx/5xx）|
+| 网络失败清单 | requestfailed URL + 失败原因 |
+| console error 清单 | 分类：代码类（D）/弃用警告（I）|
+| 环境类提示清单 | H 类：URL + 响应体摘要 + 依赖说明 |
+| 问题分类 | A~I 类 |
+| 关联缺陷 | BUG-ID（如 BUG-291-012）|
 
 #### T3a 巡检信号和问题分类
 
-**6 类巡检信号采集表**：
+**8 类巡检信号采集表**：
 
 | 信号类型 | Playwright API | 采集方式 | 对应问题 |
 |:---------|:---------------|:---------|:---------|
-| HTTP ≥ 400 | `page.on('response')` | 拦截响应，检查 `response.status()` | 接口契约不一致/后端错误 |
-| console.error | `page.on('console')` | 过滤 `msg.type() === 'error'` | 前端逻辑错误 |
-| pageerror | `page.on('pageerror')` | 直接捕获未处理异常 | 前端运行时异常 |
-| 接口 200 但渲染空 | `page.evaluate()` + DOM 检查 | 检查主内容区域 `children.length === 0` | 字段映射/渲染问题 |
+| HTTP 4xx | `page.on('response')` | 拦截响应，检查 `400 ≤ status < 500` | 接口契约不一致（A 类） |
+| HTTP ≥ 500 | `page.on('response')` | 拦截响应，检查 `status ≥ 500`，**采集响应体摘要（前 200 字符）** | 后端运行时错误（B 类）/ 环境类提示（H 类） |
+| 网络请求失败 | `page.on('requestfailed')` | 捕获失败请求 URL + 失败原因（`request.failure()`） | 网络断点/代理错误/跨域 |
+| console.error | `page.on('console')` | 过滤 `msg.type() === 'error'`，记录 message 文本 | 前端逻辑错误（D 类）/ 弃用警告（I 类） |
+| pageerror | `page.on('pageerror')` | 直接捕获未处理异常 | 前端运行时异常（C 类） |
+| 接口 200 但渲染空 | `page.evaluate()` + DOM 检查 | 检查主内容区域 `children.length === 0` | 字段映射/渲染问题（E 类） |
 | 静默失败（行为信号） | `btn.click()` + 网络计数器 + DOM 检查 | 点击关键按钮后检查：是否有新网络请求 + 是否有对话框/抽屉/消息提示弹出。两者皆无 → 疑似空实现 | 空实现/事件未绑定/API 未调用 |
 | 表单提交响应 | `submit_btn.click()` + 错误消息检测 | 对包含表单的对话框，点击提交按钮后检查是否出现错误提示（`.el-message--error`），发现 4xx/5xx 被前端吞掉的情况 | 表单提交失败被吞/校验逻辑缺失 |
+
+> **信号采集增强要求（v2.16.0+）**：
+> - HTTP ≥ 500 信号必须同时采集响应体摘要（前 200 字符），用于区分 B 类代码缺陷与 H 类环境提示
+> - 巡检脚本必须**逐页访问前后记录错误数**，将采集到的错误精确定位到来源页面（路由路径）
+> - 采集到的 HTTP 4xx/5xx 必须记录完整 URL，便于直连复现与根因定位
 
 **关键按钮清单**（7 类）：静默失败检测覆盖以下关键按钮：
 
@@ -333,19 +370,35 @@ if close_btn.is_visible():
     page.wait_for_timeout(500)
 ```
 
-**7 类标准问题分类表**：
+**9 类标准问题分类表**：
 
 | 类别 | 模式名称 | 典型信号 | 根因方向 | 修复路径 |
 |:----:|:---------|:---------|:---------|:---------|
 | A 类 | 接口契约不一致 | HTTP 422/404 | 前后端路由或字段定义不匹配 | T1 契约层修复（改契约或改调用） |
-| B 类 | 后端运行时错误 | HTTP 500 | 后端代码异常、数据库错误 | Step 3 后端修复 |
+| B 类 | 后端运行时错误 | HTTP 500（代码异常）| 后端代码异常、数据库错误（响应体含异常堆栈/业务错误）| Step 3 后端修复 |
 | C 类 | 前端运行时异常 | pageerror | 未捕获异常、空指针、类型错误 | Step 3 前端修复 |
-| D 类 | 前端逻辑错误 | console.error | 状态管理错误、条件判断错误 | Step 3 前端修复 |
+| D 类 | 前端逻辑错误 | console.error（代码类）| 状态管理错误、条件判断错误 | Step 3 前端修复 |
 | E 类 | 渲染空/白屏 | 接口 200 但 DOM 空 | 字段映射错误、渲染时序、空数据未处理 | Step 3 前端修复（查字段映射） |
 | F 类 | 静默失败/空实现 | 按钮点击后无网络请求且无 UI 响应 | 事件未绑定、handler 空实现（TODO）、API 未调用 | Step 3 前端修复（补全 handler 实现） |
 | G 类 | 表单提交错误被吞没 | 表单提交后 API 返回 4xx/5xx 但前端未显示错误提示 | 前端 error handler 缺失或 catch 后未提示用户 | Step 3 前端修复（补全错误提示逻辑） |
+| **H 类** | **环境类提示（服务未就绪/依赖缺失）** | **HTTP 503/504 + 响应体含服务未就绪提示（如 `{"detail":"无法连接Xxx服务"}`）** | **外部服务/依赖未启动** | **登记环境遗留清单，不进缺陷闭环；环境恢复后复测** |
+| **I 类** | **第三方弃用警告** | **console.error 含 deprecated/deprecation 关键词** | **第三方库 API 弃用** | **仅记录，不登记缺陷** |
 
-**根因定位 6 种手段表**：
+**判定优先级流程（v2.16.0+）**：
+
+```
+HTTP ≥ 500 → 读取响应体摘要
+  ├─ 响应体含服务未就绪/依赖提示（如 503 + "无法连接Xxx服务"）→ H 类（环境遗留，登记环境遗留清单）
+  ├─ 响应体含异常堆栈/业务错误 → B 类（代码缺陷，登记缺陷闭环）
+  └─ 响应体为空/通用错误 → 直连复现（curl 确认归属）后归 B 类
+console.error → 检查 message 文本
+  ├─ 含 deprecated/deprecation → I 类（仅记录，不登记）
+  └─ 否则 → D 类（代码缺陷）
+```
+
+> 环境提示关键词清单样例：`无法连接`、`not available`、`connection refused`、`service unavailable`。关键词判定不命中时以直连复现结果为准。
+
+**根因定位 7 种手段表**：
 
 | 定位手段 | 适用类别 | 方法 |
 |:---------|:---------|:-----|
@@ -355,6 +408,7 @@ if close_btn.is_visible():
 | DOM 检查 | E 类 | 检查接口返回数据结构 vs 前端渲染代码的字段映射 |
 | 源码检查 | F 类 | 检查按钮 handler 是否为空实现/TODO，检查事件绑定是否缺失 |
 | 错误处理检查 | G 类 | 检查前端 API 调用的 catch/then 分支是否包含错误提示逻辑，检查 error handler 是否被注释或遗漏 |
+| **并发/时序复现** | **B 类（竞态型）** | **快速连续访问/多轮重复请求触发竞态（如响应序列化与 DB session 关闭竞态），比对单次稳定与多轮偶发差异** |
 
 #### T3b 深度用例与 CRUD 全覆盖规则
 
@@ -415,12 +469,22 @@ def test_xxx(self, e2e_page_context, e2e_base_url):
 | 检查项 | 要求 |
 |:-------|:-----|
 | 覆盖对齐 | 用例数是否满足覆盖矩阵要求 |
-| 断言策略 | 是否使用正确的断言级别（L1/L2/L3） |
+| 断言策略 | 是否使用正确的断言级别（L1/L2/L3/L4） |
 | 软断言检查 | 是否包含禁止的软断言模式（3 种禁止模式） |
 | 命名规范 | 是否符合 `E2E-{模块}-{序号}` 格式 |
 | 文档完整 | 是否包含验证点、断言策略说明 |
 
 **T3 通过标准**：T3a 巡检 P0/P1 页面/链路无阻塞性问题；T3b 深度用例 P0 页面/链路 CRUD 全通过，P1 通过率 ≥ 95%。
+
+**T3 网络层门禁（v2.16.0+）**：
+
+| 门禁项 | 通过标准 |
+|:-------|:---------|
+| 代码类 HTTP≥500 | = 0（H 类环境提示允许遗留，但必须登记环境遗留清单）|
+| requestfailed | = 0 |
+| 代码类 console.error | = 0（I 类弃用警告仅记录，不登记）|
+| L4 网络层断言 | T3b/E2E 每个用例通过前必须执行 `assert_network_clean()` |
+| 偶发缺陷 | 多轮巡检任一轮出现代码类 500 → 门禁不通过，回退 Step 3 |
 
 ### T4 业务流走查规范
 
@@ -872,6 +936,58 @@ Step 4 测试验证采用四轨并行模型。
 | 条件 | 通过标准 |
 |------|---------|
 | 始终执行（至少后端+整体） | 全量 E2E 通过率 ≥ 95%；覆盖全部 P0/P1 核心流程 |
+
+#### E2E 网络层事件订阅标准动作（v2.16.0+）
+
+所有 T3b 深度用例与 4.5 E2E 用例**必须**在用例开始前调用 `attach_network_listeners(page)` 订阅网络层事件，并在用例末尾调用 `assert_network_clean()` 断言网络层健康（L4 网络层断言）。
+
+```python
+# 标准动作：E2E 用例强制订阅网络层事件（Playwright 标准实现）
+network_errors = {"http5xx": [], "request_failed": [], "console_errors": []}
+
+def attach_network_listeners(page):
+    """订阅网络层事件：HTTP≥500（含响应体摘要）/ requestfailed / console error"""
+    def on_response(resp):
+        if resp.status >= 500:
+            body = ""
+            try:
+                body = resp.text()[:200]  # 响应体摘要（前 200 字符）
+            except Exception:
+                pass
+            network_errors["http5xx"].append(
+                {"url": resp.url, "status": resp.status, "body": body}
+            )
+    def on_request_failed(req):
+        network_errors["request_failed"].append(
+            {"url": req.url, "reason": req.failure}
+        )
+    def on_console(msg):
+        if msg.type == "error":
+            network_errors["console_errors"].append(msg.text)
+    page.on("response", on_response)
+    page.on("requestfailed", on_request_failed)
+    page.on("console", on_console)
+
+def is_env_hint(body):
+    """环境提示关键词判定：命中 → H 类环境遗留，排除出代码缺陷"""
+    env_hints = ["无法连接", "not available", "connection refused", "service unavailable"]
+    return any(hint in body for hint in env_hints)
+
+def assert_network_clean():
+    """L4 网络层断言：排除 H 类环境提示与 I 类弃用警告后断言网络健康"""
+    code_5xx = [e for e in network_errors["http5xx"]
+                if not is_env_hint(e["body"])]          # 排除 H 类环境提示
+    code_console = [m for m in network_errors["console_errors"]
+                    if "deprecated" not in m.lower()]    # 排除 I 类弃用警告
+    assert not code_5xx, f"代码类 HTTP≥500: {code_5xx}"
+    assert not network_errors["request_failed"], \
+        f"网络请求失败: {network_errors['request_failed']}"
+    assert not code_console, f"代码类 console error: {code_console}"
+```
+
+> **框架适配说明**：以上为 Playwright 标准实现。其他 E2E 框架按等价事件映射：`response` → HTTP 响应事件、`requestfailed` → 网络失败事件、`console` → 日志输出事件。环境提示关键词清单可按项目实际依赖扩展。
+>
+> **用例接入要求**：每个 T3b/E2E 用例：① 用例开头调用 `attach_network_listeners(page)`；② 用例末尾调用 `assert_network_clean()`；③ 网络层断言失败时按 9 类问题分类表登记缺陷（H 类环境提示除外）。
 
 ### 4.6~4.7 回归与专项
 | 步骤 | 活动 |
