@@ -23,7 +23,7 @@
 
 | 配置文件 | 字段 | 值 | 状态 |
 |:---------|:-----|:---|:----:|
-| devflow-plugin/devflow-config.json | devflowVersion | 2.16.0 | ✅ 与待创建 tag 一致 |
+| devflow-plugin/devflow-config.json | devflowVersion | 2.16.0 | ✅ 与 Git tag 一致 |
 | .devflow/project-config.json | project.version | v2.16.0 | ✅ |
 | .devflow/project-config.json | lastRelease.version | v2.16.0 | ✅ |
 | .devflow/state.json | devflowVersion | 2.16.0 | ✅ |
@@ -35,9 +35,11 @@
 | 检查项 | 状态 | 说明 |
 |:-------|:----:|:-----|
 | 本地部署 | ✅ | 版本号 + 技能文档 + 副本就绪 |
-| Git commit | ⏳ 待执行 | 发布文档提交 |
-| Git tag v2.16.0 | ⏳ 待创建 | release.ps1 或手动 |
-| 远程推送 | ⏳ 待用户 | origin/backup 认证 |
+| Git commit | ✅ | 3828550 + 0d00e38 + f8d3b46 |
+| Git tag v2.16.0 | ✅ | 已创建（3828550）|
+| origin 推送 | ✅ | master = 0d00e38 → f8d3b46；tag = 3828550 |
+| backup 推送 | ✅ | master = 0d00e38；tag = 3828550 |
+| github 推送 | ⚠️ | tag 已推送；master 推送因 SSH known_hosts 权限受限未完成 |
 
 ## 3. 变更一致性自检（5.10b）
 
