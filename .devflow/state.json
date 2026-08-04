@@ -1,6 +1,6 @@
 ﻿{
     "project":  "DevFlow",
-    "devflowVersion":  "2.15.0",
+    "devflowVersion":  "2.16.0",
     "currentPhase":  "step_5_operations",
     "completedPhases":  [
                             "step_0_planning",

@@ -4,11 +4,11 @@
     "versionField": "devflowVersion",
     "description": "本文件是 DevFlow 插件的唯一权威配置源，devflowVersion 字段是版本号的唯一事实源（Single Source of Truth）。所有技能、脚本、文档中的版本号均以此字段为准。version.json 已彻底弃用并删除，不再作为版本来源。",
     "schemaVersion": "1.1.0",
-    "lastUpdated": "2026-08-02"
+    "lastUpdated": "2026-08-04"
   },
   "name": "DevFlow",
   "description": "DevFlow — 软件开发工程规范插件。提供6阶段工程管控、29个核心技能、24个文档模板和完整的追溯链。",
-  "devflowVersion": "2.15.0",
+  "devflowVersion": "2.16.0",
   "minTraeVersion": "1.0.0",
   "compatibleHosts": [
     "TRAE",
