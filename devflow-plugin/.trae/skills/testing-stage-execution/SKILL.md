@@ -572,7 +572,7 @@ E. 真实用户流
 > 图例：✅ 必须覆盖 | ⭕ 按需覆盖 | — 不适用
 
 **矩阵维护规则**：
-1. 矩阵文件位置：`doc/testing/{项目名}-测试覆盖矩阵-v{版本}.md`
+1. 矩阵文件位置：`doc/test/{项目名}-测试覆盖矩阵-v{版本}.md`
 2. 更新时机：每次版本发布前、每次新增模块时、每次新增用例时
 3. 审批流程：矩阵变更需测试负责人评审，确保覆盖完整性
 4. 缺口追踪：矩阵中标记为 ✅ 但无对应用例的项，列为测试缺口，按优先级补全
@@ -745,11 +745,11 @@ E. 真实用户流
 
 | 序号 | 类型 | 文件 |
 |:----:|:----|:-----|
-| 1 | 强制 MD | `doc/testing/DevFlow-*测试计划*-v{版本号}.md` |
-| 2 | 强制 MD | `doc/testing/DevFlow-*测试报告*-v{版本号}.md` |
-| 3 | 强制 MD | `doc/testing/DevFlow-*测试用例*-v{版本号}.md` |
+| 1 | 强制 MD | `doc/test/DevFlow-*测试计划*-v{版本号}.md` |
+| 2 | 强制 MD | `doc/test/DevFlow-*测试报告*-v{版本号}.md` |
+| 3 | 强制 MD | `doc/test/DevFlow-*测试用例*-v{版本号}.md` |
 | 4 | 强制 MD | `doc/audit/verification/DevFlow-*测试回溯对比审计报告*-v{版本号}.md` |
-| 5 | 强制 证据 | `doc/testing/evidence/` 测试执行证据（截图、日志、覆盖率报告）|
+| 5 | 强制 证据 | `doc/test/evidence/` 测试执行证据（截图、日志、覆盖率报告）|
 | 6 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
 
 文档命名、路径和版本规则遵循 `project-document-management`。

@@ -222,7 +222,7 @@ Step 5 必须交付以下发布文档：
 | Step 1 需求分析 | 需求文档、需求追溯矩阵、验收标准 | LS/Glob 列出 doc/requirements 目录核对 |
 | Step 2 架构与设计 | 架构设计、API设计、UI设计、数据库设计、安全设计 | LS/Glob 列出 doc/design 目录核对 + **命名一致性（对比设计文档 File Manifest）** |
 | Step 3 开发 / 编码 | 源代码、DevLogReport、自测证据 | LS/Glob 列出 src 和 doc/devlog 目录核对 + **命名一致性（对比设计文档 File Manifest）** |
-| Step 4 测试 | 测试报告、测试用例、测试回溯审计报告 | LS/Glob 列出 doc/testing 和 doc/audit/verification 目录核对 |
+| Step 4 测试 | 测试报告、测试用例、测试回溯审计报告 | LS/Glob 列出 doc/test 和 doc/audit/verification 目录核对 |
 | Step 5 部署与运维 | 发布计划、部署执行报告、上线检查报告、运维审计报告、全流程闭环审计报告 | LS/Glob 列出 doc/operations 和 doc/audit/comprehensive 目录核对 |
 
 **盘点规则**：

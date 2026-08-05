@@ -158,7 +158,7 @@ audit-agent --version v2.11.0 --phase 3
 [TOOL] Read(doc/requirements/DevFlow-需求追溯矩阵-{version}.md)       → RT-ID 集合
 [TOOL] Read(doc/development/DevFlow-TD-ID追溯矩阵-{version}.md)       → TD-ID 集合
 [TOOL] Read(doc/design/DevFlow-设计评审记录-{version}.md)              → DT-ID 集合
-[TOOL] Read(doc/testing/DevFlow-测试报告-{version}.md)                 → TT-ID 集合
+[TOOL] Read(doc/test/DevFlow-测试报告-{version}.md)                 → TT-ID 集合
 [TOOL] Grep(testing report, pattern: TT-{version}-\\d{3})
 [EXPECTED] 各阶段文档中的 ID 清单
 ```
@@ -240,7 +240,7 @@ Stage 3 ── LS(doc/development/)
           → 应当有：DevLogReport、TD-ID追溯矩阵、开发审计移交材料
           → 共 3 份
 
-Stage 4 ── LS(doc/testing/)
+Stage 4 ── LS(doc/test/)
           → 应当有：测试报告
           → LS(doc/audit/verification/)
           → 应当有：测试回溯对比审计报告
@@ -284,7 +284,7 @@ Stage 5 ── LS(doc/release/)
 | Step 1 | 10 | `doc/requirements/` | 需求评估报告存在性 |
 | Step 2 | 12 | `doc/design/` | 后端/原型/可观测性覆盖检查报告 |
 | Step 3 | 12 | `doc/development/` | 静态质量检查记录、代码逻辑审查记录 |
-| Step 4 | 11 | `doc/testing/` | 自测证据抽查记录、覆盖率报告 |
+| Step 4 | 11 | `doc/test/` | 自测证据抽查记录、覆盖率报告 |
 | Step 5 | 12 | `doc/release/` | 发布复盘报告、全流程闭环审计报告 |
 
 ---
@@ -399,7 +399,7 @@ Stage 5 ── LS(doc/release/)
 | **Stage 3** | 2 | 构建验证 | RunCommand(构建命令) → 退出码 = 0 | DevLogReport | P0 |
 | **Stage 3** | 3 | DevLogReport 存在性 | LS(doc/development/) | 开发审计移交材料 | P0 |
 | **Stage 4** | 1 | 测试覆盖率核查（偏差 ≤ 5%） | Read(测试报告) 提取覆盖数据 | 测试报告 | P0 |
-| **Stage 4** | 2 | 测试报告存在性 | LS(doc/testing/) | 测试阶段产出 | P0 |
+| **Stage 4** | 2 | 测试报告存在性 | LS(doc/test/) | 测试阶段产出 | P0 |
 | **Stage 4** | 3 | 缺陷闭环状态（P0/P1 全关闭） | Read(测试报告) 缺陷章节 | 测试报告 | P0 |
 | **Stage 5** | 1 | 三远程备份一致性 | git ls-remote origin/backup/github refs/tags/v{VERSION} | Release Checklist | P0 |
 | **Stage 5** | 2 | version→tag→lastRelease 三联校验 | Read(devflow-config.json devflowVersion) + git tag -l v{VERSION} + Read(project-config.json .project.lastRelease.version) | 发布复盘记录 | P0 |
@@ -470,7 +470,7 @@ Stage 5 ── LS(doc/release/)
 | Stage 2 | 2 | 设计文档存在性 | LS(doc/design/) | {files} | ✅/❌ |
 | Stage 3 | 1 | 版本号一致性 | 读取 devflow-config.json 的 devflowVersion + git tag -l v{VERSION} | {version_tag} | ✅/❌ |
 | Stage 3 | 2 | DevLogReport 存在性 | LS(doc/development/) | {files} | ✅/❌ |
-| Stage 4 | 1 | 测试报告存在性 | LS(doc/testing/) | {files} | ✅/❌ |
+| Stage 4 | 1 | 测试报告存在性 | LS(doc/test/) | {files} | ✅/❌ |
 | Stage 4 | 2 | 测试回溯审计报告存在性 | LS(doc/audit/verification/) | {files} | ✅/❌ |
 | Stage 5 | 1 | 三远程备份一致性 | git ls-remote origin/backup/github refs/tags/v{VERSION} | {hashes} | ✅/❌ |
 | Stage 5 | 2 | 三联校验 | Read(devflow-config.json devflowVersion)+git tag+Read(project-config.json) | {triple} | ✅/❌ |

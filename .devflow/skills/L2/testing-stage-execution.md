@@ -71,8 +71,31 @@ Step 4 测试阶段
 4. `DevLogReport` 已更新。
 5. 待测版本、分支、构建命令、启动命令、环境变量、端口、数据库和 Mock 信息已明确。
 6. 已知问题和风险已记录。
+7. 自测证据抽查已通过（详见 4.0b）。
 
 如任一条件不满足，应回退 Step 3 修复或补充材料，不得直接执行正式测试。
+
+### 覆盖率门禁
+
+| 门禁项 | 规则 | 阻塞条件 | 通过条件 |
+|:------:|:----:|:--------:|:--------:|
+| 新代码行覆盖率 | Step 4 启动时检查测试覆盖率 | 新代码行覆盖率 < 80% | 覆盖率 >= 80% |
+| 门禁阻塞处理 | 输出未覆盖代码清单 → 要求补充测试 → 重测通过 | 覆盖率 < 80% 且未补充 | 覆盖率 >= 80% |
+
+> 覆盖率门禁强制要求：所有新代码（本版本增量）行覆盖率必须达到 80% 以上。低于 80% 时，测试阶段不得继续执行，须先输出未覆盖代码清单，补充测试后重新验证通过。
+
+### E2E 集成验证
+
+Step 4 启动时执行以下 E2E 验证流程：
+
+```text
+[1] 读取本版本 E2E 验证场景列表（来自测试计划或 Phase 迭代计划）
+[2] 每个场景按定义执行（含前置条件、测试步骤、预期结果）
+[3] 全部通过 → 输出"E2E 验证通过报告"
+[4] 存在失败 → 记录失败场景（场景ID+失败原因）→ 要求修复重测
+```
+
+> E2E 验证覆盖全部 P0/P1 核心业务流程，验证通过率须 >= 95% 方可进入下一阶段。失败场景修复后须重新执行完整 E2E 验证。
 
 ## 输入材料
 
@@ -87,6 +110,567 @@ Step 4 测试阶段
 | 待测代码、构建或环境 | 执行测试 |
 | 测试账号、测试数据和 Mock 配置 | 准备测试条件 |
 
+## T1-T4 四层测试架构
+
+> 本章节定义 DevFlow 测试阶段的四层测试架构（T1 契约层 / T2 接口层 / T3 页面集成层 / T4 验收层），与 DevFlow 技能分层 L1/L2/L3 区分。T1-T4 是对现有强制测试矩阵和四轨并行工作流的增强标注层，确保测试完成后可安全交付生产。
+
+### 层级总览
+
+| 层级 | 名称 | 解决问题 | 通过标准 | 关键产出 |
+|:----:|:-----|:---------|:---------|:---------|
+| T1 | 契约层 | 前后端接口定义不一致（422/404 类） | 路由映射表 diff 无差异 + Schemathesis 契约测试通过 | 路由映射表 diff 报告 |
+| T2 | 接口层 | 后端接口功能正确性 | P0/P1 API 全通过：状态码 + 响应结构 + 边界参数 | API 测试报告 |
+| T3 | 页面/集成层 | 页面实际可用性或服务间集成正确性 | 全页面/全链路巡检无阻塞性问题 + 深度用例通过 | 逐页/逐链路巡检问题表 + E2E 报告 |
+| T4 | 验收层 | 主观判断（交互体验/业务流程正确性） | 核心业务流走查全部通过 | UAT 走查清单 |
+
+### 层间追溯要求
+
+每个 T1 契约定义的路由，必须能在 T2 找到对应 API 测试、在 T3 找到页面巡检覆盖、在 T4 确认业务验收。
+
+| 追溯维度 | 格式 | 覆盖率要求 |
+|:---------|:-----|:---------|
+| T1 路由 → T2 API 测试 | 路由路径 ↔ TT-ID(API) | P0/P1 路由 100% |
+| T2 API 测试 → T3 页面/集成覆盖 | TT-ID(API) ↔ TT-ID(E2E) | P0/P1 API 100% |
+| T3 页面/集成覆盖 → T4 UAT 验收 | TT-ID(E2E) ↔ UAT-ID | 核心业务流 100% |
+
+> 层间追溯矩阵作为测试回溯审计报告的必填附件。
+
+### 项目类型适配
+
+T3 和 T4 按项目类型分模式执行：
+
+| 层级 | 全栈项目（有前端） | 纯后端项目（无前端） |
+|:-----|:-------------------|:---------------------|
+| T1 契约层 | 路由映射 diff + Schemathesis + MSW | OpenAPI/gRPC proto 契约测试 + Schemathesis |
+| T2 接口层 | API 三要素校验（状态码+结构+边界） | 同左 |
+| T3 | T3a 全页面巡检 + T3b 深度用例 | T3a 服务间集成巡检 + T3b 深度集成用例 |
+| T4 | 核心业务流页面走查 | 核心业务流 API/CLI 走查 |
+
+**T3 纯后端模式**：
+
+- **T3a 服务间集成巡检**（替代全页面巡检）：自动遍历全部服务间调用链路（从路由定义或服务注册表提取），逐链路采集调用超时、5xx 错误、响应结构不符合预期，输出逐链路问题表。
+- **T3b 深度集成用例**：对高频服务间调用写 CRUD/错误态/重试/幂等性用例，按业务影响排序（计费服务 > 配置服务 > 辅助服务）。
+
+**T4 纯后端模式**：走查清单从"页面操作"变为"API/CLI 调用序列"：
+
+| 序号 | 业务流 | 步骤（API 调用序列） | 预期结果 | 通过 |
+|:----:|:-------|:-----|:---------|:----:|
+| 1 | 配置→计费→调用 | POST /providers → POST /billing → POST /chat | 全链路无阻塞，数据正确 | ⬜ |
+
+**不适用声明规则**：如果项目既无前端也无服务间集成（单服务纯 API），T3 可标记"不适用"，但必须在测试报告中说明原因、影响和补救计划（与现有规范跳过项规则一致）。
+
+### 断言分级规范
+
+> 所有测试（T2 接口层 + T3b 深度用例）的断言必须按以下三级分类执行。软断言是测试"全绿但功能缺失"的根因，必须从规范层面根除。
+
+**断言级别定义**：
+
+| 断言级别 | 适用场景 | 规则 | 示例 |
+|:---------|:---------|:-----|:-----|
+| **L1-硬断言** | 关键交互（创建/编辑/删除/提交） | 必须 `wait_for + assert`，超时即失败，不允许任何回退分支 | 按钮点击后对话框必须出现 |
+| **L2-条件断言** | 可选功能（搜索/筛选/分页） | 元素存在则验证，不存在则 `pytest.skip`（**非 else 通过**） | 搜索框存在则测试搜索功能 |
+| **L3-存在性断言** | 页面加载/基础渲染 | 核心元素必须可见，辅助元素可选 | 表格/卡片/空状态至少一个可见 |
+| **L4-网络层断言（v2.16.0+）** | **T3a/T3b/E2E 全部用例通用** | **① 无代码类 HTTP≥500（H 类环境提示除外）② 无 requestfailed ③ 无代码类 console.error（I 类弃用警告除外）。用例结束前必须执行 `assert_network_clean()`** | **用例末尾 `assert_network_clean()` 通过** |
+
+> **L4 网络层断言强制规则（v2.16.0+）**："页面可达 ≠ 请求成功 ≠ 功能正确"。所有 T3a 巡检、T3b 深度用例与 4.5 E2E 用例**必须**订阅网络层事件并在用例末尾执行 `assert_network_clean()`，详见"E2E 网络层事件订阅标准动作"章节。仅做 L1/L2/L3 断言而未验证网络层健康的用例，视为未完成。
+
+**禁止模式清单**（3 种模式在 T2 和 T3b 测试中严格禁止，代码审查时必须检查）：
+
+禁止模式 1 — if-else 软断言：
+
+```python
+# 禁止：else 分支让测试永远通过
+if search_input.is_visible():
+    search_input.fill("gpt")
+    assert page.locator(".el-table").is_visible()
+else:
+    assert page.locator(".el-table, .el-card, .el-empty").first.is_visible()
+```
+
+禁止模式 2 — try-except 吞异常：
+
+```python
+# 禁止：异常被吞，测试静默通过
+try:
+    btn.click()
+    dialog.wait_for(state="visible", timeout=5000)
+except Exception:
+    pass  # 异常被吞，问题被掩盖
+```
+
+禁止模式 3 — 超宽容断言：
+
+```python
+# 禁止：断言条件过于宽松，任何元素都满足
+assert page.locator("div").first.is_visible()  # 页面总有 div
+```
+
+禁止模式 4 — 页面可达即通过（v2.16.0+）：
+
+```python
+# 禁止：仅验证页面打开，未验证请求是否成功
+page.goto(url)
+page.wait_for_load_state("networkidle")
+assert page.locator(".el-table").is_visible()
+# 页面打开了，但页面内接口可能返回 500，断言仍通过 —— 必须补充网络层断言
+
+# 正确做法：用例末尾执行 assert_network_clean()，无代码类 HTTP≥500 / requestfailed / console error
+assert_network_clean()
+```
+
+> **"页面可达 ≠ 请求成功 ≠ 功能正确"**（v2.16.0+）：页面打开成功但请求返回 500 时，断言必须失败。
+
+**推荐断言模式**：
+
+L1-硬断言标准模板（关键按钮点击场景）：
+
+```python
+# 推荐：关键按钮点击后必须有响应
+def test_click_add_button(self, e2e_page_context, e2e_base_url):
+    """E2E-MODEL-003: 点击添加模型按钮（L1-硬断言）
+
+    验证点：
+    - 按钮可见且可点击
+    - 点击后弹出对话框/抽屉
+    - 对话框包含表单元素
+
+    断言策略：L1-硬断言
+    """
+    if e2e_page_context.get("mock_mode", False):
+        pytest.skip("E2E 测试需要前端服务运行")
+
+    page = e2e_page_context["page"]
+    page.goto(f"{e2e_base_url}/models")
+    page.wait_for_load_state("networkidle")
+
+    # 步骤1：按钮必须可见（硬断言）
+    add_btn = page.locator("button:has-text('添加模型')")
+    add_btn.wait_for(state="visible", timeout=10000)
+    assert add_btn.is_visible(), "添加模型按钮必须可见"
+
+    # 步骤2：点击后必须出现对话框/抽屉（硬断言）
+    add_btn.click()
+    dialog = page.locator(".el-dialog, .el-drawer")
+    dialog.wait_for(state="visible", timeout=5000)
+    assert dialog.is_visible(), "点击添加模型后必须弹出对话框或抽屉"
+
+    # 步骤3：对话框必须包含表单元素（硬断言）
+    form_elements = dialog.locator("input, .el-select, .el-form-item")
+    assert form_elements.count() > 0, "对话框必须包含表单元素"
+```
+
+L2-条件断言标准模板（可选功能场景）：
+
+```python
+# 推荐：可选功能存在则测试，不存在则 skip（非 else 通过）
+def test_search_filter(self, e2e_page_context, e2e_base_url):
+    """E2E-MODEL-002: 模型搜索筛选（L2-条件断言）
+
+    验证点：
+    - 搜索框存在时验证搜索功能
+    - 搜索后显示结果或空状态
+
+    断言策略：L2-条件断言
+    """
+    page = e2e_page_context["page"]
+    page.goto(f"{e2e_base_url}/models")
+    page.wait_for_load_state("networkidle")
+
+    search_input = page.locator("input[placeholder*='搜索'], input[placeholder*='search']")
+    if not search_input.is_visible():
+        pytest.skip("当前页面无搜索框，跳过搜索测试")
+
+    search_input.fill("gpt")
+    page.wait_for_timeout(2000)
+    # 搜索后必须有结果或空状态（硬断言）
+    result = page.locator(".el-table__row, .el-empty")
+    result.wait_for(state="visible", timeout=5000)
+    assert result.is_visible(), "搜索后必须显示结果或空状态"
+```
+
+**断言策略速查表**：
+
+| 场景 | 断言级别 | 推荐写法 |
+|:-----|:--------:|:---------|
+| 关键按钮点击 | L1 | `btn.wait_for(state="visible"); btn.click(); dialog.wait_for(state="visible"); assert dialog.is_visible()` |
+| 表单提交 | L1 | `submit.click(); msg.wait_for(state="visible"); assert "成功" in msg.text_content()` |
+| 页面加载 | L1 | `page.goto(url); page.wait_for_load_state("networkidle"); assert page.locator(".el-table").is_visible()` |
+| 列表数据 | L1 | `assert table.locator(".el-table__row").count() > 0, "列表必须有数据"` |
+| 可选搜索功能 | L2 | `if not search.is_visible(): pytest.skip("无搜索框"); search.fill("x"); assert result.is_visible()` |
+| 可选分页 | L2 | `if not pager.is_visible(): pytest.skip("无分页"); pager.click(); assert table.locator(".el-table__row").count() > 0` |
+
+**软断言清零门禁规则**：`grep -r "if.*is_visible.*else.*assert" tests/` 结果必须为 0。
+
+### T3 两档分层规范
+
+T3 分为 T3a 自动化巡检和 T3b 深度用例两档，确保"不报错"不等于"功能正确"。
+
+**T3a 全页面巡检**（全栈项目）：自动导航全部路由，一次跑完输出逐页问题表，发现联调断点成本最低、覆盖面最大。
+
+**T3a 服务间集成巡检**（纯后端项目）：自动遍历全部服务间调用链路，发现集成断点。
+
+**T3a 六步闭环工作流**：
+
+```
+清单盘点 → 自动化巡检 → 问题分类 → 根因定位 → 修复回归 → 报告更新
+```
+
+1. **清单盘点**：从前端路由配置或 sitemap 自动提取全部路由，生成页面清单（路由路径 × 优先级 P0/P1/P2 × 是否需登录 × 动态参数）。
+2. **自动化巡检**：使用 Playwright 自动导航全部路由，逐页采集 8 类信号（详见下文巡检信号表）。**偶发缺陷多轮巡检策略（v2.16.0+）**：若首轮巡检 0 个代码类缺陷但存在"500 类风险页面"（含模型/数据异步加载页），必须执行至少 3 轮快速巡检（限定风险页子集），每轮独立输出错误计数并跨轮对比；任一轮出现代码类 HTTP≥500 即登记缺陷。单轮耗时控制在现有全量巡检 1.5 倍以内。
+3. **问题分类**：将采集信号按 9 类标准模式分类（详见下文问题分类表），HTTP≥500 先按判定优先级流程区分 H 类环境提示与 B 类代码缺陷。
+4. **根因定位**：对每个分类后的问题执行根因定位（7 种手段，详见下文根因定位表）。
+5. **修复回归**：P0/P1 问题回退 Step 3 修复 → 更新 DevLogReport → 重新执行相关测试；P2 问题记录到问题跟踪记录。修复回归直接复用 DevFlow 现有的缺陷闭环流程。
+6. **报告更新**：更新测试报告（T3a 巡检结果矩阵）、测试执行证据（逐页巡检问题表，含状态码分布/网络失败/console 分类/环境类清单，详见巡检输出物标准）、测试回溯审计报告（T1→T2→T3→T4 层间追溯矩阵）。
+
+**巡检输出物标准（v2.16.0+）**：逐页巡检问题表（测试执行证据）必须包含以下字段：
+
+| 字段 | 内容 |
+|:-----|:-----|
+| 页面路由 | 巡检页面路径 |
+| HTTP 状态码分布 | 该页所有请求的状态码计数（200/4xx/5xx）|
+| 网络失败清单 | requestfailed URL + 失败原因 |
+| console error 清单 | 分类：代码类（D）/弃用警告（I）|
+| 环境类提示清单 | H 类：URL + 响应体摘要 + 依赖说明 |
+| 问题分类 | A~I 类 |
+| 关联缺陷 | BUG-ID（如 BUG-291-012）|
+
+#### T3a 巡检信号和问题分类
+
+**8 类巡检信号采集表**：
+
+| 信号类型 | Playwright API | 采集方式 | 对应问题 |
+|:---------|:---------------|:---------|:---------|
+| HTTP 4xx | `page.on('response')` | 拦截响应，检查 `400 ≤ status < 500` | 接口契约不一致（A 类） |
+| HTTP ≥ 500 | `page.on('response')` | 拦截响应，检查 `status ≥ 500`，**采集响应体摘要（前 200 字符）** | 后端运行时错误（B 类）/ 环境类提示（H 类） |
+| 网络请求失败 | `page.on('requestfailed')` | 捕获失败请求 URL + 失败原因（`request.failure()`） | 网络断点/代理错误/跨域 |
+| console.error | `page.on('console')` | 过滤 `msg.type() === 'error'`，记录 message 文本 | 前端逻辑错误（D 类）/ 弃用警告（I 类） |
+| pageerror | `page.on('pageerror')` | 直接捕获未处理异常 | 前端运行时异常（C 类） |
+| 接口 200 但渲染空 | `page.evaluate()` + DOM 检查 | 检查主内容区域 `children.length === 0` | 字段映射/渲染问题（E 类） |
+| 静默失败（行为信号） | `btn.click()` + 网络计数器 + DOM 检查 | 点击关键按钮后检查：是否有新网络请求 + 是否有对话框/抽屉/消息提示弹出。两者皆无 → 疑似空实现 | 空实现/事件未绑定/API 未调用 |
+| 表单提交响应 | `submit_btn.click()` + 错误消息检测 | 对包含表单的对话框，点击提交按钮后检查是否出现错误提示（`.el-message--error`），发现 4xx/5xx 被前端吞掉的情况 | 表单提交失败被吞/校验逻辑缺失 |
+
+> **信号采集增强要求（v2.16.0+）**：
+> - HTTP ≥ 500 信号必须同时采集响应体摘要（前 200 字符），用于区分 B 类代码缺陷与 H 类环境提示
+> - 巡检脚本必须**逐页访问前后记录错误数**，将采集到的错误精确定位到来源页面（路由路径）
+> - 采集到的 HTTP 4xx/5xx 必须记录完整 URL，便于直连复现与根因定位
+
+**关键按钮清单**（7 类）：静默失败检测覆盖以下关键按钮：
+
+```
+KEY_BUTTONS = ["添加", "创建", "新建", "删除", "编辑", "导出", "刷新"]
+```
+
+**对话框清理逻辑**：每次关键按钮检测后，若弹出了对话框/抽屉，必须关闭后再检测下一个按钮，避免对话框叠加影响后续检测：
+
+```python
+# 关闭可能出现的对话框，避免影响后续检测
+close_btn = page.locator(".el-dialog__close, .el-drawer__close").first
+if close_btn.is_visible():
+    close_btn.click()
+    page.wait_for_timeout(500)
+```
+
+**9 类标准问题分类表**：
+
+| 类别 | 模式名称 | 典型信号 | 根因方向 | 修复路径 |
+|:----:|:---------|:---------|:---------|:---------|
+| A 类 | 接口契约不一致 | HTTP 422/404 | 前后端路由或字段定义不匹配 | T1 契约层修复（改契约或改调用） |
+| B 类 | 后端运行时错误 | HTTP 500（代码异常）| 后端代码异常、数据库错误（响应体含异常堆栈/业务错误）| Step 3 后端修复 |
+| C 类 | 前端运行时异常 | pageerror | 未捕获异常、空指针、类型错误 | Step 3 前端修复 |
+| D 类 | 前端逻辑错误 | console.error（代码类）| 状态管理错误、条件判断错误 | Step 3 前端修复 |
+| E 类 | 渲染空/白屏 | 接口 200 但 DOM 空 | 字段映射错误、渲染时序、空数据未处理 | Step 3 前端修复（查字段映射） |
+| F 类 | 静默失败/空实现 | 按钮点击后无网络请求且无 UI 响应 | 事件未绑定、handler 空实现（TODO）、API 未调用 | Step 3 前端修复（补全 handler 实现） |
+| G 类 | 表单提交错误被吞没 | 表单提交后 API 返回 4xx/5xx 但前端未显示错误提示 | 前端 error handler 缺失或 catch 后未提示用户 | Step 3 前端修复（补全错误提示逻辑） |
+| **H 类** | **环境类提示（服务未就绪/依赖缺失）** | **HTTP 503/504 + 响应体含服务未就绪提示（如 `{"detail":"无法连接Xxx服务"}`）** | **外部服务/依赖未启动** | **登记环境遗留清单，不进缺陷闭环；环境恢复后复测** |
+| **I 类** | **第三方弃用警告** | **console.error 含 deprecated/deprecation 关键词** | **第三方库 API 弃用** | **仅记录，不登记缺陷** |
+
+**判定优先级流程（v2.16.0+）**：
+
+```
+HTTP ≥ 500 → 读取响应体摘要
+  ├─ 响应体含服务未就绪/依赖提示（如 503 + "无法连接Xxx服务"）→ H 类（环境遗留，登记环境遗留清单）
+  ├─ 响应体含异常堆栈/业务错误 → B 类（代码缺陷，登记缺陷闭环）
+  └─ 响应体为空/通用错误 → 直连复现（curl 确认归属）后归 B 类
+console.error → 检查 message 文本
+  ├─ 含 deprecated/deprecation → I 类（仅记录，不登记）
+  └─ 否则 → D 类（代码缺陷）
+```
+
+> 环境提示关键词清单样例：`无法连接`、`not available`、`connection refused`、`service unavailable`。关键词判定不命中时以直连复现结果为准。
+
+**根因定位 7 种手段表**：
+
+| 定位手段 | 适用类别 | 方法 |
+|:---------|:---------|:-----|
+| 日志分析 | A/B/C/D 类 | 查看后端日志、浏览器 Network 面板 |
+| 堆栈追踪 | C/D 类 | pageerror 的 stack trace、console.error 的调用链 |
+| 直连复现 | A/B 类 | 用 curl/httpie 直接调用接口，绕过前端确认是后端还是前端问题 |
+| DOM 检查 | E 类 | 检查接口返回数据结构 vs 前端渲染代码的字段映射 |
+| 源码检查 | F 类 | 检查按钮 handler 是否为空实现/TODO，检查事件绑定是否缺失 |
+| 错误处理检查 | G 类 | 检查前端 API 调用的 catch/then 分支是否包含错误提示逻辑，检查 error handler 是否被注释或遗漏 |
+| **并发/时序复现** | **B 类（竞态型）** | **快速连续访问/多轮重复请求触发竞态（如响应序列化与 DB session 关闭竞态），比对单次稳定与多轮偶发差异** |
+
+#### T3b 深度用例与 CRUD 全覆盖规则
+
+**T3b 目标**：对高频页面/链路验证 CRUD/筛选/分页/错误态，验证功能正确性而非仅"不报错"。
+
+**优先级排序规则**：按业务影响排序，而非页面复杂度。
+
+| 优先级 | 排序依据 | 典型页面/服务 |
+|:------:|:---------|:-------------|
+| P0 | 直接影响收入或安全 | billing、api-keys |
+| P1 | 核心业务配置 | providers、models |
+| P2 | 辅助功能页面 | settings、open-models |
+
+**CRUD 全覆盖硬性规则**：每个管理类模块必须覆盖 CRUD 至少 3 类操作，仅做只读用例（Read-only）不允许通过 T3b 门禁。
+
+| 模块类型 | CRUD 最低要求 | 不适用声明 |
+|:---------|:-------------|:-----------|
+| 管理类模块（增删改查） | C+R+U+D 至少 3 类 | 如某操作确不适用，需在测试报告中说明原因 |
+| 配置类模块（仅查看/修改） | R+U 至少 2 类 | 删除/创建不适用时需声明 |
+| 审计/日志类模块（仅查看） | R+搜索+分页 | C/U/D 不适用时需声明 |
+
+**用例命名规范**：`E2E-{模块缩写}-{序号}: {用例描述}`
+
+示例：`E2E-MODEL-001: 模型管理页面加载`、`E2E-MODEL-003: 点击添加模型按钮（L1-硬断言）`
+
+**用例结构模板**：
+
+```python
+@pytest.mark.e2e
+def test_xxx(self, e2e_page_context, e2e_base_url):
+    """E2E-XXX-NNN: 用例描述
+
+    验证点：
+    - 验证点1
+    - 验证点2
+
+    断言策略：L1-硬断言 / L2-条件断言
+    """
+    # 1. 前置条件检查
+    if e2e_page_context.get("mock_mode", False):
+        pytest.skip("E2E 测试需要前端服务运行")
+
+    # 2. 页面导航
+    page = e2e_page_context["page"]
+    page.goto(f"{e2e_base_url}/xxx")
+    page.wait_for_load_state("networkidle")
+
+    # 3. 操作步骤（每步都有明确的断言）
+    # 步骤1：...
+    # 步骤2：...
+
+    # 4. 结果验证（硬断言）
+    assert ...
+```
+
+**用例评审规则**：
+
+| 检查项 | 要求 |
+|:-------|:-----|
+| 覆盖对齐 | 用例数是否满足覆盖矩阵要求 |
+| 断言策略 | 是否使用正确的断言级别（L1/L2/L3/L4） |
+| 软断言检查 | 是否包含禁止的软断言模式（3 种禁止模式） |
+| 命名规范 | 是否符合 `E2E-{模块}-{序号}` 格式 |
+| 文档完整 | 是否包含验证点、断言策略说明 |
+
+**T3 通过标准**：T3a 巡检 P0/P1 页面/链路无阻塞性问题；T3b 深度用例 P0 页面/链路 CRUD 全通过，P1 通过率 ≥ 95%。
+
+**T3 网络层门禁（v2.16.0+）**：
+
+| 门禁项 | 通过标准 |
+|:-------|:---------|
+| 代码类 HTTP≥500 | = 0（H 类环境提示允许遗留，但必须登记环境遗留清单）|
+| requestfailed | = 0 |
+| 代码类 console.error | = 0（I 类弃用警告仅记录，不登记）|
+| L4 网络层断言 | T3b/E2E 每个用例通过前必须执行 `assert_network_clean()` |
+| 偶发缺陷 | 多轮巡检任一轮出现代码类 500 → 门禁不通过，回退 Step 3 |
+
+### T4 业务流走查规范
+
+**T4 边界定义**：只做 T3 无法自动化的判断 — 交互体验是否顺畅、错误提示是否友好、业务流程是否符合预期、主观视觉判断。
+
+**人机协同定位表**：
+
+| 测试类型 | 负责方 | 覆盖范围 | 时机 |
+|:---------|:-------|:---------|:-----|
+| T3a 自动化巡检 | 工具 | 页面加载 + 错误信号 + 静默失败检测 | 每次构建 |
+| T3b 自动化 E2E | 脚本 | CRUD 交互 + 回归验证 | 每次版本发布前 |
+| T4 人工测试 | 测试人员 | 探索性测试 + 边界条件 + 视觉验证 + 真实用户流 | 自动化通过后（必选） |
+
+**人工测试检查清单**（5 大类）：
+
+A. 基础功能验证
+- [ ] 页面正常加载，核心元素可见
+- [ ] 所有按钮可点击且有预期响应（无静默失败）
+- [ ] 所有表单可填写且可提交
+- [ ] 所有筛选/搜索功能正常工作
+
+B. CRUD 完整链路
+- [ ] 创建：填写表单→提交→成功提示→列表刷新→新数据可见
+- [ ] 读取：列表加载→详情页加载→数据正确
+- [ ] 编辑：打开编辑→修改数据→保存→列表更新→详情页数据一致
+- [ ] 删除：点击删除→确认对话框→确认→成功提示→列表移除
+
+C. 边界条件与异常
+- [ ] 必填字段为空时提交→显示校验错误
+- [ ] 输入超长字符→不崩溃
+- [ ] 输入特殊字符（SQL 注入、XSS）→被正确处理
+- [ ] 网络断开时操作→显示友好错误提示
+- [ ] 并发操作（两人同时编辑）→数据一致性
+
+D. 视觉与交互体验
+- [ ] 响应式布局在不同分辨率下正常
+- [ ] 加载状态（loading）正确显示
+- [ ] 空状态（empty）正确显示
+- [ ] 错误状态正确显示
+- [ ] 操作反馈（成功/失败提示）及时且清晰
+
+E. 真实用户流
+- [ ] 模拟真实用户从登录到完成核心任务的完整路径
+- [ ] 跨模块数据流转正确（如：创建模型→配置路由→调用 API）
+- [ ] 浏览器前进/后退按钮行为正确
+
+**人工测试抽样策略表**：
+
+| 模块类别 | 抽样比例 | 说明 |
+|:---------|:---------|:-----|
+| 核心业务模块 | 100% | 直接影响收入/安全/核心业务的模块 |
+| 重要功能模块 | 100% | 核心配置/管理类模块 |
+| 辅助模块 | 30% 抽样 | 审计日志、用量统计等非核心模块 |
+| 配置类模块 | 50% 抽样 | 系统设置、个人设置等低风险模块 |
+
+**核心业务流走查清单模板**：
+
+全栈项目：
+
+| 序号 | 业务流 | 步骤 | 预期结果 | 实际结果 | 通过 |
+|:----:|:-------|:-----|:---------|:---------|:----:|
+| 1 | 登录→配置→计费→对话 | 登录 → 配置 Provider → 设置计费规则 → 发起对话 | 全流程无阻塞，数据正确 | | ⬜ |
+| 2 | {项目核心业务流} | {具体步骤} | {预期} | | ⬜ |
+
+纯后端项目：
+
+| 序号 | 业务流 | 步骤（API 调用序列） | 预期结果 | 实际结果 | 通过 |
+|:----:|:-------|:-----|:---------|:---------|:----:|
+| 1 | 配置→计费→调用 | POST /providers → POST /billing → POST /chat | 全链路无阻塞，数据正确 | | ⬜ |
+
+> 走查清单在测试计划阶段预定义，UAT 阶段执行并记录实际结果。
+
+**T4 通过标准**：核心业务流走查全部通过 + 人工审批确认 + 人工测试执行率 100%（计划的人工测试项必须全部执行，不得跳过）。
+
+### 测试覆盖矩阵与度量体系
+
+**测试覆盖矩阵结构**（模块 × 用例类型二维矩阵）：
+
+| 模块 | 页面加载 | 创建交互 | 编辑交互 | 删除交互 | 搜索筛选 | 分页 | 导出 | 目标用例数 |
+|:-----|:-------:|:-------:|:-------:|:-------:|:-------:|:---:|:---:|:---------:|
+| {核心模块1} | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | — | 6 |
+| {核心模块2} | ✅ | ✅ | ✅ | ⭕ | ✅ | ✅ | — | 5 |
+| {辅助模块} | ✅ | — | — | — | ✅ | ✅ | ✅ | 4 |
+
+> 图例：✅ 必须覆盖 | ⭕ 按需覆盖 | — 不适用
+
+**矩阵维护规则**：
+1. 矩阵文件位置：`doc/test/{项目名}-测试覆盖矩阵-v{版本}.md`
+2. 更新时机：每次版本发布前、每次新增模块时、每次新增用例时
+3. 审批流程：矩阵变更需测试负责人评审，确保覆盖完整性
+4. 缺口追踪：矩阵中标记为 ✅ 但无对应用例的项，列为测试缺口，按优先级补全
+
+**覆盖缺口分析方法论**：
+
+缺口分析表格式：
+
+| 模块 | 现有用例数 | 目标用例数 | 缺口 | 补全优先级 | 计划补全版本 |
+|:-----|:---------:|:---------:|:----:|:----------:|:----------:|
+| {核心模块1} | 2 | 5 | **+3** | P1 | v{当前版本} |
+| {核心模块2} | 3 | 6 | +3 | P2 | v{下一版本} |
+| {辅助模块} | 4 | 4 | — | — | — |
+| **合计** | **{总和}** | **{目标总和}** | **+{缺口总和}** | — | — |
+
+缺口分级规则：
+
+| 缺口等级 | 判定条件 | 处置要求 |
+|:--------:|:---------|:---------|
+| P0 缺口 | 核心业务模块（直接影响收入/安全）且缺口 ≥ 2 | 本版本必须补全，阻塞发布 |
+| P1 缺口 | 核心配置模块且缺口 ≥ 1，或核心业务模块缺口 = 1 | 本版本补全，可延期 1 版本但需技术债登记 |
+| P2 缺口 | 辅助模块/配置类模块的缺口 | 列入后续版本计划，不阻塞发布 |
+
+缺口追踪闭环：
+
+```
+矩阵建立 → 缺口识别 → 缺口分级 → 补全计划 → 用例编写 → 矩阵更新 → 缺口关闭
+                                                    ↑                    │
+                                                    └── 未关闭的缺口流转到下一版本 ──┘
+```
+
+> 缺口分析表作为测试覆盖矩阵文档的必填附件，每版本更新。未关闭的 P0/P1 缺口需在技术债务总表中登记。
+
+**7 项度量指标表**：
+
+| 指标 | 定义 | 目标值 | 度量频率 |
+|:-----|:-----|:------:|:---------|
+| 用例覆盖率 | 已有用例数 / 目标用例数 | ≥90% | 每版本 |
+| 硬断言比例 | L1 硬断言用例数 / 总用例数 | ≥60% | 每版本 |
+| 软断言数量 | 禁止模式出现次数 | 0 | 每版本 |
+| 巡检覆盖率 | 巡检覆盖页面数 / 总页面数 | 100% | 每构建 |
+| 静默失败检测覆盖率 | 检测的关键按钮数 / 总关键按钮数 | ≥90% | 每构建 |
+| 缺陷逃逸率 | 人工发现的缺陷数 / (自动化发现 + 人工发现) | ≤20% | 每版本 |
+| 人工测试执行率 | 实际执行的人工测试项 / 计划项 | 100% | 每版本 |
+
+> 缺陷逃逸率是衡量自动化测试有效性的核心指标。逃逸率 >20% 说明自动化测试存在系统性盲区，需触发测试架构评审。
+
+**度量报告模板**：
+
+```markdown
+## 测试度量报告 v{版本}
+
+### 覆盖率
+- 用例覆盖率: {已有}/{目标} = {百分比}%
+- 硬断言比例: {L1用例}/{总用例} = {百分比}%
+- 软断言数量: {数量}（目标: 0）
+
+### 巡检能力
+- 巡检覆盖率: {巡检页面}/{总页面} = {百分比}%
+- 静默失败检测覆盖: {检测按钮}/{总按钮} = {百分比}%
+- 静默失败检出: {检出数}
+
+### 缺陷分析
+- 自动化发现: {数量}
+- 人工发现: {数量}
+- 缺陷逃逸率: {百分比}%
+
+### 改进追踪
+- 上版本遗留缺口: {数量}
+- 本版本新增用例: {数量}
+- 本版本修复软断言: {数量}
+```
+
+### 根因映射表与改进项
+
+**4 大根因→改进项映射表**：
+
+| 根因 | 表现 | 对应改进项 |
+|:-----|:-----|:---------|
+| 根因 1：测试设计原则缺失 | 未建立"CRUD 全覆盖"硬性规则、未禁止软断言、未明确人机协同 | CRUD 全覆盖硬性规则 + 断言分级规范 + 禁止模式清单 + 人机协同定位 |
+| 根因 2：巡检工具能力不足 | 仅检测"错误信号"，不检测"行为信号"；无法识别"按钮点击后应有但未有响应" | 静默失败检测（F 类）+ 表单提交响应检测（G 类）+ 关键按钮清单(7 类) + 对话框清理 |
+| 根因 3：测试度量缺失 | 无覆盖矩阵、无缺陷逃逸率指标 | 测试覆盖矩阵 + 覆盖缺口分析方法论 + 测试度量体系(7 项指标) |
+| 根因 4：人工测试定位模糊 | 自动化通过后人工测试被视为"可选"、未明确职责分工 | 人机协同定位 + 人工测试检查清单(5 大类) + 抽样策略 + 人工测试执行率 100% 门禁 |
+
+**9 项改进项验收标准表**：
+
+| 改进项 | 验收标准 | 验证方法 |
+|:-------|:---------|:---------|
+| 推荐断言模式 | L1 和 L2 标准模板各至少 1 个代码示例 | 审查 testing-stage-execution SKILL.md |
+| 断言策略速查表 | 速查表覆盖 ≥ 6 种常见场景 | 审查速查表条目数 |
+| 表单提交响应检测 | T3a 信号表包含"表单提交响应"行 | 检查信号表 |
+| 关键按钮清单 | 覆盖 7 类关键按钮（含"新建""刷新"） | 检查 KEY_BUTTONS 列表 |
+| 对话框清理逻辑 | 巡检规范包含对话框关闭代码片段 | 检查巡检规范文档 |
+| G 类问题分类 | 问题分类表包含 G 类"表单提交错误被吞没" | 检查分类表 |
+| 覆盖缺口分析方法论 | 包含缺口分析表格式 + 缺口分级规则 + 追踪闭环 | 审查覆盖矩阵章节 |
+| 根因映射表 | 包含 4 大根因到改进项的映射 | 审查根因映射表章节 |
+| 术语表 | 包含 ≥ 8 个核心术语定义 | 审查术语表条目数 |
+
 ## 强制测试矩阵
 
 除非需求文档明确标记“不适用”，否则不得跳过以下测试类型。跳过项必须在测试报告和测试回溯审计报告中说明原因、影响和补救计划。
@@ -95,10 +679,14 @@ Step 4 测试阶段
 |---|---|---|---|
 | 测试准备 | 测试计划、测试用例、测试数据、测试矩阵、环境信息 | 用例可追溯到需求 | 测试计划、测试用例 |
 | 环境验证 | 端口、进程、容器、环境变量、数据库、Mock、外部依赖 | 所有服务均为当前待测版本 | 测试报告环境记录 |
-| API 测试 | 健康检查、核心 API、错误响应、认证、权限、参数校验 | P0/P1 API 全部通过，无非预期 5xx | API 测试报告 |
+| API 测试 | 健康检查、核心 API、错误响应、认证、权限、参数校验。**三要素校验**：每条 API 测试必须包含①状态码断言②响应结构断言（字段名+类型）③边界参数测试。**显式声明**：接口通过 ≠ 页面可用，页面可用性由 T3 验证 | P0/P1 API 全部通过，无非预期 5xx | API 测试报告 |
 | 集成测试 | 前后端、服务间调用、数据库、缓存、队列、外部依赖 | 关键链路全部有效执行 | 集成测试报告 |
 | E2E 测试 | 关键端到端业务流程和数据闭环 | 关键流程全部通过 | 测试报告、E2E 证据 |
 | Mock / 外部依赖测试 | Mock 启动、健康检查、契约、端口冲突处理 | 无静默跳过、无错误 Mock 契约 | 测试报告 |
+
+> **API 契约测试**：如果项目使用 OpenAPI 契约管理（参考 `api-contract-management` 技能），Mock / 外部依赖测试应使用 MSW 进行前端 Mock 联调，并使用 Schemathesis 等工具进行后端契约合规性测试。`api-contract-management` 的 Step 4 测试指南提供了 MSW 配置、Schemathesis 契约测试和前后端字段一致性校验的完整实现。
+
+> **设计-测试预映射验证**：如果项目在前端/后端设计阶段执行了 `prototype-coverage` 和 `backend-coverage`，测试阶段应验证测试用例是否覆盖了设计阶段预埋的测试关注点（前端 UI 测试关注点 + 后端接口测试关注点）。P0 预映射关注点的覆盖率应达到 100%。
 | 回归测试 | 当前版本全量回归，复测上一版本失败项和跳过项 | 全量回归通过率 ≥95%，P0/P1 全闭环 | 测试报告 |
 | 覆盖率测试 | 修改文件白盒覆盖率，说明黑盒覆盖差异 | 修改文件覆盖率 ≥80%，或记录不适用原因 | 覆盖率报告 |
 | 合规测试 | 文档、版本范围、API 契约、认证、敏感配置、依赖风险 | 无阻塞合规问题 | 合规测试报告 |
@@ -113,7 +701,7 @@ Step 4 测试阶段
 压测场景设计流程：基准测试（单用户）→ 负载测试（预期并发）→ 压力测试（极限）→ 稳定性测试（持续运行）
 基线建立方法：首个版本在生产环境运行压测3次取中位数作为基线
 
-## 强制规则
+## 执行规则
 
 1. 不得用局部测试替代完整测试矩阵。
 2. 不得因依赖未启动、旧服务占用或 Mock 异常而静默跳过测试。
@@ -123,6 +711,7 @@ Step 4 测试阶段
 6. 必须记录实际命令、结果、通过数、失败数、跳过数、覆盖率和关键失败原因。
 7. 发现 P0/P1 缺陷时，应回退 Step 3 修复，更新 `DevLogReport` 和开发审计后重新执行相关测试，必要时重新执行完整 Step 4。
 8. Step 4 未通过不得进入 Step 5。
+9. 必须执行自测证据抽查（4.0b），不得直接信任开发自测结果。
 
 ## 测试技能速查
 
@@ -145,17 +734,47 @@ Step 4 测试阶段
 | Redis、缓存、会话、限流测试 | `redis`、`redis-development` |
 | RabbitMQ / Kafka 消息链路测试 | `rabbitmq`、`kafka` |
 | 容器、多服务和测试环境验证 | `docker` |
+| 性能工程和容量规划基准 | `performance-engineering` |
 | 版本、分支、测试基线和缺陷修复记录 | `code-version-backup-management`、`git-commit` |
 
 ## 输出要求
 
-测试阶段完成后必须具备：
+测试阶段完成后，至少应具备：
 
-- {项目名}-测试报告-v{版本号}.md（主文件：含测试计划/API测试/集成测试/合规测试/UAT测试/覆盖率/缺陷闭环/跳过项/E2E证据；性能测试和可访问性测试专项时独立）
-- {项目名}-测试用例-v{版本号}.md（独立，需追溯到需求）
-- {项目名}-测试回溯对比审计报告-v{版本号}.md（固定存放于 doc\audit\verification）
+**强制产出（清单核对基准）**：
+
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 强制 MD | `doc/test/DevFlow-*测试计划*-v{版本号}.md` |
+| 2 | 强制 MD | `doc/test/DevFlow-*测试报告*-v{版本号}.md` |
+| 3 | 强制 MD | `doc/test/DevFlow-*测试用例*-v{版本号}.md` |
+| 4 | 强制 MD | `doc/audit/verification/DevFlow-*测试回溯对比审计报告*-v{版本号}.md` |
+| 5 | 强制 证据 | `doc/test/evidence/` 测试执行证据（截图、日志、覆盖率报告）|
+| 6 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
 
 文档命名、路径和版本规则遵循 `project-document-management`。
+文档内容结构和章节模板参考 `project-document-templates` 技能。
+
+**问题跟踪记录 — 风险归集检查章节（必填）**：
+
+在问题跟踪记录的「变更请求」章节之后，必须包含以下章节：
+
+``````markdown
+## 4. 风险归集检查
+
+> 本章节为必填项，用于确认本版本所有 P1+ 风险/问题已归集到技术债务总表。
+
+| 检查项 | 结果 | 说明 |
+|:-------|:----:|:-----|
+| 本阶段 P1+ 风险是否已归集 | ✅/❌ | 列出已归集的风险 ID（TD-XXX） |
+| 未归集风险 ID 及原因 | 无 / {ID}: {原因} | 未归集时必须说明原因及后续处理计划 |
+| 归集日期 | {日期} | 最近一次归集操作的日期 |
+| 技术债务总表版本 | {版本号} | 归集时总表的最新版本 |
+``````
+
+未填写此章节的版本不得标记为"已发布"。
+
+---
 
 ## 测试报告最小结构
 
@@ -198,7 +817,7 @@ Step 4 测试阶段
 说明是否允许进入测试回溯审计和 Step 5。
 ```
 
-## 完成标准
+## 通过标准
 
 Step 4 可通过的最低条件：
 
@@ -209,6 +828,185 @@ Step 4 可通过的最低条件：
 5. UAT 通过或有明确人工审批结论。
 6. 测试报告、覆盖率报告、UAT 报告和测试回溯审计材料齐备。
 7. 测试回溯审计允许进入 Step 5。
+8. **产出物存在性验证**：阶段完成前必须通过 LS/Glob 列出目标目录，确认所有产出文件实际存在，空输出（声称完成但文件不存在）不得通过。
+9. **T1-T4 层间追溯校验**：T1 契约定义的路由在 T2/T3/T4 各层均有测试覆盖，P0/P1 路由层间覆盖率达 100%，追溯矩阵作为测试回溯审计报告附件。
+10. **软断言清零**：`grep -r "if.*is_visible.*else.*assert" tests/` 结果必须为 0。
+11. **人工测试执行率 100%**：计划的人工测试项必须全部执行，不得跳过。
+
+## 测试追溯 ID 规范
+
+### TT-ID 格式
+
+TT-ID 使用统一格式：`TT-{版本号}-{序号}`
+
+| 模式 | 格式示例 | 说明 |
+|------|---------|------|
+| 全流程模式 | TT-v2.6.0-001 | 继承 Step 3 的版本号 |
+| 独立模式 | TT-EXT-001 | EXT 表示外部来源 |
+
+### TD-ID→TT-ID 映射
+
+测试用例必须同时关联 RT-ID（需求）和 TD-ID（代码）：
+
+```text
+测试用例 ID: TT-v2.6.0-001
+关联需求: RT-v2.6.0-003
+关联代码: TD-v2.6.0-005, TD-v2.6.0-012
+测试类型: API 测试
+前置条件: ...
+测试步骤: ...
+预期结果: ...
+```
+
+**强制规则**：所有 P0/P1 需求的测试用例必须至少关联一个 TD-ID。
+
+### 风险归集门禁
+
+当前阶段执行完成后，发现 P1+ 风险/问题时必须：
+1. 打开 `doc/version/global/DevFlow-技术债务总表.md`
+2. 检查是否已有对应债务条目
+3. 若无 → 按 15 字段标准格式新增条目
+4. 在阶段移交说明中注明已归集的风险条目（TD-XXX）
+5. 未完成归集的阶段不得移交下一阶段
+6. **将修改后的 `DevFlow-技术债务总表.md` 列入本阶段输出文档清单，确保人工可审查增量变更**
+
+#### 产出物真实性验证门禁
+
+- **产出物真实性验证门禁**：所有声称已创建的产出文档/代码，在阶段结束前必须通过文件系统验证实际存在。验证方法：使用 LS/Glob 列出目标目录中的文件，逐一核对产出清单。
+- 验证不通过不得进入下一阶段。
+- 验证结果须记录在阶段评审/审计文档中。
+
+---
+
+## 内部工作流
+
+Step 4 测试验证采用四轨并行模型。
+
+### 步骤序列
+
+```text
+整体: 4.0入场 → 4.1计划 → 4.2环境
+后端: 4.3a API测试[T1+T2] → 4.4a 集成测试[T2]
+前端: 4.3b 组件测试[T2前端] → 4.3b' 全页面巡检[T3a] → 4.4b 前端集成测试[T3b]    [按需]
+第三方: 4.3c 集成测试（Mock/Stub/升级回归）[T1+T2] [按需]
+汇合: 4.5 E2E测试[T3b] → 4.6 回归+覆盖率 → 4.7 专项测试
+→ 4.8 UAT[T4] → 4.9 缺陷闭环 → 4.10 报告 → 4.11 审计移交
+```
+
+### 4.0 入场检查
+| 独立模式 | 全流程模式 |
+|---------|-----------|
+| 可执行代码已存在 | Step 3 移交齐备 + code-logic-review 通过 + 开发审计通过 |
+
+### 4.0b 自测证据抽查（证据真实性门禁）
+
+> **目的**：防止 LLM 编造自测证据，确保 Step 3 的自测和运行验证结果真实可信。
+
+**抽查规则**：
+
+| 项目 | 规则 |
+|------|------|
+| 抽查时机 | Step 4 入场后、正式测试前必须执行 |
+| 抽查数量 | 随机抽取 1~2 个 P0 级自测用例 + 1 个实际运行验证用例 |
+| 抽取方法 | 从 DevLogReport 的自测用例清单中，按随机数或第 N 个选取，选取规则必须记录 |
+| 复核方式 | 由测试人员独立重新执行被抽中的用例，对比结果是否与开发自测记录一致 |
+| 通过标准 | 抽查用例 100% 复现通过（结果一致或差异有合理解释） |
+| 失败处置 | 任一抽查用例无法复现 → 回退 Step 3 重新自测 + 全部自测用例加倍复核 |
+| 造假处置 | 发现故意编造证据 → 升级为 P0 问题，Step 3 全部成果作废重审 |
+
+**抽查产出**：测试报告 §入场检查 中必须包含"自测证据抽查记录"，含抽查用例编号、抽取方法、复核结果、结论。
+
+### 4.1~4.2 计划与准备
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 4.1 测试计划 + 测试用例 | 分出后端子计划/前端子计划/第三方测试计划，每用例关联 RT-ID+TD-ID | 测试计划 + 测试用例 |
+| 4.2 环境验证 | 确认测试环境就绪 | 环境验证记录 |
+
+### 4.3~4.4 并行测试执行
+| 步骤 | 轨道 | 活动 | T 层级 |
+|------|------|------|:------:|
+| 4.3a 后端 API 测试 | ⚙️ | 接口功能/错误码/边界验证；**API 契约测试（Schemathesis 合规性校验 + MSW Mock 联调，参考 api-contract-management）** | T1 + T2 |
+| 4.4a 后端集成测试 | ⚙️ | 服务间调用/数据流转验证 | T2 |
+| 4.3b 前端组件测试 | 🎨 [按需] | 组件渲染/交互/状态验证 | T2（前端） |
+| 4.3b' 全页面巡检 | 🎨 [按需] | 自动导航全部路由，采集 HTTP 错误/console/空渲染/静默失败/表单提交响应 | T3a |
+| 4.4b 前端集成测试 | 🎨 [按需] | 页面流程/路由/状态联调验证 | T3b |
+| 4.3c 第三方集成测试 | 🔗 [按需] | 第三方接口功能验证 + Mock/Stub 测试 + 版本升级兼容性回归 | T1 + T2 |
+
+### 4.5 E2E 测试（四轨贯通 — 关键衔接点）
+| 条件 | 通过标准 |
+|------|---------|
+| 始终执行（至少后端+整体） | 全量 E2E 通过率 ≥ 95%；覆盖全部 P0/P1 核心流程 |
+
+#### E2E 网络层事件订阅标准动作（v2.16.0+）
+
+所有 T3b 深度用例与 4.5 E2E 用例**必须**在用例开始前调用 `attach_network_listeners(page)` 订阅网络层事件，并在用例末尾调用 `assert_network_clean()` 断言网络层健康（L4 网络层断言）。
+
+```python
+# 标准动作：E2E 用例强制订阅网络层事件（Playwright 标准实现）
+network_errors = {"http5xx": [], "request_failed": [], "console_errors": []}
+
+def attach_network_listeners(page):
+    """订阅网络层事件：HTTP≥500（含响应体摘要）/ requestfailed / console error"""
+    def on_response(resp):
+        if resp.status >= 500:
+            body = ""
+            try:
+                body = resp.text()[:200]  # 响应体摘要（前 200 字符）
+            except Exception:
+                pass
+            network_errors["http5xx"].append(
+                {"url": resp.url, "status": resp.status, "body": body}
+            )
+    def on_request_failed(req):
+        network_errors["request_failed"].append(
+            {"url": req.url, "reason": req.failure}
+        )
+    def on_console(msg):
+        if msg.type == "error":
+            network_errors["console_errors"].append(msg.text)
+    page.on("response", on_response)
+    page.on("requestfailed", on_request_failed)
+    page.on("console", on_console)
+
+def is_env_hint(body):
+    """环境提示关键词判定：命中 → H 类环境遗留，排除出代码缺陷"""
+    env_hints = ["无法连接", "not available", "connection refused", "service unavailable"]
+    return any(hint in body for hint in env_hints)
+
+def assert_network_clean():
+    """L4 网络层断言：排除 H 类环境提示与 I 类弃用警告后断言网络健康"""
+    code_5xx = [e for e in network_errors["http5xx"]
+                if not is_env_hint(e["body"])]          # 排除 H 类环境提示
+    code_console = [m for m in network_errors["console_errors"]
+                    if "deprecated" not in m.lower()]    # 排除 I 类弃用警告
+    assert not code_5xx, f"代码类 HTTP≥500: {code_5xx}"
+    assert not network_errors["request_failed"], \
+        f"网络请求失败: {network_errors['request_failed']}"
+    assert not code_console, f"代码类 console error: {code_console}"
+```
+
+> **框架适配说明**：以上为 Playwright 标准实现。其他 E2E 框架按等价事件映射：`response` → HTTP 响应事件、`requestfailed` → 网络失败事件、`console` → 日志输出事件。环境提示关键词清单可按项目实际依赖扩展。
+>
+> **用例接入要求**：每个 T3b/E2E 用例：① 用例开头调用 `attach_network_listeners(page)`；② 用例末尾调用 `assert_network_clean()`；③ 网络层断言失败时按 9 类问题分类表登记缺陷（H 类环境提示除外）。
+
+### 4.6~4.7 回归与专项
+| 步骤 | 活动 |
+|------|------|
+| 4.6 回归测试 + 覆盖率检查 | 分端统计覆盖率，整体汇总 |
+| 4.6b 探索式测试 | dogfood：人工/自动化探索未覆盖场景，记录边界行为和异常发现 |
+| 4.7a 安全测试 | 安全渗透测试：输入校验/鉴权越权/敏感信息泄漏/依赖安全扫描全部通过（参考 security-best-practices） |
+| 4.7b-1 后端性能测试 | k6/Locust，P50/P99/吞吐量 |
+| 4.7b-2 前端性能测试 | Lighthouse/CWV |
+| 4.7c 可访问性测试 | WCAG 关键流程检查 |
+
+### 4.8~4.11 闭环与移交
+| 步骤 | 活动 |
+|------|------|
+| 4.8 UAT 验收 | 用户验收确认 |
+| 4.9 缺陷闭环 + 修复回归 | 缺陷按端记录（后端/前端/第三方）。P0/P1→回退 Step 3 对应端→修复→重新测试 |
+| 4.10 测试报告汇总 | 整体报告 + 各激活轨道分报告 |
+| **4.10b 变更一致性自检** | **① 检查所有测试文档文件头版本号与修订历史底部版本号一致 ② 确认所有新文件的路径与命名规范匹配 ③ 确认测试矩阵无跳过项且跳过项有原因说明。自检失败 → 修正后才能进入 4.11** |
+| 4.11 测试回溯审计移交 | 审计检查：RT-ID→TT-ID 覆盖 + TD-ID→TT-ID 覆盖；**调用 audit-agent --stage 4 --phase 1+2+3 验证 Step 4 测试追溯完整性和产出物存在性，并复查 3 个测试检查点，输出阶段审计报告到 doc/audit/review/** |
 
 ## 反模式
 
@@ -223,57 +1021,38 @@ Step 4 可通过的最低条件：
 - 不记录测试命令和失败原因
 - P0/P1 未关闭就进入 Step 5
 - 测试文档缺失仍通过审批
+- 只跑 API 测试（T2）就认为页面可用，跳过 T3 全页面巡检
+- T3 只做"不报错"检查，不做功能正确性验证（T3b 深度用例）
+- T1 契约测试只在 Step 5 CI 跑，Step 4 测试阶段未执行前置契约 diff
+- 深度用例按页面复杂度排序而非业务影响排序
 
 ## Design Stage Integration
 
-When this skill is used during the formal design stage, coordinate with design-stage-execution.
+When called within Step 2: treat `design-stage-execution` as controller, use only for specialty area, record decisions in design doc, do not replace Step 2 review/audit. P0/P1 gap → fix within Step 2, update traceability, rerun review before handoff.
 
-- Treat design-stage-execution as the Step 2 design-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole design stage complete.
-- Record design decisions, assumptions, alternatives, risks, open questions, and downstream impacts in the relevant design document.
-- Do not let a successful specialty design review replace the Step 2 design review or requirements-architecture audit.
-- If a P0/P1 design gap is found, fix it within Step 2, update the relevant design document and traceability matrix, then rerun the relevant design review before development handoff.
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with `requirements-stage-execution`.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions & acceptance criteria in requirements doc, do not replace Step 1 review/audit. P0/P1 gap → fix within Step 1, update traceability matrix, rerun review before design handoff.
 
-- Treat `requirements-stage-execution` as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
 ## Operations Stage Integration
 
+When called within Step 5: treat `operations-stage-execution` as controller, record deployment/verification evidence in ops doc, do not replace Step 5 release verification or ops audit. P0/P1 issue → stop or rollback, update records, rerun verification.
 
-When this skill is used during the formal deployment and operations stage, coordinate with operations-stage-execution.
+## 术语表
 
-- Treat operations-stage-execution as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-- If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
+> 统一术语定义，确保 T1-T4 四层测试架构规范全文理解一致。
 
-## L3 代码静态质量检查速查
-
-以下规则内联自 code-static-quality-check 技能：
-- 检查项(12类)：语法/Lint/类型/构建/符号一致/参数/返回值/import-export/API字段/环境配置/数据字段/状态枚举
-- 严重级别：P0(构建失败/密钥泄露/核心模块import失败)必须修复，不得进入 code-logic-review；P1(核心API参数不匹配/返回结构漂移/关键类型错误)必须修复或获得明确批准；P2(非核心Lint/局部命名不一致)记录风险；P3(格式/注释)可后续优化
-- 强制规则：不得跳过静态门禁；不得新增不必要工具链；不得掩盖失败；不得用静态检查替代逻辑审查或测试阶段
-- 工具选择：优先使用项目已有脚本（package.json/pyproject.toml/Makefile/CI配置），不强行引入新工具
-- 输出要求：检查结果必须写入 DevLogReport 的"静态质量检查"章节，包含命令、结果、失败项、修复方式和剩余风险
-
-## L3 代码逻辑审查速查
-
-以下规则内联自 code-logic-review 技能：
-- 审查维度(11维)：需求覆盖/设计一致/业务流程/状态流转/API契约/数据一致/权限安全/异常日志/可测试性/静态证据/可维护性
-- 审查原则：先对照需求和设计再评价代码风格；先审查 P0/P1 主链路再审查边界；先找阻塞测试/上线的问题再找可维护性改进
-- 严重级别：P0(阻塞主流程/数据损坏/安全高危)必须修复不得进入开发审计；P1(影响核心需求/接口契约/权限)必须修复；P2(次要流程/可维护性)记录风险；P3(代码风格)可记录改进
-- 审查结论：通过(无未解决P0/P1) / 有条件通过(仅P2/P3或已批准偏差) / 不通过(存在P0/P1或证据不足) / 证据不足(缺少需求/设计/静态检查/自测结果)
-- 输入要求：审查前应收集需求文档、设计文档、代码变更、静态质量检查结果和自测结果；材料缺失须标记"证据不足"
-- 反模式：只看代码风格不对照需求和设计；发现P0/P1仍允许进入开发审计；缺少静态检查或测试证据却给出"通过"结论
-
-## 变更记录
-
-| 日期 | 变更内容 | 变更人 |
-|---|---|---|
-| 2026-07-02 | 添加变更记录章节 | jerry.yu |
+| 术语 | 说明 |
+|:-----|:-----|
+| CRUD | Create-Read-Update-Delete，标准数据操作四件套 |
+| 软断言 | if-else 分支让测试总是通过的断言模式，掩盖功能缺失 |
+| 硬断言（L1） | 关键元素必须满足预期，否则测试失败的断言模式 |
+| 条件断言（L2） | 可选功能存在则验证，不存在则 skip（非 else 通过） |
+| 存在性断言（L3） | 核心元素必须可见，辅助元素可选 |
+| 静默失败 | 不产生错误信号但功能未实现的状态（如按钮点击无响应） |
+| 行为信号检测 | 检测用户操作后系统是否有预期响应（区别于错误信号检测） |
+| 表单提交错误被吞没 | API 返回 4xx/5xx 但前端未显示错误提示给用户 |
+| 缺陷逃逸率 | 人工发现的缺陷占总缺陷的比例，衡量自动化测试有效性 |
+| 覆盖矩阵 | 模块×用例类型的二维矩阵，可视化测试覆盖完整性 |
+| 覆盖缺口 | 覆盖矩阵中标记为"必须覆盖"但无对应用例的项 |
+| 巡检工具 | 自动化遍历页面检测错误的工具（如 page_scan.py） |
