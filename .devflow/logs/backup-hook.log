@@ -10797,3 +10797,223 @@ and the repository exists.
 ========================================
 [2026-08-05 14:21:56] [PUSH-EVENT] Push detected.
 [2026-08-05 14:21:56] [PRE-PUSH] HEAD SHA: 13c45e1aabdc0a179e844f50ce4464f228f87b84
+========================================
+[2026-08-05 14:22:04] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:04] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:22:09] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:22:12] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:12] [REF] refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/heads/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:12] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:22:18] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:22:18] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:22:25] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:25] [REF] refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/heads/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:25] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:22:29] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:29] [REF] refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/heads/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:29] [REF] refs/remotes/origin/HEAD (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/HEAD (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:29] [REF] refs/remotes/origin/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:29] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:22:36] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:22:38] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:22:37] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:37] [REF] refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/heads/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:37] [REF] refs/remotes/origin/HEAD (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/HEAD (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:37] [REF] refs/remotes/origin/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:37] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:22:42] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:42] [REF] refs/remotes/backup/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/backup/master (13c45e1aabdc0a179e844f50ce4464f228f87b84)
+[2026-08-05 14:22:42] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:22:49] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:22:51] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:22:55] [PUSH-EVENT] Push detected.
+[2026-08-05 14:22:55] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:23:00] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:02] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:23:00] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:23:10] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:10] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:23:10] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:13] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:23:10] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:23:17] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:23:24] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:25] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:23:24] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:23:31] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:23:30] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:30] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:23:38] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:38] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:23:43] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:23:45] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:23:44] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:44] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:23:52] [PUSH-EVENT] Push detected.
+[2026-08-05 14:23:52] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:23:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:23:59] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:24:01] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:01] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:24:07] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:07] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:24:15] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:24:15] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:24:23] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:23] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:24:24] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:24] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:24:30] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:24:32] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:32] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:24:38] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:39] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:24:38] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:24:45] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:24:46] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:24:54] [PUSH-EVENT] Push detected.
+[2026-08-05 14:24:54] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:24:59] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:01] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:24:59] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:25:05] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:05] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:25:10] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:10] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:25:13] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:25:18] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:25:18] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:25:27] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:27] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:25:35] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:25:33] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:25:36] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:33] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:25:36] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:25:45] [PUSH-EVENT] Push detected.
+[2026-08-05 14:25:45] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:25:49] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:25:50] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:25:53] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:26:02] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:02] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:26:11] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:26:09] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:09] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:26:13] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:13] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:26:20] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:20] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:26:24] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:26:27] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:26:28] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:26:38] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:38] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:26:46] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:26:44] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:26:45] [PUSH-EVENT] Push detected.
+[2026-08-05 14:26:45] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:26:44] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:26:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:27:00] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:27:02] [PUSH-EVENT] Push detected.
+[2026-08-05 14:27:02] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:27:10] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:27:17] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:27:20] [PUSH-EVENT] Push detected.
+[2026-08-05 14:27:17] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:27:20] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:27:21] [PUSH-EVENT] Push detected.
+[2026-08-05 14:27:21] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:27:30] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:27:32] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:27:37] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:27:48] [PUSH-EVENT] Push detected.
+[2026-08-05 14:27:48] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:27:52] [PUSH-EVENT] Push detected.
+[2026-08-05 14:27:57] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:27:52] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+========================================
+[2026-08-05 14:28:00] [PUSH-EVENT] Push detected.
+[2026-08-05 14:28:00] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:28:08] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:28:08] [PUSH-EVENT] Push detected.
+[2026-08-05 14:28:08] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:28:17] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:28:21] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:28:35] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:28:35] [BACKUP-ERROR] fatal: could not read Username for 'http://192.168.0.14': terminal prompts disabled
+========================================
+[2026-08-05 14:28:38] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:28:37] [PUSH-EVENT] Push detected.
+[2026-08-05 14:28:38] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:28:42] [GITHUB-START] Mirroring to github remote...
+[2026-08-05 14:28:37] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:28:49] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:28:54] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:28:57] [PUSH-EVENT] Push detected.
+[2026-08-05 14:28:57] [REF] refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/heads/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+[2026-08-05 14:28:57] [REF] refs/remotes/backup/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/backup/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+[2026-08-05 14:28:57] [REF] refs/remotes/origin/HEAD (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/HEAD (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+[2026-08-05 14:28:57] [REF] refs/remotes/origin/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/origin/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+========================================
+[2026-08-05 14:29:03] [PUSH-EVENT] Push detected.
+[2026-08-05 14:28:57] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:29:03] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:29:13] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:29:16] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:29:16] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:20] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:29:20] [BACKUP-ERROR] fatal: failed to load library 'libcurl-4.dll'
+fatal: remote helper 'http' aborted session
+[2026-08-05 14:29:16] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:29:26] [GITHUB-START] Mirroring to github remote...
+========================================
+[2026-08-05 14:29:28] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:28] [REF] refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/github/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+[2026-08-05 14:29:28] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
