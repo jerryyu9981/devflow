@@ -11017,3 +11017,299 @@ fatal: remote helper 'http' aborted session
 [2026-08-05 14:29:28] [PUSH-EVENT] Push detected.
 [2026-08-05 14:29:28] [REF] refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/github/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
 [2026-08-05 14:29:28] [PRE-PUSH] HEAD SHA: bfcde5af32f732451094a863d8ad1a24d327317e
+[2026-08-05 14:29:32] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:29:38] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:29:42] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:42] [REF] refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e) -> refs/remotes/github/master (704fd582a22b9de7d18cc025d2552ad54f7118fe)
+========================================
+[2026-08-05 14:29:47] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:47] [REF] refs/heads/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:29:47] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:29:42] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:29:50] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:50] [REF] refs/heads/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:29:50] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:29:53] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:29:54] [PUSH-EVENT] Push detected.
+[2026-08-05 14:29:54] [REF] refs/heads/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:29:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:29:54] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:30:00] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:00] [REF] refs/remotes/origin/HEAD (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/origin/HEAD (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:30:00] [REF] refs/remotes/origin/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/origin/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:30:00] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:00] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:05] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:30:05] [BACKUP-ERROR] 
+[2026-08-05 14:30:07] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:10] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:10] [GITHUB-START] Mirroring to github remote...
+========================================
+[2026-08-05 14:30:14] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:14] [REF] refs/remotes/backup/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/backup/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:30:14] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:16] [GITHUB-FAIL] Mirror to github FAILED (exit: 128)
+[2026-08-05 14:30:16] [GITHUB-ERROR]       0 [main] ssh (22624) D:\Git\usr\bin\ssh.exe: *** fatal error - couldn't dynamically determine load address for 'SystemFunction036' (handle 0x7FF9CB170000), Win32 error 8
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[2026-08-05 14:30:19] [DONE] Backup process finished.
+========================================
+========================================
+[2026-08-05 14:30:19] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:19] [REF] refs/remotes/backup/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/backup/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:30:21] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:19] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:22] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-05 14:30:22] [GITHUB-ERROR] hostfile_replace_entries: link /c/Users/jerry/.ssh/known_hosts to /c/Users/jerry/.ssh/known_hosts.old: Operation not permitted
+update_known_hosts: hostfile_replace_entries failed for /c/Users/jerry/.ssh/known_hosts: Operation not permitted
+To github.com:jerryyu9981/devflow.git
+   704fd58..bfcde5a  github/master -> github/master
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-05 14:30:25] [DONE] Backup process finished.
+========================================
+[2026-08-05 14:30:28] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-05 14:30:28] [GITHUB-ERROR] hostfile_replace_entries: link /c/Users/jerry/.ssh/known_hosts to /c/Users/jerry/.ssh/known_hosts.old: Operation not permitted
+update_known_hosts: hostfile_replace_entries failed for /c/Users/jerry/.ssh/known_hosts: Operation not permitted
+To github.com:jerryyu9981/devflow.git
+   704fd58..bfcde5a  master -> master
+   704fd58..bfcde5a  backup/master -> backup/master
+   704fd58..bfcde5a  origin/HEAD -> origin/HEAD
+   704fd58..bfcde5a  origin/master -> origin/master
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-05 14:30:29] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:31] [DONE] Backup process finished.
+========================================
+[2026-08-05 14:30:34] [BACKUP-OK] Mirror to backup succeeded.
+========================================
+[2026-08-05 14:30:34] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:30:32] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:34] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:32] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:41] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:30:42] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:42] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:48] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:30:48] [PUSH-EVENT] Push detected.
+[2026-08-05 14:30:48] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:34] [SHA-VERIFY] WARN - local: bfcde5af32f732451094a863d8ad1a24d327317e, backup: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+0ec73d824836cb66cd2775c450595f58356fb58c
+69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:30:53] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:55] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:30:57] [GITHUB-START] Mirroring to github remote...
+========================================
+[2026-08-05 14:31:03] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:03] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:31:05] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:05] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:10] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:31:09] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:31:11] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:11] [REF] refs/heads/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/heads/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:31:11] [REF] refs/remotes/backup/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/backup/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:31:11] [REF] refs/remotes/origin/HEAD (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/origin/HEAD (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:31:11] [REF] refs/remotes/origin/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/origin/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:31:16] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:31:09] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:11] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:31:20] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:20] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:27] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:31:28] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:31:31] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:31:31] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:31] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:31:36] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:36] [REF] refs/remotes/github/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:31:36] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:41] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:31:44] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:31:47] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:31:47] [BACKUP-ERROR] fatal: could not read Username for 'http://192.168.0.14': terminal prompts disabled
+========================================
+[2026-08-05 14:31:49] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:49] [REF] refs/remotes/github/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+========================================
+[2026-08-05 14:31:52] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:53] [GITHUB-START] Mirroring to github remote...
+[2026-08-05 14:31:52] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:49] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:31:55] [PUSH-EVENT] Push detected.
+[2026-08-05 14:31:55] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:31:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:05] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:05] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:32:07] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:32:05] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:05] [REF] refs/remotes/github/master (69f3a71f374ef58062b88b0909a5d7224dffcb5a) -> refs/remotes/github/master (bfcde5af32f732451094a863d8ad1a24d327317e)
+[2026-08-05 14:32:07] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:05] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:15] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:22] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:32:23] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:23] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:25] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:32:25] [BACKUP-ERROR] fatal: failed to load library 'libcurl-4.dll'
+fatal: remote helper 'http' aborted session
+========================================
+[2026-08-05 14:32:24] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:24] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:32:27] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:30] [GITHUB-START] Mirroring to github remote...
+[2026-08-05 14:32:31] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:27] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:34] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:32:39] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:39] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:42] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:32:43] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:47] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:43] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:32:47] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:47] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:32:58] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:32:58] [PUSH-EVENT] Push detected.
+[2026-08-05 14:32:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:32:58] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:05] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:33:05] [BACKUP-ERROR] 
+========================================
+[2026-08-05 14:33:02] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:06] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:33:02] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:10] [GITHUB-START] Mirroring to github remote...
+========================================
+[2026-08-05 14:33:15] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:16] [GITHUB-FAIL] Mirror to github FAILED (exit: 128)
+[2026-08-05 14:33:16] [GITHUB-ERROR]       0 [main] ssh (26028) D:\Git\usr\bin\ssh.exe: *** fatal error - couldn't dynamically determine load address for 'SystemFunction036' (handle 0x7FF9CB170000), Win32 error 8
+fatal: Could not read from remote repository.
+
+Please make sure you have the correct access rights
+and the repository exists.
+[2026-08-05 14:33:15] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:18] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:33:18] [DONE] Backup process finished.
+========================================
+========================================
+[2026-08-05 14:33:17] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:17] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:21] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-05 14:33:21] [GITHUB-ERROR] hostfile_replace_entries: link /c/Users/jerry/.ssh/known_hosts to /c/Users/jerry/.ssh/known_hosts.old: Operation not permitted
+update_known_hosts: hostfile_replace_entries failed for /c/Users/jerry/.ssh/known_hosts: Operation not permitted
+To github.com:jerryyu9981/devflow.git
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-05 14:33:23] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:33:24] [DONE] Backup process finished.
+========================================
+[2026-08-05 14:33:26] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-05 14:33:26] [GITHUB-ERROR] hostfile_replace_entries: link /c/Users/jerry/.ssh/known_hosts to /c/Users/jerry/.ssh/known_hosts.old: Operation not permitted
+update_known_hosts: hostfile_replace_entries failed for /c/Users/jerry/.ssh/known_hosts: Operation not permitted
+To github.com:jerryyu9981/devflow.git
+   bfcde5a..69f3a71  github/master -> github/master
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-05 14:33:28] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:33:29] [DONE] Backup process finished.
+========================================
+[2026-08-05 14:33:32] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-05 14:33:32] [GITHUB-ERROR] hostfile_replace_entries: link /c/Users/jerry/.ssh/known_hosts to /c/Users/jerry/.ssh/known_hosts.old: Operation not permitted
+update_known_hosts: hostfile_replace_entries failed for /c/Users/jerry/.ssh/known_hosts: Operation not permitted
+To github.com:jerryyu9981/devflow.git
+   bfcde5a..69f3a71  master -> master
+   bfcde5a..69f3a71  backup/master -> backup/master
+   bfcde5a..69f3a71  origin/HEAD -> origin/HEAD
+   bfcde5a..69f3a71  origin/master -> origin/master
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+========================================
+[2026-08-05 14:33:32] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:32] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:35] [DONE] Backup process finished.
+========================================
+[2026-08-05 14:33:37] [BACKUP-OK] Mirror to backup succeeded.
+[2026-08-05 14:33:41] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:33:40] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:33:42] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:42] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:40] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:54] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:33:37] [SHA-VERIFY] WARN - local: bfcde5af32f732451094a863d8ad1a24d327317e, backup: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+0ec73d824836cb66cd2775c450595f58356fb58c
+69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:33:58] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:33:57] [PUSH-EVENT] Push detected.
+[2026-08-05 14:33:57] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:34:01] [GITHUB-START] Mirroring to github remote...
+[2026-08-05 14:34:06] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:34:11] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:11] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:34:16] [PUSH-EVENT] Push detected.
+========================================
+[2026-08-05 14:34:15] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:16] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:34:15] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:34:23] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:34:21] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:25] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:34:21] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:34:31] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:34:37] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:34:36] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:36] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:34:40] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:40] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:34:48] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:34:48] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:34:52] [PUSH-EVENT] Push detected.
+[2026-08-05 14:34:52] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:35:01] [PUSH-EVENT] Push detected.
+[2026-08-05 14:35:01] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+========================================
+[2026-08-05 14:35:02] [PUSH-EVENT] Push detected.
+[2026-08-05 14:35:02] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:35:12] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:35:13] [BACKUP-START] Mirroring to backup remote...
+========================================
+[2026-08-05 14:35:13] [PUSH-EVENT] Push detected.
+[2026-08-05 14:35:13] [PRE-PUSH] HEAD SHA: 69f3a71f374ef58062b88b0909a5d7224dffcb5a
+[2026-08-05 14:35:21] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:35:26] [BACKUP-START] Mirroring to backup remote...
+[2026-08-05 14:35:27] [BACKUP-FAIL] Mirror to backup FAILED (exit: 128)
+[2026-08-05 14:35:27] [BACKUP-ERROR] fatal: could not read Username for 'http://192.168.0.14': terminal prompts disabled
