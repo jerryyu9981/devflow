@@ -469,6 +469,22 @@ description: "Defines document naming conventions, storage paths, version contro
 
 说明：`archive\` 目录下的历史版本文件为只读，禁止修改。工作目录中仅保留当前最新版本。
 
+### 文档就地归档规则
+
+为保证每个文档子目录只保留当前有效版本、便于使用者聚焦，所有 `doc` 业务子目录（`version` / `requirements` / `design` / `development` / `test` / `operation` / `release` / `audit` 及其子目录）执行就地归档。
+
+| 规则项 | 内容 |
+|:-------|:-----|
+| 归档位置 | 每个 doc 业务子目录**内部**维护 `archive\` 子目录，历史版本就地归档，不集中外移 |
+| 归档对象 | 非当前版本的历史版本文件（含按版本号命名的单版本文档）|
+| 保留对象 | ① 当前版本文件 ② 长期维护文档（不按版本号命名的全部版本文档，如版本规划总纲、版本迭代路线图、候选需求池、技术债务总表、Release-Note-All、README 等）|
+| 归档时机 | 版本发布完成、进入下一版本规划时；阶段审计移交时确认归档完整性 |
+| 归档操作 | 使用 `git mv` 移动文件以保留历史；归档文件只读，禁止修改 |
+| audit 子目录 | `audit\assessment` / `audit\review` / `audit\verification` / `audit\comprehensive` 各自就地归档历史版本 |
+| 验收标准 | 归档后，每个 doc 业务子目录工作区仅包含当前版本文件与长期维护文档，`archive\` 收纳全部历史版本 |
+
+> 归档为一次性整理动作：历史遗留的跨版本文件批量移入各自 `archive\`；此后每个版本发布时按"版本化文件管理流程"增量归档。
+
 ### 文档版本与代码版本的映射
 
 | 文档阶段 | 文档版本示例 | 代码版本示例 | 触发时机 |
