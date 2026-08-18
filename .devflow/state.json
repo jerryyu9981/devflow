@@ -22,14 +22,15 @@
                              "step_2":  "doc/design/ (系统架构设计文档v2.17.0+非功能设计说明v2.17.0+部署架构草案v2.17.0+设计评审记录v2.17.0+设计基线及开发测试移交说明v2.17.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage2-v2.17.0)",
                              "step_3":  "doc/development/ (DevLogReport v2.17.0 + TD-ID追溯矩阵 v2.17.0 + 开发审计移交材料 v2.17.0) + doc/analysis/ (网络层巡检自动化演进-预研报告-v1.0) + devflow-plugin/skills/ (4 技能文档增强，副本 8/8 同步) + doc/audit/review/ (阶段审计报告Stage3-v2.17.0)",
                              "step_4":  "doc/test/ (测试计划v2.17.0+测试报告v2.17.0+测试用例v2.17.0+测试执行证据v2.17.0) + doc/audit/verification/ (测试回溯对比审计报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage4-v2.17.0)",
-                             "step_5":  "待产出：doc/release/ (Release-Note v2.17.0 + 发布计划v2.17.0 + 部署执行报告v2.17.0 + 上线检查报告v2.17.0 + 发布复盘v2.17.0) + doc/audit/review/ (阶段审计报告Stage5-v2.17.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.17.0)"
+                             "step_5":  "doc/release/ (Release-Note v2.17.0 + Release-Note-All + 发布入场检查记录v2.17.0 + 发布计划v2.17.0 + 部署执行报告v2.17.0 + 回滚方案v2.17.0 + 上线检查报告v2.17.0 + 运维手册v2.17.0 + 发布复盘v2.17.0 + 问题跟踪记录v2.17.0 + 运维审计报告v2.17.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage5-v2.17.0)"
                          },
     "auditResults":  {
                          "step_0":  "passed",
                          "step_1":  "passed",
                          "step_2":  "passed",
                          "step_3":  "passed",
-                         "step_4":  "passed"
+                         "step_4":  "passed",
+                         "step_5":  "passed"
                      },
-    "step_5_closed":  false
+    "step_5_closed":  true
 }
