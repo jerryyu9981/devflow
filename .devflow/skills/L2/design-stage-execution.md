@@ -78,10 +78,14 @@ Step 2 架构与设计
 | 系统架构设计 | 系统边界、模块、服务、上下游、技术选型、部署形态 | 架构能覆盖核心需求和非功能约束 | 系统架构设计文档 |
 | Agent 架构设计 | Agent 角色、工具、工作流、上下文、记忆、失败处理、多智能体关系 | Agent 流程可执行、可观测、可降级 | Agent 架构设计文档 |
 | 前端架构设计 | 页面结构、路由、状态管理、组件层级、数据获取、构建策略 | 前端结构支持需求和后续开发 | 前端架构设计文档 |
-| UI/UX 与原型 | 用户路径、线框图、交互状态、表单、错误态、空态、加载态 | 关键用户路径和状态完整 | UI 设计文档、原型 |
+| UI/UX 与原型 | 用户路径、线框图、交互状态、表单、错误态、空态、加载态；**生成设计总览首页（`prototype/index.html`）供审核人一键预览全部页面** | 关键用户路径和状态完整；**设计总览首页可从浏览器直接打开且所有页面链接有效** | UI 设计文档、原型、**设计总览首页** |
 | Figma 交付 | 设计稿、组件、变量、切图、标注、设计上下文 | 可被前端实现和审计引用 | Figma 设计交付说明 |
 | 设计系统 | 颜色、排版、组件规范、交互模式、状态规范 | UI 规范可复用、一致 | 设计系统说明 |
 | API 接口设计 | 路径、方法、参数、响应、错误码、鉴权、分页、排序、版本 | API 契约清晰且可测试 | API 接口设计文档 |
+
+> **API 契约管理**：对于前后端异构技术栈（如 Python + TypeScript）项目，API 接口设计应参考 `api-contract-management` 技能，该技能提供了从 OpenAPI 契约编写、统一响应格式、错误码体系、环境配置规范到代码生成工具链选型的完整方法论，确保 API 契约成为前后端开发的唯一事实源。
+
+> **前端/后端设计覆盖检查**：设计评审前，应分别调用 `prototype-coverage`（前端原型覆盖检查：页面清单 → 状态覆盖 → 原型走查 → 用例演练 → 交互标注 → 测试预映射 → 报告）和 `backend-coverage`（后端设计覆盖检查：API 契约 → 数据模型对齐 → 状态机 → 安全设计 → 测试预映射 → 报告）执行系统化覆盖检查。两个技能的检查通过是设计评审的准入条件。覆盖检查完成后，应调用 `api-contract-management` 执行 API 契约对齐检查（前端页面清单 ↔ 后端 API 交叉验证）。
 | 数据模型设计 | ER、表、字段、索引、约束、迁移、数据字典 | 数据模型支持业务流程和一致性要求 | 数据库设计文档、数据字典 |
 | 缓存与消息设计 | Redis 键、缓存策略、失效策略、队列、事件、幂等、重试 | 异步和缓存链路边界清晰 | 缓存与消息设计说明 |
 | 安全设计 | 鉴权、授权、敏感数据、输入校验、审计日志、威胁建模 | 无阻塞安全设计缺口 | 安全设计说明 |
@@ -100,6 +104,7 @@ Step 2 架构与设计
 5. **P0/P1 设计缺口必须闭环**：未解决的核心设计问题不得进入 Step 3。
 6. **所有设计决策必须可追溯**：关键决策、替代方案、风险和偏差必须写入对应设计文档。
 7. **影响开发和测试的事项必须移交**：API、数据库、配置、Mock、外部依赖、安全、性能和已知风险必须写入开发/测试移交说明。
+8. **产出物真实性验证门禁**：所有声称已创建的产出文档，在阶段结束前必须通过文件系统验证实际存在。验证方法：使用 LS/Glob 列出目标目录中的文件，逐一核对产出清单。验证不通过不得进入下一阶段。验证结果须记录在阶段评审/审计文档中。
 
 ## 设计技能速查
 
@@ -115,7 +120,7 @@ Step 2 架构与设计
 | MCP 服务设计 | `mcp-builder` |
 | 数据模型和数据库设计 | `sql-database`、`mongodb` |
 | 缓存和消息设计 | `redis`、`redis-development`、`rabbitmq`、`kafka` |
-| 安全设计 | `security-best-practices` |
+| 安全设计 | `security-best-practices`、`security-design-review` |
 | 性能设计 | `frontend-performance`、`sql-database`、`redis-development` |
 | 可访问性和 Web 界面规范 | `accessibility`、`web-design-guidelines` |
 | 部署和环境设计 | `docker` |
@@ -125,21 +130,47 @@ Step 2 架构与设计
 
 设计阶段完成后，至少应具备：
 
-- {项目名}-系统架构设计文档-v{版本号}.md（总体设计不带版本号）
-- {项目名}-Agent架构设计文档-v{版本号}.md（涉及Agent/LLM时）
-- {项目名}-前端架构设计文档-v{版本号}.md（涉及前端时）
-- {项目名}-UI设计文档-v{版本号}.md（含：原型设计说明/设计系统说明）
-- {项目名}-Figma设计交付说明-v{版本号}.md（使用Figma时）
-- {项目名}-API接口设计文档-v{版本号}.md（涉及接口时）
-- {项目名}-数据库设计文档-v{版本号}.md（含：数据字典；涉及持久化数据时）
-- {项目名}-非功能设计说明-v{版本号}.md（代替原安全/性能/可观测性设计说明，3合1；建议章节：性能目标P50/P99/容量规划/缓存策略/并发设计/数据性能）
-- {项目名}-缓存与消息设计说明-v{版本号}.md（涉及缓存/队列/事件流时）
-- {项目名}-部署架构草案-v{版本号}.md
-- {项目名}-设计评审记录-v{版本号}.md（主文件：含入场检查/需求设计追溯矩阵/审计移交/测试移交）
+**强制产出（清单核对基准）**：
 
-文档命名、路径和版本规则遵循 project-document-management。
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 强制 MD | `doc/design/DevFlow-*系统架构设计文档*-v{版本号}.md` |
+| 2 | 强制 MD | `doc/design/DevFlow-*设计评审记录*-v{版本号}.md` |
+| 3 | 强制 MD | `doc/design/DevFlow-*部署架构草案*-v{版本号}.md` |
+| 4 | 强制 原型（全栈项目；纯后端不适用） | `doc/design/prototype/index.html` |
+| 5 | 强制 | `doc/audit/comprehensive/DevFlow-*需求架构对比审计报告*-v{版本号}.md` |
+| 6 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
+| 7 | 按需 MD | `doc/design/DevFlow-*非功能设计说明*-v{版本号}.md` |
+| 8 | 按需 原型 | `doc/design/prototype/` 页面文件 |
+
+> 按需产出（由项目具体需求决定）：Agent架构设计文档、前端架构设计文档、UI设计文档（含设计系统说明）、Figma设计交付说明、API接口设计文档、数据库设计文档（含数据字典）、缓存与消息设计说明。
+>
+> **`prototype/index.html` 产出规则（v2.17.0 明确化）**：全栈项目为**强制**产出（从 Figma 导出或手写导航页，支持 file:// 协议直接打开，使用相对路径，全部页面链接有效）；纯后端项目**不适用**（无需前端原型）。
+>
+> 本阶段所有产出文档必须经过存在性验证，验证结果作为阶段移交的必备材料之一。验证方法：使用 LS/Glob 列出目标目录，逐一核对产出清单中的文件是否实际存在。验证结果须记录在设计评审记录中。
 
 > 设计阶段结束时，开发者将在 Step 3 开头根据设计文档创建 {项目名}-设计开发追溯矩阵-v{版本号}.md，作为编码实现的逐项指引。该矩阵不属于设计阶段产出，不在本阶段输出要求中列出。
+
+**问题跟踪记录 — 风险归集检查章节（必填）**：
+
+在问题跟踪记录的「变更请求」章节之后，必须包含以下章节：
+
+``````markdown
+## 4. 风险归集检查
+
+> 本章节为必填项，用于确认本版本所有 P1+ 风险/问题已归集到技术债务总表。
+
+| 检查项 | 结果 | 说明 |
+|:-------|:----:|:-----|
+| 本阶段 P1+ 风险是否已归集 | ✅/❌ | 列出已归集的风险 ID（TD-XXX） |
+| 未归集风险 ID 及原因 | 无 / {ID}: {原因} | 未归集时必须说明原因及后续处理计划 |
+| 归集日期 | {日期} | 最近一次归集操作的日期 |
+| 技术债务总表版本 | {版本号} | 归集时总表的最新版本 |
+``````
+
+未填写此章节的版本不得标记为"已发布"。
+
+---
 
 ## 专项技能反向声明规则
 
@@ -152,6 +183,18 @@ Step 2 架构与设计
 - 专项设计评审通过不能替代 Step 2 设计评审或需求架构对比审计。
 - 发现 P0/P1 设计缺口时，必须在 Step 2 内修复并重新评审。
 
+### 风险归集门禁
+
+当前阶段执行完成后，发现 P1+ 风险/问题时必须：
+1. 打开 `doc/version/global/DevFlow-技术债务总表.md`
+2. 检查是否已有对应债务条目
+3. 若无 → 按 15 字段标准格式新增条目
+4. 在阶段移交说明中注明已归集的风险条目（TD-XXX）
+5. 未完成归集的阶段不得移交下一阶段
+6. **将修改后的 `DevFlow-技术债务总表.md` 列入本阶段输出文档清单，确保人工可审查增量变更**
+
+---
+
 ## 完成标准
 
 Step 2 可完成的最低条件：
@@ -163,58 +206,139 @@ Step 2 可完成的最低条件：
 5. 设计评审已通过。
 6. 需求架构对比审计材料已准备好。
 7. 已明确允许进入 Step 3。
+8. **产出物存在性验证**：阶段完成前必须通过 LS/Glob 列出目标目录，确认所有产出文件实际存在，空输出（声称完成但文件不存在）不得通过。
+
+## 内部工作流
+
+Step 2 架构设计采用四轨并行模型，按以下自适应步骤执行。
+
+### 轨道选择机制
+
+四条轨道中：
+
+| 轨道 | 图标 | 特性 | 激活规则 |
+|------|------|------|---------|
+| 整体 | 🎯 | 永恒轨道 | 始终激活 |
+| 后端 | ⚙️ | 永恒轨道 | 始终激活 |
+| 前端 | 🎨 | 可选轨道 | 项目中存在前端页面/组件需求时激活 |
+| 第三方集成 | 🔗 | 可选轨道 | 项目存在外部依赖集成时激活 |
+
+**轨道确定时机**：2.0 入场检查时正式确定，写入入场检查记录。轨道一旦确定该版本内不得增减（变更需回退 Step 0）。
+
+### 2.0 设计入场检查 + 轨道选择确认
+
+| 维度 | 独立模式 | 全流程模式 |
+|------|---------|-----------|
+| **检查内容** | 需求基线至少存在 | Step 1 移交齐备 + 需求追溯矩阵齐全 + 需求评估审计通过 |
+| **产出** | 入场检查记录 + 激活轨道清单 |
+
+### 2.1~2.2 整体设计
+
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.1 需求-设计追溯 | 建立 DT-ID，每个设计项关联 RT-ID | 需求设计追溯矩阵 |
+| 2.2 系统架构设计 | 分层架构、模块划分、部署拓扑 | 系统架构设计文档 |
+
+### 2.3 并行技术选型（三选一或三选多）
+| 步骤 | 轨道 | 活动 | 产出 |
+|------|------|------|------|
+| 2.3a 后端技术选型+ADR | ⚙️ | 后端技术栈决策 + ADR 记录 | 后端 ADR + 技术选型报告 |
+| 2.3b 前端技术选型+ADR | 🎨 [按需] | 前端框架/UI库决策 + ADR 记录 | 前端 ADR + 技术选型报告 |
+| 2.3c 第三方集成设计 | 🔗 [按需] | 外部依赖盘点、版本兼容矩阵、Adapter 接口设计 | 第三方集成设计文档 |
+
+**ADR 要求**：每个关键决策必须记录 ADR，包含决策标题、上下文、备选方案（≥2 个）、决策与理由、已知后果与风险。
+
+### 2.4~2.6 并行详细设计
+| 步骤 | 轨道 | 活动 |
+|------|------|------|
+| 2.4a 后端数据模型设计 | ⚙️ | 核心实体定义、属性类型、约束、关系 |
+| 2.5a 后端 API 接口设计 | ⚙️ | API 路径、方法、请求/响应格式、错误码 |
+| 2.5b 前端 UI/组件/状态设计 | 🎨 [全栈项目强制 / 纯后端不适用] | 页面布局、组件树、状态管理、路由设计；**原型覆盖率检查（页面清单 + 状态覆盖 + 交互标注 vs prototype-coverage 七步流程）** |
+| 2.6a 后端专项设计 | ⚙️ | 缓存、消息队列、安全方案；**安全设计评审（威胁建模 + 数据分类分级 + 安全需求追溯）** |
+
+> 2.6a 产出：安全设计审查记录
+
+### 2.7 整体专项设计
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.7 整体专项 | 性能指标、可观测性、部署方案、CI/CD 策略 | 整体专项设计文档；**可观测性覆盖检查表（日志格式/14 种关键指标/OTLP 追踪/6 种 Dashboard 逐项核对）** |
+
+### 2.8 覆盖检查（分轨）
+| 步骤 | 轨道 | 产出 |
+|------|------|------|
+| 2.8a 后端覆盖检查 | ⚙️ | **后端设计覆盖检查（API 契约/数据模型/状态机/安全设计覆盖率逐项核对，参考 backend-coverage 五步流程）** |
+| 2.8b 前端覆盖检查 | 🎨 [按需] | 前端覆盖率报告 |
+| 2.8c 第三方集成专项检查 | 🔗 [按需] | 第三方集成检查报告（依赖漏洞、License 合规、升级策略） |
+
+**覆盖率缺口处置规则**：覆盖率目标 ≥ 95%。剩余 ≤ 5% 必须标记为"已知设计缺口"并记录在设计评审记录中，Step 3 审计时检查缺口是否已关闭。
+
+### 2.9 API 契约对齐（衔接点）
+| 条件 | 活动 | 产出 |
+|------|------|------|
+| 前端+后端轨道均激活 | 前后端共同验证 API 路径、请求/响应格式、错误码一致性 | API 契约对齐记录 |
+| 仅后端轨道激活 | 从略 | [N/A] |
+
+### 2.10~2.12 评审与移交
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 2.10 设计评审 | 完整性、一致性、可行性、覆盖率评审 | 设计评审记录 |
+| 2.11 需求架构对比审计 | DT-ID 全覆盖检查、设计响应需求无遗漏 | 需求架构对比审计报告 |
+| **2.11b 变更一致性自检** | **① 检查所有设计文档文件头版本号与修订历史底部版本号一致 ② 确认所有新文件的路径与命名规范匹配 ③ 确认不适用项说明完整。自检失败 → 修正后才能进入 2.12** |
+| 2.12 开发测试移交 | 向 Step 3 移交全量设计文档 + 追溯矩阵 + 测试移交说明；**调用 audit-agent --stage 2 --phase 1+2+3 验证 DT-ID 追溯链覆盖率和 Step 2 产出物存在性，并复查 3 个设计检查点，输出阶段审计报告到 doc/audit/review/** | 设计基线 + 移交说明 |
+
+### 回退路径
+- 设计评审退回 → 回到 **2.3** 或 **2.7** 修改
+
+---
+
+## 原型设计 IN/OUT 衔接规范（v2.17.0+）
+
+> 本规范解决"原型设计用外部专业工具（Figma 等）或独立设计活动完成时，如何衔接进、出 DevFlow 规范流程"的问题。无论原型在哪里设计，都必须在 Step 2 被正式收编为规范可追溯、可审计的设计产物。
+
+### 1. IN 衔接：外部原型导入协议
+
+原型进入规范流程有三种场景，统一流程为：**原型收编 → RT-ID↔原型页面映射 → prototype-coverage 检查 → 缺口补充**，场景差异仅在入口。
+
+| 场景 | 入口 | 流程 | 产出 |
+|:-----|:-----|:-----|:-----|
+| **场景 1：Figma 等外部工具设计** | 外部原型（Figma 链接/导出文件） | ① 产出 Figma设计交付说明（链接 + 组件引用规则）② 生成 `prototype/index.html`（从 Figma 导出或手写导航页）③ 建立 RT-ID↔原型页面映射表 ④ 执行 prototype-coverage 检查 | Figma设计交付说明 + prototype/index.html + RT-ID 映射表 |
+| **场景 2：独立设计活动（Step 1 前完成）** | 独立原型（无规范流程产物） | ① Step 1 作为需求输入（UIUX需求说明引用原型）② Step 2 正式收编：验证原型覆盖全部需求 RT-ID，补充遗漏页面 ③ 建立 RT-ID↔原型页面映射表 ④ 执行 prototype-coverage 检查 | 收编记录 + RT-ID 映射表 + 覆盖检查报告 |
+| **场景 3：已有原型项目接入 DevFlow** | 已有原型（无追溯矩阵） | ① Step 2 逆向补建追溯：原型页面 → RT-ID 映射 ② prototype-coverage 识别覆盖缺口 ③ 缺口页面补充设计 | 逆向追溯矩阵 + 缺口清单 + 补充设计 |
+
+**强制规则**：
+- 原型 IN 衔接必须建立 RT-ID↔原型页面映射，无映射不得进入下游。
+- Figma 链接类原型必须产出 Figma设计交付说明；本地原型必须生成 `prototype/index.html` 导航页。
+
+### 2. OUT 衔接：原型移交到下游
+
+| 衔接点 | 规则 |
+|:-------|:-----|
+| **Step 2→3 移交** | 设计基线及开发测试移交说明必须包含：① 原型文件路径清单（本地文件或 Figma 链接）② 每个原型页面对应的 DT-ID ③ 交互状态清单（空态/错误态/加载态/成功态/表单提交态） |
+| **Step 3 编码** | 前端实现必须对照原型：本地原型直接对照文件实现；Figma 链接类原型通过 figma-integration 技能获取设计上下文。原型回溯验证覆盖率 ≥ 95% |
+| **Step 4 测试** | E2E 用例断言基线引用原型状态（原型定义的页面状态作为断言依据）；T4 人工测试视觉对照原型验证 |
+
+### 3. 交互状态清单模板
+
+UI设计文档"原型设计说明"子章节必须包含以下状态清单（配合 project-document-templates 的"原型设计说明"章节模板使用）：
+
+| 状态 | 说明 | 断言用途 |
+|:-----|:-----|:---------|
+| 空态 | 无数据展示 | E2E 空列表断言 |
+| 错误态 | 请求失败展示 | E2E 错误提示断言 |
+| 加载态 | 数据加载中 | E2E 加载指示断言 |
+| 成功态 | 操作成功反馈 | E2E 成功提示断言 |
+| 表单提交态 | 提交中禁用/进度 | E2E 提交状态断言 |
+
+- 审计发现覆盖率缺口 → 回到 **2.8** 补检
+- Step 3 发现设计偏差 → 评估后回到 **2.10** 重评
 
 ## Requirements Stage Integration
 
-When this skill is used during the formal requirements stage, coordinate with `requirements-stage-execution`.
+When called within Step 1: treat `requirements-stage-execution` as controller, use only for specialty area, record decisions & acceptance criteria in requirements doc, do not replace Step 1 review/audit. P0/P1 gap → fix within Step 1, update traceability matrix, rerun review before design handoff.
 
-- Treat `requirements-stage-execution` as the Step 1 requirements-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole requirements stage complete.
-- Record requirement sources, assumptions, constraints, open questions, decisions, acceptance criteria, and downstream impacts in the relevant requirements document.
-- Do not let a successful specialty analysis replace the Step 1 requirements review or requirements audit.
-- If a P0/P1 requirement gap is found, fix it within Step 1, update the requirements baseline and traceability matrix, then rerun the relevant requirements review before design handoff.
 ## Operations Stage Integration
 
-
-When this skill is used during the formal deployment and operations stage, coordinate with `operations-stage-execution`.
-
-- Treat `operations-stage-execution` as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-## L3 前端原型覆盖检查速查
-
-以下规则内联自 prototype-coverage 技能：
-- **Step 1 页面清单**：从需求文档提取所有涉及界面的需求项，为每个页面/弹窗/抽屉分配唯一ID（PG-/MD-/DW-编号），建立入口-出口关系图；强制产出：`{项目名}-前端页面清单-v{版本号}.md`
-- **Step 1.5 设计总览首页**：生成 `prototype/index.html`，包含项目元信息、按优先级排序的页面导航列表、状态覆盖进度、核心用户路径走查入口、覆盖率汇总统计；纯静态 HTML + CSS，无外部网络依赖
-- **Step 2 交互状态覆盖检查**：P0 页面必须覆盖空态、加载态、错误态、成功态四种状态；P1 页面至少覆盖空态、错误态；涉及权限的页面必须覆盖权限态；强制产出：`{项目名}-前端原型覆盖检查表-v{版本号}.md`
-- **Step 3 原型走查**：按用户角色分组，每角色选 3-5 条核心用户路径模拟操作，记录每步的"当前页面→操作→预期结果→原型表现→结论"，标注断点严重度；P0 路径无严重断点方可通过
-- **Step 4 用例场景演练**：P0 用例基本流程 100% 通过、异常分支覆盖率 >= 80%；P1 用例基本流程 100% 通过、异常分支覆盖率 >= 50%
-- **Step 5 元素级交互标注**（P0 页面强制）：主操作按钮必须有完整交互标注（触发事件/前置条件/条件判断/成功路径/错误处理/边界限制）
-- **Step 6 设计-测试预映射**：所有 P0 需求项均有至少一个测试关注点，测试代表签字确认
-- **Step 7 覆盖检查报告**：汇总全部检查结果，包含检查概览、问题清单、修复计划、风险评估、是否允许进入设计评审的结论
-- **设计评审准入**：P0 页面映射率 100%、P0 原型覆盖率 100%、P0 四种交互状态全部覆盖、P0 路径走查通过、P0 用例基本流程 100% 通过、设计-测试预映射表已签字
-
-## L3 后端设计覆盖检查速查
-
-以下规则内联自 backend-coverage 技能：
-- **Step 1 API 契约覆盖检查**：P0 API 须覆盖路径与方法、请求参数、响应结构、异常响应、边界条件、版本兼容、降级策略、鉴权方式共 8 个维度；P1 API 至少覆盖请求参数、响应结构、异常响应、鉴权；强制产出：`{项目名}-API契约覆盖检查表-v{版本号}.md`
-- **Step 2 数据模型对齐检查**：建立数据库↔API响应↔前端展示三方映射表，检查字段名/类型/枚举值/必填规则/数据格式一致性；P0 数据流三者映射 100% 一致，枚举值不一致必须在设计阶段统一
-- **Step 3 业务状态机覆盖检查**：为 P0/P1 核心业务实体定义完整状态列表，覆盖正常转换、异常转换、超时处理、并发冲突；P0 实体正常转换 100% 覆盖、异常分支 >= 80%
-- **Step 4 安全与权限设计检查**：检查鉴权方式、权限粒度(RBAC/ABAC)、数据权限、敏感字段、输入校验(SQL注入/XSS/CSRF)、审计日志、加密策略共 7 个维度；安全检查不通过不得进入编码阶段
-- **Step 5 后端设计-测试预映射+覆盖报告**：从 API/数据模型/状态机/安全检查中提取测试关注点，按功能/性能/安全/异常/并发分类；汇总覆盖报告包含检查概览、问题清单、修复计划、风险评估、设计评审准入结论
-- **设计评审准入**：P0 API 所有检查项 100% 覆盖、P0 数据流三者映射 100% 一致、P0 状态机正常转换 100% 覆盖且异常分支 >= 80%、安全强制检查项 100% 通过、后端设计-测试预映射表已签字
-
-## L3 API 契约管理速查
-
-以下规则内联自 api-contract-management 技能：
-- **定位**：解决前后端技术栈异构时接口契约在开发过程中漂移和不一致的问题，贯穿 Step 2 到 Step 5
-- **Step 2 设计阶段**：API 契约文件（openapi.json/yaml）作为前后端唯一事实源；统一响应格式 `{code, data, message, timestamp}`；统一错误格式 `{code, message, details}`；统一错误码体系（PARAM_ERROR/AUTH_EXPIRED/FORBIDDEN/NOT_FOUND/RATE_LIMIT/SERVER_ERROR）；命名约定 kebab-case URL + camelCase 查询参数；API 路径包含版本号 `/api/v1/`；分页标准 `{items, total, page, pageSize}`
-- **Step 2 契约对齐检查**：在 prototype-coverage 和 backend-coverage 各自通过后执行交叉对齐（前端页面清单↔后端API设计、前端数据需求↔API响应字段、API响应字段↔前端实际使用、枚举/状态映射一致性）；P0 页面所需 API 100% 对齐
-- **Step 3 编码阶段**：FastAPI 后端使用 `response_model` 让 OpenAPI 自动记录响应格式；Orval 从 OpenAPI 自动生成前端类型化客户端 + Zod Schema + MSW Mock；前端 API 调用使用生成的客户端函数，禁止手写 fetch/axios
-- **Step 4 测试阶段**：MSW Mock 联调使前端可脱离后端独立开发；schemathesis 后端契约测试验证 API 响应符合 OpenAPI 规范；前后端字段一致性校验纳入 code-static-quality-check
-- **Step 5 部署阶段**：CI 流水线包含 API 契约变更检测（`git diff --exit-code src/api/generated/`）；各环境 `.env` 配置分离无硬编码；Nginx/网关反向代理配置就绪
-- **主方案技术栈**：Python (FastAPI) + TypeScript (Vue/React)，通过 FastAPI Pydantic -> OpenAPI -> Orval -> TS Client + Zod + MSW 链路实现端到端类型安全
+When called within Step 5: treat `operations-stage-execution` as controller, use only for specialty area, record deployment/verification evidence in ops doc, do not replace Step 5 release verification or ops audit. P0/P1 deployment issue → stop or rollback, update records, rerun verification.
 
 ## L3 可观测性设计速查
 
@@ -223,6 +347,7 @@ When this skill is used during the formal deployment and operations stage, coord
 - 关键指标(14种)：http_requests_total/http_request_duration_seconds/db_query_duration_seconds/cache_hit_total 等
 - 链路追踪：OTLP协议/W3C TraceContext传播/生产默认采样10%/错误追踪100%
 - 必备Dashboard(6个)：Service Overview/Resource/Dependencies/Business/Errors/Alert History
+  ↑ 以上 4 条标准必须在 2.7 步逐一检查
 
 ## Observability Integration
 
@@ -230,9 +355,3 @@ Step 2 可观测性设计环节必须参考 `observability-standards` 技能定�
 
 observability-standards 是本项目可观测性标准的单点事实来源；`design-stage-execution` 负责将其纳入系统设计。
 - If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
-
-## 变更记录
-
-| 日期 | 变更内容 | 变更人 |
-|---|---|---|
-| 2026-07-02 | 添加变更记录章节 | jerry.yu |

@@ -351,6 +351,8 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 
 > **前后端编码规范区分**：前端编码必须遵循已通过 `prototype-coverage` 验证的原型和交互标注；后端编码必须遵循已通过 `backend-coverage` 验证的 API 契约和数据模型。任何 API 契约变更必须先更新设计文档，重新执行对齐检查后再编码。
 
+> **Figma 链接类原型编码对照方式（v2.17.0+）**：当设计移交中的原型为 Figma 链接而非本地文件时，前端编码必须：① 通过 `figma-integration` 技能获取设计上下文（组件规范、变量、切图、标注）② 按交互状态清单（空态/错误态/加载态/成功态/表单提交态）实现各状态 ③ 完成实现后执行原型回溯验证（对照 prototype-coverage 覆盖率 ≥ 95%）。本地原型直接对照 `prototype/index.html` 及页面文件实现。原型 IN/OUT 衔接完整规则见 `design-stage-execution` 的"原型设计 IN/OUT 衔接规范"章节。
+
 以下规则内联自 code-logic-review 技能：
 - 审查维度(11维)：需求覆盖/设计一致/业务流程/状态流转/API契约/可维护性/数据一致/权限安全/异常日志/可测试性/静态证据
 - 结论：通过/有条件通过/不通过/证据不足 — P0/P1必须修复

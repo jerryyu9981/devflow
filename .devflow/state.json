@@ -1,6 +1,6 @@
-﻿{
+{
     "project":  "DevFlow",
-    "devflowVersion":  "2.16.0",
+    "devflowVersion":  "2.17.0",
     "currentPhase":  "step_5_operations",
     "completedPhases":  [
                             "step_0_planning",
@@ -10,27 +10,26 @@
                             "step_4_testing"
                         ],
     "versionCheck":  {
-                         "lastCheck":  "2026-07-28",
-                         "installedDevflowVersion":  "2.11.0",
-                         "recordedDevflowVersion":  "2.14.0",
-                         "result":  "project_newer",
+                         "lastCheck":  "2026-08-18",
+                         "installedDevflowVersion":  "2.17.0",
+                         "recordedDevflowVersion":  "2.17.0",
+                         "result":  "in_sync",
                          "action":  "user_prompted"
                      },
     "currentDocuments":  {
-                             "step_0":  "doc/version/releases/v2.16.0/ (4份规划文档) + doc/version/global/ (候选需求池v8.3 + 路线图v2.16.0)",
-                             "step_1":  "doc/requirements/ (开发需求文档v2.16.0+追溯矩阵+评审记录+基线及设计移交+来源与干系人) + doc/audit/assessment/ (需求评估报告v2.16.0)",
-                             "step_2":  "doc/design/ (系统架构设计文档v2.16.0+非功能设计说明v2.16.0+设计评审记录v2.16.0+部署架构草案v2.16.0+设计基线及开发测试移交说明v2.16.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.16.0)",
-                             "step_3":  "doc/development/ (DevLogReport v2.16.0 + TD-ID矩阵 v2.16.0 + 开发自测与逻辑审查 v2.16.0 + 开发审计移交 v2.16.0) + devflow-plugin/skills/ (testing-stage-execution + audit-agent 增强)",
-                             "step_4":  "doc/test/ (测试计划v2.16.0+测试报告v2.16.0+测试用例v2.16.0+T1-T4层间追溯矩阵v2.16.0) + doc/audit/verification/ (测试回溯对比审计报告v2.16.0) + doc/test/evidence/ (测试执行证据v2.16.0)",
-                             "step_5":  "doc/release/ (Release-Note v2.16.0 + 运维审计报告v2.16.0 + 发布入场检查v2.16.0 + 发布计划v2.16.0 + 部署执行报告v2.16.0 + 上线检查报告v2.16.0 + 回滚方案v2.16.0 + 运维手册v2.16.0 + 发布复盘v2.16.0 + 问题跟踪v2.16.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.16.0) + doc/audit/review/ (6份阶段审计报告 v2.16.0)"
+                             "step_0":  "doc/version/releases/v2.17.0/ (单版本规划文档+本版本Backlog+Phase迭代计划+版本规划评审记录) + doc/version/global/ (候选需求池v8.7 + 路线图v1.1 + 范围变更总记录v1.5) + doc/audit/review/ (阶段审计报告Stage0-v2.17.0)",
+                             "step_1":  "doc/requirements/ (开发需求文档v2.17.0+追溯矩阵+评审记录+基线及设计移交+来源与干系人) + doc/audit/assessment/ (需求评估报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage1-v2.17.0)",
+                             "step_2":  "doc/design/ (系统架构设计文档v2.17.0+非功能设计说明v2.17.0+部署架构草案v2.17.0+设计评审记录v2.17.0+设计基线及开发测试移交说明v2.17.0) + doc/audit/comprehensive/ (需求架构对比审计报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage2-v2.17.0)",
+                             "step_3":  "doc/development/ (DevLogReport v2.17.0 + TD-ID追溯矩阵 v2.17.0 + 开发审计移交材料 v2.17.0) + doc/analysis/ (网络层巡检自动化演进-预研报告-v1.0) + devflow-plugin/skills/ (4 技能文档增强，副本 8/8 同步) + doc/audit/review/ (阶段审计报告Stage3-v2.17.0)",
+                             "step_4":  "doc/test/ (测试计划v2.17.0+测试报告v2.17.0+测试用例v2.17.0+测试执行证据v2.17.0) + doc/audit/verification/ (测试回溯对比审计报告v2.17.0) + doc/audit/review/ (阶段审计报告Stage4-v2.17.0)",
+                             "step_5":  "待产出：doc/release/ (Release-Note v2.17.0 + 发布计划v2.17.0 + 部署执行报告v2.17.0 + 上线检查报告v2.17.0 + 发布复盘v2.17.0) + doc/audit/review/ (阶段审计报告Stage5-v2.17.0) + doc/audit/comprehensive/ (全流程闭环审计报告v2.17.0)"
                          },
     "auditResults":  {
                          "step_0":  "passed",
                          "step_1":  "passed",
                          "step_2":  "passed",
                          "step_3":  "passed",
-                         "step_4":  "passed",
-                         "step_5":  "passed"
+                         "step_4":  "passed"
                      },
-    "step_5_closed":  true
+    "step_5_closed":  false
 }

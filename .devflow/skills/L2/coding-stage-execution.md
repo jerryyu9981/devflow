@@ -44,6 +44,8 @@ Step 3 开发阶段
 ├── 编码实现
 ├── 后端性能自测（CPU profile / 内存 profile / 接口响应时间 / 慢查询排查）
 ├── 代码静态质量检查
+│   └── 技术债务增长率检查（新增TODO/高复杂度/重复率增量阈值）
+├── 实际运行验证（L1构建 + L2启动 + L3冒烟）
 ├── 开发自测
 ├── 代码逻辑审查
 ├── 问题修复与复审
@@ -51,7 +53,7 @@ Step 3 开发阶段
 └── 开发审计移交
 ```
 
-其中，`code-static-quality-check` 必须放在“编码实现之后、开发自测之前”，`code-logic-review` 必须放在“开发自测之后、开发审计之前”，二者共同构成开发阶段内部的正式质量门禁。
+其中，`code-static-quality-check` 必须放在"编码实现之后、实际运行验证之前"，实际运行验证（L1构建+L2启动+L3冒烟）必须放在"静态质量检查之后、开发自测之前"，`code-logic-review` 必须放在"开发自测之后、开发审计之前"。静态质量检查 + 实际运行验证 + 代码逻辑审查三者共同构成开发阶段内部的三道正式质量门禁。
 
 ## 输入要求
 
@@ -77,186 +79,106 @@ Step 3 开发阶段
 
 ## 标准执行流程
 
-### 1. 确认范围
+Step 3 开发编码采用四轨并行模型。整体轨道负责公共管理，后端/前端/第三方轨道按需并行执行。
 
-确认当前编码任务的范围、优先级、完成标准和不包含内容。
-
-必须明确：
-
-- 本次实现哪些需求项
-- 哪些需求不在本次范围
-- 哪些接口、页面、服务、数据表或配置会被修改
-- 是否存在兼容性要求
-- 是否存在安全、性能、合规或可观测性要求
-
-如果范围不清，应先澄清，不要直接编码。
-
-### 2. 读取设计与现有代码
-
-编码前必须理解现有代码结构和约定。
-
-重点检查：
-
-- 目录结构和模块边界
-- 命名规则
-- API 路由模式
-- 前端组件和状态管理模式
-- 后端分层方式
-- 数据访问模式
-- 错误处理和日志方式
-- 测试框架和测试命令
-- 构建、Lint、类型检查和静态质量检查命令
-
-已有清晰约定时，应优先遵循项目现有模式，不要引入无必要的新架构。
-
-### 3. 拆解开发任务
-
-将需求和设计拆成可执行的编码任务。
-
-典型任务包括：
-
-- 前端页面或组件实现
-- 路由、菜单、权限和状态管理实现
-- 后端 API、Controller、Service、Repository 实现
-- Agent 工作流、工具调用或任务调度实现
-- 数据库迁移、索引、模型和初始化数据实现
-- 缓存、消息队列、异步任务或外部服务集成
-- 配置、环境变量、依赖和构建脚本更新
-- 单元测试、组件测试、接口自测或本地联调
-- 开发日志和移交说明更新
-
-多步骤任务应调用 `writing-plans` 生成实现计划；已有实现计划时，应调用 `executing-plans` 按计划执行。
-
-### 4. 准备开发环境
-
-编码阶段默认只使用开发环境。除非用户明确要求并符合流程，不得直接修改测试环境或生产环境。
-
-检查项：
-
-- 运行时版本
-- 包管理器和依赖
-- 环境变量
-- 本地配置
-- 数据库、缓存、消息队列连接
-- Mock 服务和外部依赖
-- 端口占用
-- 启动命令
-- 构建命令
-- 测试命令
-
-环境阻塞应先修复或记录，不应跳过。
-
-### 5. 编码实现
-
-按任务拆解逐步实现最小可验证增量。
-
-实现要求：
-
-- 保持模块职责清晰
-- 遵守需求和设计约束
-- 不混入无关重构
-- 不硬编码密钥或环境特定值
-- 不绕过鉴权、校验和错误处理
-- 不擅自改变 API 契约
-- 不做破坏性数据库变更，除非有明确批准
-- 对重要业务逻辑保留必要的日志和错误信息
-
-如果实现过程中发现需求或设计存在问题，应记录偏差并反馈，而不是在代码中隐式改变方案。
-
-### 6. 代码静态质量检查
-
-编码实现完成后、开发自测和 `code-logic-review` 之前，应调用 `code-static-quality-check` 或执行等效检查。
-
-重点检查：
-
-- 语法错误、Lint 错误和类型错误
-- 构建失败、依赖解析失败和 import/export 错误
-- 未定义变量、常量、函数、类型、枚举或死引用
-- 参数数量、参数类型、默认值和返回值结构一致性
-- API 请求参数、响应字段、错误结构和前后端字段映射一致性
-- 环境变量、配置键、Feature Flag、端口和密钥占位符一致性
-- 数据模型字段、DTO、Schema、迁移字段和枚举状态一致性
-
-检查结果必须写入 `DevLogReport` 的“静态质量检查”章节。发现 P0/P1 静态质量问题时，不得进入 `code-logic-review`。
-
-### 7. 开发自测
-
-编码阶段必须做开发自测，但开发自测不能替代正式测试阶段。
-
-根据项目实际情况执行：
-
-- 单元测试
-- 组件测试
-- 静态质量检查结果引用（如已由 `code-static-quality-check` 执行，可引用结果，不必重复执行）
-- API smoke test
-- 本地集成验证
-- 数据库迁移验证
-- 核心用户流程验证
-- 异常路径验证
-
-自测结果必须写入 `DevLogReport`。
-
-### 8. 代码逻辑审查
-
-编码实现、静态质量检查和开发自测完成后，必须调用 `code-logic-review` 进行正式代码逻辑审查。
-
-审查位置：
+### 步骤序列
 
 ```text
-编码实现 → 代码静态质量检查 → 开发自测 → code-logic-review → 修复复审 → 更新 DevLogReport → 开发审计
+整体: 3.0入场 → 3.1拆解 → 3.2追溯
+后端: 3.3a编码 → 3.4a质量 → 3.5a运行验证 → 3.6a自测 → 3.7a审查
+前端: 3.3b编码 → 3.4b质量 → 3.5b运行验证 → 3.6b自测 → 3.7b审查  [按需]
+第三方: 3.3c适配编码 → 3.4c审计 → 3.7d审查                                  [按需]
+汇合: 3.7c联调联审 → 3.8修复 → 3.9日志 → 3.10审计移交
 ```
 
-`code-logic-review` 的结论是开发审计的重要输入。若存在 P0/P1 逻辑问题、设计不一致、测试证据不足或安全阻塞风险，不得进入开发审计。
+### 各步骤详细说明
 
-### 9. 问题修复与复审
+#### 3.0 入场确认 + 范围确认（整体）
+| 独立模式 | 全流程模式 |
+|---------|-----------|
+| 设计文档至少存在 | Step 2 移交齐备 + 设计评审通过 + 需求架构对比审计通过 |
 
-对 `code-logic-review` 发现的问题进行修复。
+#### 3.1~3.2 准备（整体）
+| 步骤 | 活动 | 产出 |
+|------|------|------|
+| 3.1 代码库理解 + 任务拆解 | 分出后端子任务/前端子任务/第三方集成子任务 | 任务分解清单 |
+| 3.2 环境准备 + 创建 TD-ID | 创建 TD-ID 设计开发追溯矩阵，并检查每条需求的设计子任务是否全部落地（Subtask CheckList：比对该需求设计文档中规划的「新建/重命名/删除」文件操作与实际编码完成状态，**以及实际创建的文件名是否与设计文档中规划的命名一致**，未完成项必须有明确的推迟版本记录）；**创建版本控制记录（确认分支策略 + commit 模板 + RT-ID footer 约定）** | TD-ID 追溯矩阵（格式：TD-{版本号}-{序号}）；**Subtask CheckList（子任务状态表）**；**版本控制记录（分支策略/commit 格式/RT-ID 引用约定）** |
 
-处理规则：
+#### 3.3 并行编码
+| 步骤 | 轨道 | 活动 | 产出 |
+|------|------|------|------|
+| 3.3a 后端 TDD 编码 | ⚙️ | TDD 铁律：RED→GREEN→REFACTOR | 后端代码 |
+| 3.3b 前端 TDD 编码 | 🎨 [按需] | TDD 铁律：RED→GREEN→REFACTOR | 前端代码；**原型回溯验证（UI 实现对照 prototype-coverage 覆盖率 ≥ 95%）** |
+| 3.3c 第三方适配编码 | 🔗 [按需] | Adapter 实现、依赖注入配置、垫片/兼容层实现 | 集成适配代码 |
 
-- P0/P1 问题必须修复并复审
-- P2/P3 问题可视版本范围记录风险和后续计划
-- 涉及需求或设计变更的问题必须回退对应阶段确认
-- 涉及 API 契约变更的问题必须更新 API 设计或记录批准偏差
-- 涉及安全问题时调用 `security-best-practices`
-- 涉及 UI/UX 问题时调用 `web-design-guidelines`
-- 涉及 React/Next.js 性能问题时调用 `react-best-practices`
+#### 3.4 并行质量检查
+| 步骤 | 轨道 | 活动 | 产出 |
+|------|------|------|------|
+| 3.4a 后端静态质量检查 | ⚙️ | 复杂度/重复率/技术债扫描；**可观测性合规检查（日志格式/指标埋点/错误追踪信息完整性，参考 observability-standards）**；**编码约定审查（分层合规/错误码规范/日志级别/命名约定，参考 project-coding-conventions）**；**技术债务增长率检查（新增TODO数/高复杂度函数增量/重复率增量，超阈值告警）** | 后端质量检查记录、债务增长率检查报告 |
+| 3.4b 前端静态质量检查 | 🎨 [按需] | 复杂度/重复率/技术债扫描；**可观测性合规检查（前端埋点/性能指标/错误上报完整性）**；**编码约定审查（命名约定/组件规范/状态管理约定）**；**技术债务增长率检查** | 前端质量检查记录、债务增长率检查报告 |
+| 3.4c 第三方依赖安全审计 | 🔗 [按需] | 依赖漏洞扫描、License 合规检查、版本锁定验证 | 安全审计记录 |
+| 3.4d 安全编码检查 | ⚙️+🎨 [按需] | OWASP Top 10 逐项扫描：输入校验/鉴权越权/XSS/CORS/敏感信息泄漏 | 安全编码检查记录 | P0 阻断 |
 
-### 10. 更新 DevLogReport
+> **技术债务增长率检查**：静态质量检查必须同时计算本版本相对于上一版本的三项债务增量——新增 TODO 数（默认阈值 ≤5）、新增高复杂度函数数（默认阈值 ≤3）、代码重复率增量（默认阈值 ≤2%）。任意一项超阈值必须在 DevLogReport 中记录并说明原因；P0 级超阈值（三项全超或任意一项超 2 倍）必须在本版本内修复或申请豁免。
 
-开发阶段必须更新 `DevLogReport`。文档命名、路径、版本规则遵循 `project-document-management`。
+#### 3.5 实际运行验证（新增门禁）
+| 步骤 | 轨道 | 活动 | 产出 |
+|------|------|------|------|
+| 3.5a 后端实际运行验证 | ⚙️ | L1构建验证（构建零错误）→ L2启动验证（健康检查通过）→ L3冒烟测试（3~5个核心用例全部通过） | 构建日志、启动日志、冒烟测试报告 |
+| 3.5b 前端实际运行验证 | 🎨 [按需] | L1构建验证（build零错误）→ L2启动验证（首页可访问）→ L3冒烟测试（3个核心页面/流程） | 构建日志、运行截图/录屏、冒烟测试报告 |
+| 3.5c 脚本/文档型验证 | ⚙️/🎨 [按需] | L1语法/格式检查 → L2执行/打开验证 → L3走查验证（按文档流程模拟执行） | 检查报告、走查记录 |
 
-至少记录：
+> **三层模型定义**：
+> - **L1 构建验证**：执行构建/编译/语法检查命令，零错误且产物正常生成
+> - **L2 启动验证**：启动服务/脚本/应用，健康检查返回 200 或退出码为 0
+> - **L3 冒烟测试**：执行 3~5 个最核心的用例/流程，全部通过
+>
+> **不同产出物适配**：后端API项目（构建+启动+5个核心API）、前端项目（build+dev启动+3个核心页面）、脚本/CLI工具（语法检查+--help+3个核心命令）、数据库变更（语法检查+migration执行+结构验证）、文档型项目（格式校验+打开验证+走查验证）。
+>
+> **证据要求**：验证不能只写"通过"二字，必须包含实际输出片段——构建日志最后20行、健康检查响应、每个冒烟用例的输入输出摘要。证据新鲜度要求：提交前 24 小时内，且对应当前 commit。
 
-- 实现范围
-- 修改文件或模块
-- API 变更
-- 数据库变更
-- 配置和依赖变更
-- 自测命令和结果
-- 静态质量检查命令、结果和修复记录
-- 代码逻辑审查结论
-- 问题修复记录
-- 设计偏差
-- 已知风险
-- 测试移交说明
+#### 3.6 并行自测
+| 步骤 | 轨道 | 活动 |
+|------|------|------|
+| 3.6a 后端自测 | ⚙️ | 单元测试 + API smoke 测试 |
+| 3.6b 前端自测 | 🎨 [按需] | 组件测试 + 页面渲染测试 |
 
-### 11. 移交开发审计
+#### 3.7a~3.7d 并行代码审查
+| 步骤 | 轨道 | 活动 |
+|------|------|------|
+| 3.7a 后端代码逻辑审查 | ⚙️ | code-logic-review 技能 |
+| 3.7b 前端代码逻辑审查 | 🎨 [按需] | code-logic-review 技能 |
+| 3.7d 第三方集成专项审查 | 🔗 [按需] | 适配器接口测试、依赖升级兼容性验证 |
 
-编码阶段完成后，进入开发审计前必须准备：
+#### 3.7c 联调联审（三端汇合 — 关键衔接点）
+| 条件 | 活动 | 通过标准 |
+|------|------|---------|
+| 至少两个开发轨道激活 | 三端贯通测试；**API 契约一致性验证（路径/方法/请求/响应格式/错误码前后端完全对齐，参考 api-contract-management）** | 无 P0/P1 阻塞问题；**API 契约一致性验证记录** |
+| 单轨道激活 | 从略 | [N/A] |
 
-- 代码分支或变更集
-- `DevLogReport`
-- 静态质量检查记录
-- 代码逻辑审查记录
-- 修复复审记录
-- 开发审计移交材料
-- 测试移交说明
-- 自测结果
-- 已知问题和风险说明
-- API、数据库、配置变更说明
-- 测试阶段启动和验证说明
+#### 3.8~3.10 汇集与移交
+| 步骤 | 活动 |
+|------|------|
+| 3.8 问题修复与复审 | 按端记录缺陷，按端回退修复后重走对应质量通道；**技术债务审计（扫描新增 TODO/废弃标记/架构偏离，按 P0-P3 分类记录到 DevLogReport）** |
+| 3.9 DevLogReport 更新 | 汇总开发日志 |
+| **3.9b 变更一致性自检** | **在移交前强制执行自检：① 运行 validate-naming.ps1 确认命名合规 ② 检查文件头版本号与修订历史底部版本号一致 ③ 确认所有新创建文件的路径与命名规范匹配。自检失败 → 修正后才能进入 3.10** |
+| 3.10 开发审计移交 | 开发设计对比覆盖率 ≥ 95%（与 Step 2 审计对齐）；**调用 audit-agent --stage 3 --phase 1+2+3 验证 DT→TD 追溯链、Step 3 产出物存在性和检查点一致性，并复查 3 个编码检查点，输出阶段审计报告到 doc/audit/review/** |
 
+### 失败回退路径
+| 失败类型 | 所属轨道 | 回退到 | 恢复路径 |
+|---------|---------|--------|---------|
+| 后端静态质量发现 P0/P1 | ⚙️ | 3.3a | 修复 → 3.4a → 3.5a → 3.6a |
+| 前端静态质量发现 P0/P1 | 🎨 | 3.3b | 修复 → 3.4b → 3.5b → 3.6b |
+| 后端实际运行验证失败 | ⚙️ | 3.3a | 修复 → 3.4a → 3.5a → 3.6a |
+| 前端实际运行验证失败 | 🎨 | 3.3b | 修复 → 3.4b → 3.5b → 3.6b |
+| 后端自测失败 | ⚙️ | 3.3a | 修复 → 3.4a + 3.5a + 3.6a |
+| 前端自测失败 | 🎨 | 3.3b | 修复 → 3.4b + 3.5b + 3.6b |
+| 后端审查发现 P0/P1 | ⚙️ | 3.3a | 修复 → 3.4a → 3.5a → 3.6a → 3.7a |
+| 前端审查发现 P0/P1 | 🎨 | 3.3b | 修复 → 3.4b → 3.5b → 3.6b → 3.7b |
+| 联调联审失败 | 三端 | 3.3a/b/c 按需 | 按端修复 → 各自通道 → 重新联调 |
+| 涉及 API 契约变更 | 前后端 | 3.3a+3.3b → Step 2 | 更新 API 设计 → 对齐 → 编码 |
+| 安全编码检查发现 P0/P1 | ⚙️/🎨 | 3.3a/3.3b | 修复 → 3.4 重走 |
+| 债务增长率超 P0 阈值 | ⚙️/🎨 | 3.3a/3.3b | 还债或申请豁免 → 3.4 重跑 → 重新验证 |
 
 ## 开发规范矩阵
 
@@ -279,14 +201,15 @@ Step 3 开发阶段
 | 安全编码 | 输入校验、鉴权、授权、敏感数据、日志脱敏、注入/XSS/CSRF 风险 | 无明显阻塞安全风险，高风险已专项审查 | 安全检查记录 |
 | 性能与资源 | 查询效率、缓存、异步处理、渲染成本、资源加载和循环复杂度 | 无明显性能退化或资源风险 | 性能风险说明 |
 | 可观测性 | 日志、错误上下文、追踪信息、关键业务事件和排障线索 | 关键失败路径可定位 | 日志和错误处理说明 |
-| 开发自测 | 单元、组件、API smoke、本地联调和异常路径；静态质量检查已先完成或同步记录 | 自测命令已执行，失败项已处理或记录 | 自测命令和结果 |
+| 开发自测 | 单元、组件、API smoke、本地联调和异常路径；静态质量检查和实际运行验证已先完成或同步记录 | 自测命令已执行，失败项已处理或记录 | 自测命令和结果 |
+| 实际运行验证 | L1构建验证（构建/编译零错误）+ L2启动验证（健康检查/退出码）+ L3冒烟测试（3~5个核心用例）；不同产出物类型适配（后端/前端/脚本/数据库/文档）；证据必须包含实际输出片段 | 三层验证全部通过，输出证据完整可追溯 | 构建日志、启动验证结果、冒烟测试报告 |
 | 系统化调试 | 遵循四阶段调试流程：Phase 1 根因调查（读错误/复现/查diff）→ Phase 2 模式分析（对比工作代码）→ Phase 3 假设验证（一次只改一个变量）→ Phase 4 实施修复（先写失败测试再修bug）| 连续 3 次修复失败时，必须停下来质疑架构本身而非继续假设；每阶段有命令和结果证据 | 调试记录、根本原因分析 |
 | 代码逻辑审查 | 调用 `code-logic-review` 审查需求覆盖、设计一致性、业务逻辑、数据流和测试证据 | 无未解决 P0/P1 问题 | 代码逻辑审查记录 |
 | 修复复审 | 修复 P0/P1 问题，记录 P2/P3 风险和后续计划 | 阻塞问题闭环，复审结论明确 | 修复记录、复审记录 |
 | DevLogReport | 更新实现范围、文件模块、API、数据库、配置、依赖、自测、审查、风险和移交说明 | `DevLogReport` 可支持开发审计和测试入场 | `DevLogReport` |
 | 开发审计移交 | 准备代码分支、变更集、静态质量检查记录、代码逻辑审查记录、修复复审记录、自测结果、已知风险和测试移交说明 | 审计材料齐备，可进入开发审计 | 开发审计移交材料、测试移交说明 |
 
-## 强制规则
+## 开发阶段强制执行规则
 
 1. **不得跳过入场确认**：需求、设计、API、数据模型或验收标准缺失时，应先澄清或回退对应阶段。
 2. **不得以代码实现替代设计确认**：发现设计不合理时，应记录偏差并反馈，不得在代码中隐式改变方案。
@@ -295,12 +218,26 @@ Step 3 开发阶段
 5. **TDD 铁律：测试未先行即不写生产代码**：必须先在测试中定义预期行为（RED），再编写最小可通过的代码（GREEN），最后重构（REFACTOR）。发现先写生产代码再补测试的情况，必须删除生产代码从测试开始重新实现。自测不能仅验证代码能运行，必须验证功能语义正确。
 6. **完成前必须强制验证**：没有新鲜的验证证据不得声称实现完成。"应该能通过""我很有信心"等声明性陈述不能替代实际运行命令、查看输出、然后报告结果的过程。
 7. **必须执行静态质量检查**：编码实现完成后，应先完成语法、Lint、类型、构建、符号、参数和配置一致性检查。
-8. **必须执行 `code-logic-review`**：编码实现、静态质量检查和开发自测完成后，必须完成代码逻辑审查。
-9. **必须闭环 P0/P1 问题**：未解决 P0/P1 逻辑、设计、安全或测试证据问题，不得进入开发审计或 Step 4。
-10. **必须更新 `DevLogReport`**：开发阶段所有关键变更、命令、结果、偏差和风险必须可追溯。
-11. **必须保护环境边界**：编码阶段默认只使用开发环境，不得直接污染测试或生产环境。
-12. **必须记录破坏性变更**：API 破坏性变更、数据库破坏性变更和依赖重大变更必须有批准和回退说明。
-13. **必须准备测试移交**：开发完成时必须说明测试环境、启动命令、测试数据、Mock、已知风险和建议回归范围。
+8. **必须执行实际运行验证**：静态质量检查通过后，必须完成 L1构建 + L2启动 + L3冒烟 三层实际运行验证，且必须有实际输出片段作为证据。不得以"应该能跑""我很有信心"等主观判断替代实际运行结果。
+9. **必须执行 `code-logic-review`**：编码实现、静态质量检查、实际运行验证和开发自测完成后，必须完成代码逻辑审查。
+10. **必须闭环 P0/P1 问题**：未解决 P0/P1 逻辑、设计、安全或测试证据问题，不得进入开发审计或 Step 4。
+11. **必须更新 `DevLogReport`**：开发阶段所有关键变更、命令、结果、偏差和风险必须可追溯。
+12. **必须保护环境边界**：编码阶段默认只使用开发环境，不得直接污染测试或生产环境。
+13. **必须记录破坏性变更**：API 破坏性变更、数据库破坏性变更和依赖重大变更必须有批准和回滚说明。
+14. **必须准备测试移交**：开发完成时必须说明测试环境、启动命令、测试数据、Mock、已知风险和建议回归范围。
+15. **产出物真实性验证门禁**：所有声称已创建的产出代码/文档/配置，在阶段结束前必须通过文件系统验证实际存在。验证方法：使用 LS/Glob 列出目标目录中的文件，逐一核对产出清单。验证不通过不得进入下一阶段。验证结果须记录在 DevLogReport 或开发审计移交材料中。
+
+### 风险归集门禁
+
+当前阶段执行完成后，发现 P1+ 风险/问题时必须：
+1. 打开 `doc/version/global/DevFlow-技术债务总表.md`
+2. 检查是否已有对应债务条目
+3. 若无 → 按 15 字段标准格式新增条目
+4. 在阶段移交说明中注明已归集的风险条目（TD-XXX）
+5. 未完成归集的阶段不得移交下一阶段
+6. **将修改后的 `DevFlow-技术债务总表.md` 列入本阶段输出文档清单，确保人工可审查增量变更**
+
+---
 
 ## 完成标准
 
@@ -308,17 +245,39 @@ Step 3 开发阶段
 
 1. 当前版本范围内的 P0/P1 功能已实现。
 2. 代码可以在开发环境稳定启动。
-3. 核心业务流程已完成开发自测。
-4. 必要的语法检查、Lint、类型检查、构建检查和静态一致性检查已执行。
-5. 无未解决的 P0/P1 静态质量问题，包括未定义符号、关键参数不匹配、返回值结构漂移、import/export 错误和配置键不一致。
-6. API、UI、数据库和配置变更均已记录。
-7. 没有未处理的 P0/P1 代码逻辑审查问题。
-8. `code-logic-review` 已完成并给出明确结论。
-9. `DevLogReport` 已更新。
-10. 设计偏差和已知风险已记录。
-11. 已准备好提交开发审计。
+3. **实际运行验证通过**：L1构建验证 + L2启动验证 + L3冒烟测试全部通过，有实际输出片段作为证据。
+4. 核心业务流程已完成开发自测。
+5. 必要的语法检查、Lint、类型检查、构建检查和静态一致性检查已执行。
+6. **技术债务增长率检查通过**：新增TODO数、高复杂度函数增量、重复率增量均在阈值内，或超阈值已获得豁免批准。
+7. 无未解决的 P0/P1 静态质量问题，包括未定义符号、关键参数不匹配、返回值结构漂移、import/export 错误和配置键不一致。
+8. 开发设计对比覆盖率 ≥ 95%（与 Step 2 审计对齐）。
+9. API、UI、数据库和配置变更均已记录。
+10. 没有未处理的 P0/P1 代码逻辑审查问题。
+11. `code-logic-review` 已完成并给出明确结论。
+12. `DevLogReport` 已更新（含技术债务章节）。
+13. 设计偏差和已知风险已记录。
+14. 已准备好提交开发审计。
+15. **产出物存在性验证**：阶段完成前必须通过 LS/Glob 列出目标目录，确认所有产出文件（代码、文档、配置等）实际存在，空输出（声称完成但文件不存在）不得通过。
 
 ## 编码技能速查
+
+## 输出要求
+
+编码阶段完成后，至少应具备：
+
+**强制产出（清单核对基准）**：
+
+| 序号 | 类型 | 文件 |
+|:----:|:----|:-----|
+| 1 | 强制 MD | `doc/development/DevFlow-*DevLogReport*-v{版本号}.md` |
+| 2 | 强制 MD | `doc/development/DevFlow-*TD-ID追溯矩阵*-v{版本号}.md` |
+| 3 | 强制 MD | `doc/development/DevFlow-*开发审计移交材料*-v{版本号}.md` |
+| 4 | 强制 代码 | `devflow-plugin/` + 涉及文件代码变更（以 TD-ID 矩阵中"涉及文件"列为准）|
+| 5 | 强制 配置 | `.devflow/*` 配置文件更新 |
+| 6 | 强制 脚本 | `devflow-plugin/*.ps1` 脚本文件 |
+| 7 | 强制 | `doc/audit/review/DevFlow-阶段审计报告-Stage{N}-v{版本号}.md` |
+
+（详细开发规范矩阵的强制产出项以技能速查表后的开发规范矩阵为准）
 
 流程/门禁→workflow | 文档→doc-management | 规划→writing-plans/executing-plans/tdd | 静态检查→code-static-quality-check | 逻辑审查→code-logic-review | 版本/提交→code-version-backup-management/git-commit | 命名→universal-naming-conventions | API→api-design | React→react-skills/react-best-practices | 前端→frontend-design | Vue→vue-skills | Node→nodejs-backend | Python→python-backend | Agent→llm-integration/agent-framework-* | 数据库→sql-database/mongodb | Redis→redis/redis-development | 消息→rabbitmq/kafka | 安全→security-best-practices | UI/UX可访问→web-design-guidelines/accessibility | 性能→frontend-performance/browser-devtools | Web验证→webapp-testing | Docker→docker
 | 多步骤开发任务规划 | `writing-plans` |
@@ -339,7 +298,7 @@ Step 3 开发阶段
 | MongoDB | `mongodb` |
 | Redis | `redis`、`redis-development` |
 | RabbitMQ / Kafka | `rabbitmq`、`kafka` |
-| 安全编码或安全审查 | `security-best-practices` |
+| 安全编码或安全审查 | `security-best-practices`、`secure-coding-practices` |
 | UI/UX 或可访问性审查 | `web-design-guidelines`、`accessibility` |
 | 前端性能 | `frontend-performance`、`browser-devtools` |
 | Web 应用本地验证 | `webapp-testing`、`browser-devtools` |
@@ -388,23 +347,23 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 - 检查项(12类)：语法/Lint/类型/构建/符号一致/参数/返回值/import-export/API字段/环境配置/数据字段/状态枚举
 - 严重级别：P0(构建失败/密钥泄露)必须修复 P1(API不匹配)必须修复 P2记录 P3可优化
 
+> **API 契约一致性**：如果项目使用前后端异构技术栈（如 Python + TypeScript），编码阶段应参考 `api-contract-management` 技能，使用 Orval 等工具从 OpenAPI 契约自动生成前端类型化客户端和 Zod 校验 Schema，消除手写接口层的同步成本。该技能的 Step 3 编码指南提供了 FastAPI + Orval + React/Vue 的完整实现示例。
+
+> **前后端编码规范区分**：前端编码必须遵循已通过 `prototype-coverage` 验证的原型和交互标注；后端编码必须遵循已通过 `backend-coverage` 验证的 API 契约和数据模型。任何 API 契约变更必须先更新设计文档，重新执行对齐检查后再编码。
+
+> **Figma 链接类原型编码对照方式（v2.17.0+）**：当设计移交中的原型为 Figma 链接而非本地文件时，前端编码必须：① 通过 `figma-integration` 技能获取设计上下文（组件规范、变量、切图、标注）② 按交互状态清单（空态/错误态/加载态/成功态/表单提交态）实现各状态 ③ 完成实现后执行原型回溯验证（对照 prototype-coverage 覆盖率 ≥ 95%）。本地原型直接对照 `prototype/index.html` 及页面文件实现。原型 IN/OUT 衔接完整规则见 `design-stage-execution` 的"原型设计 IN/OUT 衔接规范"章节。
+
 以下规则内联自 code-logic-review 技能：
-- 审查维度(11维)：需求覆盖/设计一致/业务流程/状态流转/API契约/数据一致/权限安全/异常日志/可测试性/静态证据/可维护性
+- 审查维度(11维)：需求覆盖/设计一致/业务流程/状态流转/API契约/可维护性/数据一致/权限安全/异常日志/可测试性/静态证据
 - 结论：通过/有条件通过/不通过/证据不足 — P0/P1必须修复
 
 以下规则内联自 code-version-backup-management 技能：
 - 提交约定：type(scope): subject，footer 引用 RT-ID
 - 提交类型：feat/fix/docs/style/refactor/test/chore
 - TDD 合规：feat 和 fix 提交必须包含对应的测试文件变更；测试代码先于生产代码提交
-- 分支策略：git-flow（推荐）/ github-flow / trunk-based（由 .devflow/config.json 配置）
+- 分支策略：git-flow（推荐）/ github-flow / trunk-based（由 .devflow/project-config.json 配置）
 - Git Flow 分支：main(生产) ← release(发布准备) ← develop(日常集成) ← feature(功能)
 - 版本号：语义化 MAJOR.MINOR.PATCH（破坏性变更/新功能/Bug修复）
-
-以下规则内联自 secure-coding-practices 技能：
-- 通用准则(8类)：输入验证/输出编码/认证安全/授权检查/密码学使用/错误处理/日志安全/文件操作
-- OWASP Top 10 映射：A01越权/A02加密失败/A03注入/A04不安全设计/A05配置错误/A06过期组件/A07认证失败/A08完整性失败/A09日志缺失/A10-SSRF
-- 强制规则：用户输入必须验证编码/密码必须bcrypt或argon2/禁止eval和exec/禁止硬编码密钥/必须参数化查询
-- 语言特定：JS/TS(XSS+CSP)/Python(注入+序列化)/Go(并发安全+数据竞争)
 
 ## 技术债务跟踪
 
@@ -413,6 +372,9 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 3. **偿还规则**：引入新债务时必须评估是否在本版本内偿还；跨版本挂起的债务必须记录到版本规划阶段的技术债务清单。
 4. **自测债务检查**：开发自测时必须检查是否有新增的 TODO 或废弃标记，记录到 DevLogReport 的已知问题章节。
 5. **编码阶段三技能关系补充**：`code-static-quality-check` 将 TODO 标记、废弃代码等列为 P2/P3 级问题；`code-logic-review` 将可维护性（含技术债）作为独立审查维度。
+6. **债务增长率门禁**：静态质量检查必须计算本版本相对于上一版本的三项债务增量——新增 TODO 数（默认阈值 ≤5）、新增高复杂度函数数（默认阈值 ≤3）、代码重复率增量（默认阈值 ≤2%）。P0 级超阈值（三项全超或任意一项超 2 倍）必须在本版本内修复或申请豁免。
+7. **全局债务总表联动**：新增或偿还的债务必须同步更新到 `doc/version/global/DevFlow-技术债务总表.md`，保持全局台账与版本记录一致。
+8. **还债容量检查**：每个版本应安排至少 15~20% 的工作量用于偿还技术债务，低于 15% 需在版本规划评审中说明理由。
 
 ## 反模式
 
@@ -441,42 +403,43 @@ When this skill is used during the formal coding stage, coordinate with `coding-
 - 剩余风险
 - 是否可以进入开发审计或测试阶段
 - 相关输出文件位置
+- **产出物存在性验证结果**：本阶段所有产出代码/文档/配置必须经过存在性验证，验证结果作为阶段移交的必备材料之一。验证方法：使用 LS/Glob 列出目标目录，逐一核对产出清单中的文件是否实际存在。验证结果须记录在 DevLogReport 或开发审计移交材料中。
+
+文档内容结构和章节模板参考 `project-document-templates` 技能。
+
+**问题跟踪记录 — 风险归集检查章节（必填）**：
+
+在问题跟踪记录的「变更请求」章节之后，必须包含以下章节：
+
+``````markdown
+## 4. 风险归集检查
+
+> 本章节为必填项，用于确认本版本所有 P1+ 风险/问题已归集到技术债务总表。
+
+| 检查项 | 结果 | 说明 |
+|:-------|:----:|:-----|
+| 本阶段 P1+ 风险是否已归集 | ✅/❌ | 列出已归集的风险 ID（TD-XXX） |
+| 未归集风险 ID 及原因 | 无 / {ID}: {原因} | 未归集时必须说明原因及后续处理计划 |
+| 归集日期 | {日期} | 最近一次归集操作的日期 |
+| 技术债务总表版本 | {版本号} | 归集时总表的最新版本 |
+``````
+
+未填写此章节的版本不得标记为"已发布"。
+
+---
 
 ## Testing Stage Integration
 
-When this skill is used during the formal testing phase, coordinate with `testing-stage-execution`.
+When called within Step 4: treat `testing-stage-execution` as controller, record pass/fail/skip counts & defects in test report, do not replace Step 4 testing matrix. P0/P1 found → route back to Step 3 for repair, update DevLogReport, retest.
 
-- Treat `testing-stage-execution` as the Step 4 testing-stage controller.
-- Record actual commands, environment, evidence, pass/fail/skip counts, defects, and remaining risks in the appropriate test report.
-- Do not let a successful partial or diagnostic check replace the complete Step 4 testing matrix.
-- If a P0/P1 issue is found, route it back to Step 3 for repair, update `DevLogReport` and development audit evidence if needed, then retest through `testing-stage-execution`.
 ## Design Stage Integration
 
-When this skill is used during the formal design stage, coordinate with design-stage-execution.
+When called within Step 2: treat `design-stage-execution` as controller, use only for specialty area, record decisions in design doc, do not replace Step 2 design review/audit. P0/P1 gap → fix within Step 2, update traceability, rerun review.
 
-- Treat design-stage-execution as the Step 2 design-stage controller.
-- Use this skill only for its specialty area; do not use it to declare the whole design stage complete.
-- Record design decisions, assumptions, alternatives, risks, open questions, and downstream impacts in the relevant design document.
-- Do not let a successful specialty design review replace the Step 2 design review or requirements-architecture audit.
-- If a P0/P1 design gap is found, fix it within Step 2, update the relevant design document and traceability matrix, then rerun the relevant design review before development handoff.
 ## Operations Stage Integration
+
+When called within Step 5: treat `operations-stage-execution` as controller, record deployment/verification evidence in ops doc, do not replace Step 5 release verification or ops audit. P0/P1 issue → stop or rollback, update records, rerun verification.
 
 ## Coding Conventions Integration
 
-编码实现时必须遵循 `project-coding-conventions` 技能中定义的编码约定，包括：后端分层架构约束、错误处理规范、日志规范、API设计约定、注释规则、数据库操作规则、前端编码规则、并发安全规则、配置管理规则和命名模板。
-
-
-When this skill is used during the formal deployment and operations stage, coordinate with operations-stage-execution.
-
-- Treat operations-stage-execution as the Step 5 deployment-and-operations controller.
-- Use this skill only for its specialty area; do not use it to declare the whole operations stage complete.
-- Record commands, environment, release version, verification evidence, risks, rollback steps, and follow-up actions in the relevant operations document.
-- Do not let a successful specialty deployment or check replace Step 5 release verification or operations audit.
-- If a P0/P1 deployment or production issue is found, stop rollout or trigger rollback, update release records, and rerun the required verification.
-
-## 变更记录
-
-| 日期 | 变更内容 | 变更人 |
-|---|---|---|
-| 2026-07-02 | 添加变更记录章节 | jerry.yu |
-| 2026-07-02 | VR-007: L3 速查表新增 secure-coding-practices 安全编码规范内联 | jerry.yu |
+编码实现时必须遵循 `project-coding-conventions` 技能中定义的编码约定。
