@@ -62,7 +62,8 @@ echo "[$TIMESTAMP] [PRE-PUSH] HEAD SHA: $HEAD_SHA" >> "$LOG_FILE"
     echo "[$MIRROR_TS] [BACKUP-START] Mirroring to backup remote..." >> "$LOG_FILE"
 
     # --- Mirror to backup remote ---
-    MIRROR_OUTPUT=$(git push --mirror backup 2>&1)
+    # --no-verify: 防止 mirror push 递归触发 pre-push hook（F-217-501，v2.18.0 修复）
+    MIRROR_OUTPUT=$(git push --no-verify --mirror backup 2>&1)
     MIRROR_EXIT=$?
 
     if [ $MIRROR_EXIT -eq 0 ]; then
@@ -87,7 +88,7 @@ echo "[$TIMESTAMP] [PRE-PUSH] HEAD SHA: $HEAD_SHA" >> "$LOG_FILE"
         GH_TS=$(date '+%Y-%m-%d %H:%M:%S')
         echo "[$GH_TS] [GITHUB-START] Mirroring to github remote..." >> "$LOG_FILE"
 
-        GH_OUTPUT=$(git push --mirror github 2>&1)
+        GH_OUTPUT=$(git push --no-verify --mirror github 2>&1)  # --no-verify: 防止递归触发 pre-push hook（F-217-501，v2.18.0 修复）
         GH_EXIT=$?
 
         if [ $GH_EXIT -eq 0 ]; then

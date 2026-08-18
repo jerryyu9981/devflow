@@ -957,6 +957,65 @@ E2E 用例的断言依据必须引用设计阶段原型定义的页面状态（�
 
 > **强制规则**：E2E 用例涉及以上状态时，必须对照原型定义的状态展示断言，不得仅断言"页面可达"。原型状态清单缺失时，测试人员应在测试计划中记录缺口并反馈设计阶段补充。
 
+#### T3a 网络层巡检 E2E 用例模板（v2.18.0+）
+
+T3a 全页面巡检从"脚本扫描+逐页问题表"模式升级为正式 E2E 用例（v2.17.0 预研结论落地，SPEC-291 完全闭环）。**全栈项目 Step 4 测试环境就绪后必须引用本模板执行一次 T3a 巡检**（缺陷修复后回归执行），纯后端项目将 ROUTES 替换为服务间调用链路清单执行 T3a 服务间集成巡检。
+
+```python
+# T3a-001 全页面网络层巡检（Playwright 标准实现）
+import pytest
+from playwright.sync_api import Page
+
+ROUTES = [...]  # 从前端路由配置/sitemap 提取全部路由（含动态参数示例值）
+
+@pytest.mark.e2e
+def test_t3a_network_scan(page: Page):
+    """T3a 全页面网络层巡检：自动导航全部路由，逐页采集网络层信号"""
+    attach_network_listeners(page)  # v2.16.0 标准动作：订阅 HTTP≥500/requestfailed/console
+    page_issues = []  # 逐页问题表数据
+    for route in ROUTES:
+        before = len(network_errors["http5xx"]) + len(network_errors["request_failed"])
+        page.goto(route)
+        page.wait_for_load_state("networkidle")
+        # 逐页采集：状态码分布/网络失败/console 分类/空渲染/静默失败
+        page_issues.append({"route": route, "status_codes": {...}, "errors": [...], "console": [...]})
+    assert_network_clean()  # v2.16.0 L4 网络层断言（自动排除 H 类环境提示/I 类弃用警告）
+    # 输出逐页问题表（JSON 序列化供测试报告追溯）
+```
+
+> **接入要求**：本模板复用 v2.16.0 `attach_network_listeners` + `assert_network_clean` 标准动作与 H/I 类过滤；输出物标准（逐页问题表字段）与"巡检输出物标准"章节一致。其他 E2E 框架按等价事件映射。
+
+#### CI 回归集成示例（v2.18.0+）
+
+T3a 网络层巡检用例纳入 CI 回归流水线（配置示例按实际 CI 平台适配）：
+
+```yaml
+# GitHub Actions 示例（.github/workflows/e2e-network-scan.yml）
+name: e2e-network-scan
+on:
+  push:
+    branches: [main, develop]
+jobs:
+  network-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+      - run: npm ci && npx playwright install --with-deps
+      - run: pytest tests/e2e/test_t3a_network_scan.py -m e2e
+```
+
+> **GitLab CI 等价说明**：以 `.gitlab-ci.yml` 定义等价 job（stages: test → script: `pytest tests/e2e -m e2e`）；CI 平台差异仅影响 runner 配置与依赖安装命令，用例本体跨平台一致。**本地/无 CI 项目**：Step 4 门禁执行 pytest 命令即可，不强制 CI 集成。
+
+#### 巡检结果自动报告方案（v2.18.0+）
+
+```text
+pytest --html=report.html --self-contained-html tests/e2e/   # 自动生成 HTML 测试报告
+# 逐页问题表数据由用例内 page_issues 序列化输出为 JSON（供测试回溯审计引用）
+```
+
+> 替代手工整理逐页问题表：报告自动包含用例通过/失败、网络层断言结果与逐页问题表 JSON 附件；测试报告模板"网络层巡检结果"章节直接引用该输出。
+
 ```python
 # 标准动作：E2E 用例强制订阅网络层事件（Playwright 标准实现）
 network_errors = {"http5xx": [], "request_failed": [], "console_errors": []}

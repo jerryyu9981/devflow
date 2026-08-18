@@ -65,7 +65,7 @@ Write-Log "[PUSH-OK] Main push succeeded."
 if (git remote | Select-String -Pattern '^backup$' -Quiet) {
     Write-Log "[BACKUP-START] Mirroring to backup remote..."
 
-    $mirrorOutput = & git push --mirror backup 2>&1
+    $mirrorOutput = & git push --no-verify --mirror backup 2>&1  # --no-verify: 防止 mirror push 递归触发 pre-push hook（F-217-501）
     $mirrorExit = $LASTEXITCODE
 
     if ($mirrorExit -eq 0) {
@@ -90,7 +90,7 @@ if (git remote | Select-String -Pattern '^backup$' -Quiet) {
 if (git remote | Select-String -Pattern '^github$' -Quiet) {
     Write-Log "[GITHUB-START] Mirroring to github remote..."
 
-    $ghOutput = & git push --mirror github 2>&1
+    $ghOutput = & git push --no-verify --mirror github 2>&1  # --no-verify: 防止 mirror push 递归触发 pre-push hook（F-217-501）
     $ghExit = $LASTEXITCODE
 
     if ($ghExit -eq 0) {
@@ -102,4 +102,26 @@ if (git remote | Select-String -Pattern '^github$' -Quiet) {
 }
 
 Write-Log "[DONE] push-with-backup finished."
+
+# --- Phase 4: Remote tag consistency check (v2.18.0+ / F-217-501) ---
+# 比较 origin/backup/github 三远程的 tag 解引用一致性，防止 mirror 漂移
+$tagToCheck = git describe --tags --abbrev=0 2>$null
+if ($tagToCheck) {
+    Write-Log "[TAG-CHECK] Checking tag consistency for: $tagToCheck"
+    $tagRefs = @{}
+    foreach ($remote in @('origin', 'backup', 'github')) {
+        if (git remote | Select-String -Pattern "^$remote$" -Quiet) {
+            $tagSha = (git ls-remote $remote "refs/tags/$tagToCheck^{}" 2>$null) -split '\s+' | Select-Object -First 1
+            if (-not $tagSha) { $tagSha = (git ls-remote $remote "refs/tags/$tagToCheck" 2>$null) -split '\s+' | Select-Object -First 1 }
+            $tagRefs[$remote] = $tagSha
+        }
+    }
+    $uniqueShas = ($tagRefs.Values | Sort-Object -Unique).Count
+    if ($uniqueShas -eq 1 -and $tagRefs.Count -ge 2) {
+        Write-Log "[TAG-CHECK] PASS - all remotes have identical tag ($($tagRefs.Values | Select-Object -First 1))"
+    } else {
+        Write-Log "[TAG-CHECK] WARN - tag mismatch across remotes: $($tagRefs | ConvertTo-Json -Compress)"
+    }
+}
+
 Write-Log "========================================"
