@@ -19708,3 +19708,41 @@ error: failed to push some refs to 'http://192.168.0.14/jerry.yu/devflow-backup.
 [2026-08-19 02:18:11] [GITHUB-ERROR] To github.com:jerryyu9981/devflow.git  ! [remote rejected] main (refusing to delete the current branch: refs/heads/main) error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
 [2026-08-19 02:18:11] [DONE] push-with-backup finished.
 [2026-08-19 02:18:11] [TAG-CHECK] Checking tag consistency for: v2.17.0
+[2026-08-19 02:36:28] ========================================
+[2026-08-19 02:36:30] [POWERSHELL] push-with-backup started. Args: origin
+[2026-08-19 02:36:34] [PRE-PUSH] HEAD SHA: d896b32baa054120070c55c9fd073c0885f68387
+[2026-08-19 02:36:38] [PUSH-FAIL] Main push failed (exit: 128). Skipping backup.
+[2026-08-19 02:36:39] ========================================
+[2026-08-19 02:37:22] ========================================
+[2026-08-19 02:37:23] [POWERSHELL] push-with-backup started. Args: origin
+[2026-08-19 02:37:25] [PRE-PUSH] HEAD SHA: d896b32baa054120070c55c9fd073c0885f68387
+========================================
+[2026-08-19 02:37:49] [PUSH-EVENT] Push detected.
+[2026-08-19 02:37:49] [PRE-PUSH] HEAD SHA: d896b32baa054120070c55c9fd073c0885f68387
+[2026-08-19 02:37:59] [BACKUP-START] Mirroring to backup remote...
+[2026-08-19 02:38:20] [BACKUP-OK] Mirror to backup succeeded.
+[2026-08-19 02:38:20] [SHA-VERIFY] WARN - local: d896b32baa054120070c55c9fd073c0885f68387, backup: d896b32baa054120070c55c9fd073c0885f68387
+0ec73d824836cb66cd2775c450595f58356fb58c
+d896b32baa054120070c55c9fd073c0885f68387
+[2026-08-19 02:38:45] [GITHUB-START] Mirroring to github remote...
+[2026-08-19 02:38:53] [GITHUB-FAIL] Mirror to github FAILED (exit: 1)
+[2026-08-19 02:38:53] [GITHUB-ERROR] To github.com:jerryyu9981/devflow.git
+   5afbfa5..d896b32  backup/master -> backup/master
+   5afbfa5..d896b32  github/master -> github/master
+   5afbfa5..d896b32  origin/HEAD -> origin/HEAD
+   5afbfa5..d896b32  origin/master -> origin/master
+ ! [remote rejected] main (refusing to delete the current branch: refs/heads/main)
+error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-19 02:38:54] [DONE] Backup process finished.
+========================================
+[2026-08-19 02:38:54] [PUSH-OK] Main push succeeded.
+[2026-08-19 02:38:56] [BACKUP-START] Mirroring to backup remote...
+[2026-08-19 02:39:22] [BACKUP-FAIL] Mirror to backup FAILED (exit: )
+[2026-08-19 02:39:22] [BACKUP-ERROR] Everything up-to-date
+[2026-08-19 02:39:26] [GITHUB-START] Mirroring to github remote...
+[2026-08-19 02:39:36] [GITHUB-FAIL] Mirror to github FAILED (exit: )
+[2026-08-19 02:39:36] [GITHUB-ERROR] To github.com:jerryyu9981/devflow.git  ! [remote rejected] main (refusing to delete the current branch: refs/heads/main) error: failed to push some refs to 'github.com:jerryyu9981/devflow.git'
+[2026-08-19 02:39:36] [DONE] push-with-backup finished.
+[2026-08-19 02:39:40] [TAG-CHECK] Checking tag consistency for: v2.18.0
+[2026-08-19 02:40:14] [TAG-CHECK] PASS - all remotes have identical tag (d896b32baa054120070c55c9fd073c0885f68387)
+[2026-08-19 02:40:14] ========================================
